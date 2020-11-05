@@ -13,6 +13,7 @@ The following files have to be cleaned:
 
 Other functionality may still be ported into JSC3L
  - Access to the history of the transaction
+ - messages with the transaction
 
 # Dependency
 could be imported as node module or directly
