@@ -1,12 +1,204 @@
 
     /* AJAX Request to the backend*/
     'use strict';
+    
+    
+  var isSuccess = function(status) {
+        return 200 <= status && status < 300;
+  }  
+    
+  var http = {};
+  http.get = function(url){
+      return new Promise(function(resolve, reject) {
+          var xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function()  {
+            if (this.readyState == 4) {
+                var json_obj = {};
+                var error = true;
+                try {
+                    json_obj=JSON.parse(this.response);
+                    error = false;
+                } catch(err) {}
+                
+                var resp_obj = {
+                    data: json_obj,
+                    status: this.status,
+                    headers: '',
+                    config: '',
+                    statusText: this.statusText
+                };    
+                    
+                if (isSuccess(this.status) && !error) {
+                    resolve(resp_obj);
+                } else {
+                    reject(resp_obj);
+                }
+            }
+          };
+          xhttp.open("GET", url, true);
+          xhttp.send();
+      
+      }); 
+  }
+ 
+  
+  
+  http.post = function(url, data, config){
+      return new Promise(function(resolve, reject) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4) {
+                var json_obj = {};
+                var error = true;
+                try {
+                    json_obj=JSON.parse(this.response);
+                    error = false;
+                } catch(err) {}
+                
+                var resp_obj = {
+                    data: json_obj,
+                    status: this.status,
+                    headers: '',
+                    config: '',
+                    statusText: this.statusText
+                };    
+                    
+                if (isSuccess(this.status) && !error) {
+                    resolve(resp_obj);
+                } else {
+                    reject(resp_obj);
+                }
+            }
+          };
+        xhttp.open('POST', url, true);
 
-    var http;
+    // set headers
+    xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+
+    // send request
+    xhttp.send(data);
+
+
+   }); 
+  }
+ 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+////////////////////////////// 
+   var isScope= function(obj) {
+                return obj && obj.$evalAsync && obj.$watch;
+            }
+          var isWindow = function(obj) {
+                return obj && obj.window === obj;
+            }
+            var toJsonReplacer = function (key, value) {
+                var val = value;
+                if (typeof key === 'string' && key.charAt(0) === '$' && key.charAt(1) === '$') {
+                    val = undefined;
+                } else if (isWindow(value)) {
+                    val = '$WINDOW';
+                } else if (value && window.document === value) {
+                    val = '$DOCUMENT';
+                } else if (isScope(value)) {
+                    val = '$SCOPE';
+                }
+                return val;
+                
+            }        
+            
+            var isNumber = function(arg) {
+            return typeof arg === 'number';
+        }
+        
+        var toJson = function(obj, pretty) {
+                if (isUndefined(obj))
+                    return undefined;
+                if (!isNumber(pretty)) {
+                    pretty = pretty ? 2 : null;
+                }
+                return JSON.stringify(obj, toJsonReplacer, pretty);
+            }
+            var isDate = function(value) {
+                return toString.call(value) === '[object Date]';
+            }
+            
+            var isObject = function(value) {
+                return value !== null && typeof value === 'object';
+            }
+var serializeValue = function(v) {
+                if (isObject(v)) {
+                    return isDate(v) ? v.toISOString() : toJson(v);
+                }
+                return v;
+}
+                
+var encodeUriQuery = function(val, pctEncodeSpaces) {
+                return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%3B/gi, ';').replace(/%20/g, pctEncodeSpaces ? '%20' : '+');
+            }
+            
+var isArray = function(arg) {
+                if (Array.isArray) {
+                    return Array.isArray(arg);
+                }
+                return objectToString(arg) === '[object Array]';
+            }
+
+var isUndefined = function(value) {
+                return typeof value === 'undefined';
+            }
+
+var forEachSorted = function(obj, iterator, context) {
+                var keys = Object.keys(obj).sort();
+                for (var i = 0; i < keys.length; i++) {
+                    iterator.call(context, obj[keys[i]], keys[i]);
+                }
+                return keys;
+            }    
+    
+
+var HttpParamSerializerProvider = function (params) {
+    if (!params)
+        return '';
+    var parts = [];
+    serialize(params, '', true);
+    return parts.join('&');
+    
+    function serialize(toSerialize, prefix, topLevel) {
+        if (toSerialize === null || isUndefined(toSerialize))
+            return;
+        if (isArray(toSerialize)) {
+            forEach(toSerialize, function(value, index) {
+                serialize(value, prefix + '[' + (isObject(value) ? index : '') + ']');
+            });
+        } else if (isObject(toSerialize) && !isDate(toSerialize)) {
+            forEachSorted(toSerialize, function(value, key) {
+                serialize(value, prefix + (topLevel ? '' : '[') + key + (topLevel ? '' : ']'));
+            });
+        } else {
+            parts.push(encodeUriQuery(prefix) + '=' + encodeUriQuery(serializeValue(toSerialize)));
+        }
+    }
+}
+
+
+
+                       
+
+
+////////////////////////////////////////////
+
     var ajaxReq = function() {}
 
-    ajaxReq.http = null;
-    ajaxReq.postSerializer = null;
+    ajaxReq.http = http;
+    ajaxReq.postSerializer = HttpParamSerializerProvider;
     ajaxReq.SERVERURL = "api.php";
     ajaxReq.ENROLLURL = "enroll.php";
     ajaxReq.TRANLIST = "trnslist.php";
@@ -63,6 +255,7 @@
                     ajaxReq.queuePost();
         }
     }
+    
     ajaxReq.post = function(data, callback) {
 	    this.pendingPosts.push({data: data,callback: callback});
 

@@ -1,0 +1,94 @@
+<html>
+   <head>
+     <script type="text/javascript" src="./test-master.js"></script>
+     
+     <script type="text/javascript">
+     
+
+var readWallet = function(callback) {  
+    var xobj = new XMLHttpRequest();
+        xobj.overrideMimeType("application/json");
+    xobj.open('GET', 'wallet.json', true); 
+    xobj.onreadystatechange = function () {
+          if (xobj.readyState == 4 && xobj.status == "200") {
+            callback(xobj.responseText);
+          }
+    };
+    xobj.send(null);  
+ 
+}
+
+
+var json_wallet = "";
+readWallet(function(json_data) {json_wallet = json_data; document.getElementById("passwrd").style.display="inline-block";});
+
+
+var local_wallet ={}; 
+var unlock = function() {
+    var password = document.getElementById("psw").value;
+    // Décryptage du wallet
+    try {
+   
+        local_wallet = Wallet.getWalletFromPrivKeyFile(json_wallet,password);
+    } catch (error) {
+      document.getElementById("Message").innerHTML=error;
+       throw error;
+    } 
+    var name_currency = JSON.parse(json_wallet).server.name; 
+    
+    
+    // Obtention de la liste des répo de end-point
+    document.getElementById("Message").innerHTML= "Récupération d'un répo...";
+    jsc3l_connection.ensureComChainRepo(function(success_repo) {
+        if (!success_repo) {
+             document.getElementById("Message").innerHTML= "Pas de répo disponible!";
+        } else {
+             // Obtention du back-end ComChain
+            document.getElementById("Message").innerHTML+= "<br/>Obtention du back-end ComChain...";
+            jsc3l_connection.acquireEndPoint(function(success_end_point){
+                if (!success_end_point) {
+                     document.getElementById("Message").innerHTML= "Pas de back-end disponible!";
+                } else {
+                    //Configure la monnaie
+                    document.getElementById("Message").innerHTML+= "<br/>Configuration de la monnaie...";
+                    jsc3l_customization.getConfJSON(name_currency,function(success_config){
+                        if (!success_config) {
+                             document.getElementById("Message").innerHTML= "Erreur dans la configuration de la monnaie!";
+                        } else {
+                            // obtention de la balance du compte
+                            document.getElementById("Message").innerHTML+= "<br/>Récupération de la balance...";
+                            jsc3l_bcRead.getGlobalBalance(local_wallet.getAddressString(), function(value){
+                              document.getElementById("passwrd").style.display="none";
+                               document.getElementById("balance").style.display="inline-block"; 
+                               document.getElementById("amount").value = value;
+                            });
+                        }
+                    });
+                }
+            });
+        } 
+    });
+    
+ 
+}
+</script>
+
+   </head>
+   <body>
+       <div id="passwrd" style="display:none;"> 
+         <label for="fname">Mot de passe:</label>
+         <input type="password" id="psw" name="psw"><br>
+         <input type="submit" value="Dévérouiller" onClick="unlock();">
+       </div>
+       
+       <div id="Message"></div>
+       
+       <div id="balance" style="display:none;"> 
+         <label for="fname">Balance du compte:</label>
+         <input type="text" id="amount" name="amount" readonly="readonly"><br>
+       </div>
+       
+   </body>
+
+
+</html>

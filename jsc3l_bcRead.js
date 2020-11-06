@@ -182,7 +182,7 @@ var getElementInList = function(contract, map_function_address, amount_function_
         ajaxReq.getEthCall(userInfo, function(data) {
             if (!data.error) {
                 getAmountForElement(contract, amount_function_address, caller_address, data.data, function(amount){
-                    var cleaned_add = '0x'+ data.data.substring(data.data.length-40);
+                    var cleaned_add = '0x'+ data.data.substring(data.data.length-40);
                     var element = {address:cleaned_add, amount:amount};
                     list.unshift(element);
                     getElementInList(contract, map_function_address, amount_function_address, caller_address, index-1, list, ind_min, final_call_back);
