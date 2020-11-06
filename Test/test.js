@@ -11,6 +11,9 @@ ethUtil.sha3 = require('sha3');
 ethUtil.EC = require('elliptic').ec;
 window.ethUtil = ethUtil;
 
+var blockies = require('../blockies');
+window.blockies = blockies;
+
 var Wallet = require('../myetherwallet');
 window.Wallet = Wallet;
 var uiFuncs = require('../uiFuncs');

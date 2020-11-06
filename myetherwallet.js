@@ -257,6 +257,9 @@ Wallet.prototype.getV3Filename = function (timestamp) {
     this.getAddress().toString('hex')
   ].join('')
 }
+
+
+
 Wallet.decipherBuffer = function(decipher, data) {
 	return Buffer.concat([decipher.update(data), decipher.final()])
 }
@@ -327,4 +330,25 @@ Wallet.getWalletFromPrivKeyFile = function(strjson, password) {
 	else
 	throw "Sorry! We don\'t recognize this type of wallet file. ";
 }
+
+/// Blockie
+
+Wallet.prototype.blockies = function () {
+    return blockies.create({
+		seed: this.getAddressString().toLowerCase(),
+		size: 8,
+		scale: 16
+	}).toDataURL();
+}
+
+Wallet.blockies = function (address) {
+    return blockies.create({
+		seed: address.toLowerCase(),
+		size: 8,
+		scale: 16
+	}).toDataURL();
+}
+
+
+
 module.exports = Wallet;

@@ -61,6 +61,8 @@ var unlock = function() {
                               document.getElementById("passwrd").style.display="none";
                                document.getElementById("balance").style.display="inline-block"; 
                                document.getElementById("amount").value = value;
+                               document.getElementById("address").value = local_wallet.getAddressString();
+                               document.getElementById("blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
                             });
                         }
                     });
@@ -76,7 +78,7 @@ var unlock = function() {
    </head>
    <body>
        <div id="passwrd" style="display:none;"> 
-         <label for="fname">Mot de passe:</label>
+         <label for="password">Mot de passe:</label>
          <input type="password" id="psw" name="psw"><br>
          <input type="submit" value="Dévérouiller" onClick="unlock();">
        </div>
@@ -84,7 +86,17 @@ var unlock = function() {
        <div id="Message"></div>
        
        <div id="balance" style="display:none;"> 
-         <label for="fname">Balance du compte:</label>
+         <label for="address">Adresse du compte:</label>
+         <input type="text" id="address" name="address" readonly="readonly"><br>
+         <label for="blockie">Cryptogramme visuel du compte:</label>
+         <div id="blockie" style="width: 60px; 
+                                  height: 60px; 
+                                  border: solid 1px black; 
+                                  margin: 3px;  
+                                  background-size: cover;
+                                  background-repeat: no-repeat;
+                                  border-radius: 20%;"></div>
+         <label for="amount">Balance du compte:</label>
          <input type="text" id="amount" name="amount" readonly="readonly"><br>
        </div>
        
