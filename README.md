@@ -12,8 +12,8 @@ The following files have to be cleaned:
  - ethFuncs
 
 Other functionality may still be ported into JSC3L
- - Access to the history of the transaction
  - messages with the transaction
+ - account creation 
 
 # Dependency
 could be imported as node module (see the example in Test directory)
