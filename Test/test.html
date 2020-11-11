@@ -63,6 +63,22 @@ var unlock = function() {
                                document.getElementById("amount").value = value;
                                document.getElementById("address").value = local_wallet.getAddressString();
                                document.getElementById("blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
+                               
+                               
+                               ajaxReq.getTransList(local_wallet.getAddressString(),10,0,function(result){
+                                    document.getElementById("transactions").style.display="inline-block"; 
+                                    if (result.length==0) {
+                                            document.getElementById("transactions").innerHTML= "Pas de transaction pour le moment!"; 
+                                    } else {
+                                       document.getElementById("transactions").innerHTML= "Derni&egrave;res transactions en date<br/>"; 
+                                    }
+                                    for (var ind = result.length-1; ind >=0 ; ind--) {
+                                      var data = JSON.parse(result[ind]);
+                                      var tr_date = new Date(data.time*1000);
+                                      document.getElementById("transactions").innerHTML+= "<div> De:"+data.addr_from+" &agrave;:"+data.addr_to+" montant:"+data.recieved/100.0+" date:"+tr_date+"</div><br/>"; 
+                                      
+                                    }
+                               });
                             });
                         }
                     });
@@ -98,6 +114,9 @@ var unlock = function() {
                                   border-radius: 20%;"></div>
          <label for="amount">Balance du compte:</label>
          <input type="text" id="amount" name="amount" readonly="readonly"><br>
+       </div><br>
+       
+       <div id="transactions" style="display:none;">      
        </div>
        
    </body>
