@@ -2,94 +2,7 @@
    <head>
      <script type="text/javascript" src="./test-master.js"></script>
      
-     <script type="text/javascript">
-     
-
-var readWallet = function(callback) {  
-    var xobj = new XMLHttpRequest();
-        xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'wallet.json', true); 
-    xobj.onreadystatechange = function () {
-          if (xobj.readyState == 4 && xobj.status == "200") {
-            callback(xobj.responseText);
-          }
-    };
-    xobj.send(null);  
- 
-}
-
-
-var json_wallet = "";
-readWallet(function(json_data) {json_wallet = json_data; document.getElementById("passwrd").style.display="inline-block";});
-
-
-var local_wallet ={}; 
-var unlock = function() {
-    var password = document.getElementById("psw").value;
-    // Décryptage du wallet
-    try {
-   
-        local_wallet = Wallet.getWalletFromPrivKeyFile(json_wallet,password);
-    } catch (error) {
-      document.getElementById("Message").innerHTML=error;
-       throw error;
-    } 
-    var name_currency = JSON.parse(json_wallet).server.name; 
     
-    
-    // Obtention de la liste des répo de end-point
-    document.getElementById("Message").innerHTML= "Récupération d'un répo...";
-    jsc3l_connection.ensureComChainRepo(function(success_repo) {
-        if (!success_repo) {
-             document.getElementById("Message").innerHTML= "Pas de répo disponible!";
-        } else {
-             // Obtention du back-end ComChain
-            document.getElementById("Message").innerHTML+= "<br/>Obtention du back-end ComChain...";
-            jsc3l_connection.acquireEndPoint(function(success_end_point){
-                if (!success_end_point) {
-                     document.getElementById("Message").innerHTML= "Pas de back-end disponible!";
-                } else {
-                    //Configure la monnaie
-                    document.getElementById("Message").innerHTML+= "<br/>Configuration de la monnaie...";
-                    jsc3l_customization.getConfJSON(name_currency,function(success_config){
-                        if (!success_config) {
-                             document.getElementById("Message").innerHTML= "Erreur dans la configuration de la monnaie!";
-                        } else {
-                            // obtention de la balance du compte
-                            document.getElementById("Message").innerHTML+= "<br/>Récupération de la balance...";
-                            jsc3l_bcRead.getGlobalBalance(local_wallet.getAddressString(), function(value){
-                              document.getElementById("passwrd").style.display="none";
-                               document.getElementById("balance").style.display="inline-block"; 
-                               document.getElementById("amount").value = value;
-                               document.getElementById("address").value = local_wallet.getAddressString();
-                               document.getElementById("blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
-                               
-                               
-                               ajaxReq.getTransList(local_wallet.getAddressString(),10,0,function(result){
-                                    document.getElementById("transactions").style.display="inline-block"; 
-                                    if (result.length==0) {
-                                            document.getElementById("transactions").innerHTML= "Pas de transaction pour le moment!"; 
-                                    } else {
-                                       document.getElementById("transactions").innerHTML= "Derni&egrave;res transactions en date<br/>"; 
-                                    }
-                                    for (var ind = result.length-1; ind >=0 ; ind--) {
-                                      var data = JSON.parse(result[ind]);
-                                      var tr_date = new Date(data.time*1000);
-                                      document.getElementById("transactions").innerHTML+= "<div> De:"+data.addr_from+" &agrave;:"+data.addr_to+" montant:"+data.recieved/100.0+" date:"+tr_date+"</div><br/>"; 
-                                      
-                                    }
-                               });
-                            });
-                        }
-                    });
-                }
-            });
-        } 
-    });
-    
- 
-}
-</script>
 
    </head>
    <body>
@@ -121,5 +34,122 @@ var unlock = function() {
        
    </body>
 
+ <script type="text/javascript">
+     
 
+var readWallet = function(callback) {  
+    var xobj = new XMLHttpRequest();
+        xobj.overrideMimeType("application/json");
+    xobj.open('GET', 'wallet.json', true); 
+    xobj.onreadystatechange = function () {
+          if (xobj.readyState == 4 && xobj.status == "200") {
+            callback(xobj.responseText);
+          }
+    };
+    xobj.send(null);  
+ 
+}
+
+
+var json_wallet = "";
+
+
+document.getElementById("Message").innerHTML= "Récupération d'un répo...";
+jsc3l_connection.ensureComChainRepo(function(success_repo) {
+    if (!success_repo) {
+         document.getElementById("Message").innerHTML= "Pas de répo disponible!";
+    } else {
+         // Obtention du back-end ComChain
+        document.getElementById("Message").innerHTML+= "<br/>Obtention du back-end ComChain...";
+        jsc3l_connection.acquireEndPoint(function(success_end_point){
+            if (!success_end_point) {
+                 document.getElementById("Message").innerHTML= "Pas de back-end disponible!";
+            } else {
+                document.getElementById("Message").innerHTML+= "<br/>Récupération du compte...";
+                readWallet(function(json_data) {
+                    json_wallet = json_data;
+                    var name_currency = JSON.parse(json_wallet).server.name;  
+                    //Configure la monnaie
+                    document.getElementById("Message").innerHTML+= "<br/>Configuration de la monnaie...";
+                    jsc3l_customization.getConfJSON(name_currency,function(success_config){
+                        if (!success_config) {
+                             document.getElementById("Message").innerHTML= "Erreur dans la configuration de la monnaie!";
+                        } else {
+                            document.getElementById("Message").innerHTML= "";
+                            document.getElementById("passwrd").style.display="inline-block";
+                        }
+                    });
+                    
+                 });
+            }
+        });
+    }
+ });      
+
+var local_wallet ={}; 
+
+var getTransactionMemo = function(transaction) {
+     var key = jsc3l_message().messageKeysFromCrypted(local_wallet, local_wallet.message_key.priv).clear_priv;
+ 
+     var memo = ""
+     if (transaction.addr_to.toLowerCase() == local_wallet.getAddressString().toLowerCase() && transaction.message_to != '') {
+        memo = jsc3l_message().decipherMessage(key, transaction.message_to);
+     }
+     
+     if (transaction.addr_from.toLowerCase() == local_wallet.getAddressString().toLowerCase() && transaction.message_from != '') {
+        memo = jsc3l_message().decipherMessage(key, transaction.message_from);
+     }
+     
+     return memo;
+}
+
+var unlock = function() {
+    var password = document.getElementById("psw").value;
+    // Décryptage du wallet
+    try {
+   
+        local_wallet = Wallet.getWalletFromPrivKeyFile(json_wallet,password);
+    } catch (error) {
+      document.getElementById("Message").innerHTML=error;
+       throw error;
+    } 
+    
+    // vérification que la clef de message est présente
+    document.getElementById("Message").innerHTML+= "<br/>Récupération de la clef de message...";
+    jsc3l_message().ensureWalletMessageKey(local_wallet, '', function(wallet){
+        local_wallet = wallet;
+        // obtention de la balance du compte
+        document.getElementById("Message").innerHTML+= "<br/>Récupération de la balance...";
+        jsc3l_bcRead.getGlobalBalance(local_wallet.getAddressString(), function(value){
+          document.getElementById("passwrd").style.display="none";
+           document.getElementById("balance").style.display="inline-block"; 
+           document.getElementById("amount").value = value;
+           document.getElementById("address").value = local_wallet.getAddressString();
+           document.getElementById("blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
+           
+           // récupération des transactions
+           ajaxReq.getTransList(local_wallet.getAddressString(),10,0,function(result){
+                document.getElementById("Message").innerHTML="";
+                document.getElementById("transactions").style.display="inline-block"; 
+                if (result.length==0) {
+                        document.getElementById("transactions").innerHTML= "Pas de transaction pour le moment!"; 
+                } else {
+                   document.getElementById("transactions").innerHTML= "Derni&egrave;res transactions en date<br/>"; 
+                }
+                for (var ind = result.length-1; ind >=0 ; ind--) {
+                  var data = JSON.parse(result[ind]);
+                  var tr_date = new Date(data.time*1000);
+                  document.getElementById("transactions").innerHTML+= "<div> De:"+data.addr_from+" &agrave;:"+data.addr_to+" montant:"+data.recieved/100.0+" date:"+tr_date+" memo:"+getTransactionMemo(data)+"</div><br/>"; 
+                  
+                }
+           });
+        });
+    });
+    
+    
+                       
+    
+ 
+}
+</script>
 </html>
