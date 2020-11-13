@@ -1,6 +1,8 @@
 # JSC3L
 JavaScript Com-Chain Communication Library
 
+
+
 # Work in progress
 This lib was extracted from Biletujo project.
 
@@ -16,9 +18,9 @@ Other functionality may still be ported into JSC3L
  - account creation 
 
 # Dependency
-could be imported as node module (see the example in Test directory)
+see the example in Test directory
 
- - BigNumber (https://github.com/MikeMcl/bignumber.js/)
- - Etherumjs-utils (https://github.com/ethereumjs/ethereumjs-util)
+ - BigNumber:  npm install bignumber.js@2.4.0
+ - Etherumjs-tx:  npm install ethereumjs-tx@1.1.2
  
  

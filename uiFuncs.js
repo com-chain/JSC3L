@@ -59,7 +59,7 @@ uiFuncs.generateTxDelta = function(txData, callback) {
 				value: ethFuncs.sanitizeHex(ethFuncs.decimalToHex(etherUnits.toWei(txData.value, txData.unit))),
 				data: ethFuncs.sanitizeHex(txData.data)
 			}
-			var eTx = new ethUtil.Tx(rawTx);
+			var eTx = new ethUtil.Tx.constructor(rawTx);
             
             
 			eTx.sign(new Buffer(txData.key, 'hex'));

@@ -13,7 +13,7 @@
     "gulp-browserify": "^0.5.1"
   },
   "dependencies": {
-    "bignumber": "^1.1.0",
+    "bignumber.js": "2.4.0",
     "ethereumjs-util": "^7.0.7",
     "gulp": "^4.0.2",
     "gulp-shell": "^0.8.0",

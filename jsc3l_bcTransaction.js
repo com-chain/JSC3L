@@ -1,7 +1,7 @@
 'use strict';
 ////
 // Pre-requisit:
-// BigNumber
+// BigNumber (npm install bignumber.js@2.4.0)
 // 
 // uiFuncs (generateTx & sendTx)
 ////

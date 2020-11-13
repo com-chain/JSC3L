@@ -16,21 +16,42 @@
        
        
        <div id="balance" style="display:none;"> 
-         <label for="address">Adresse du compte:</label>
-         <input type="text" id="address" name="address" readonly="readonly"><br>
-         <label for="blockie">Cryptogramme visuel du compte:</label>
-         <div id="blockie" style="width: 60px; 
+         Compte:<br/>
+         <div style="width: 60px;display:inline-block;vertical-align: top;">
+            <div id="blockie" style="width: 60px; 
                                   height: 60px; 
                                   border: solid 1px black; 
                                   margin: 3px;  
                                   background-size: cover;
                                   background-repeat: no-repeat;
                                   border-radius: 20%;"></div>
-         <label for="amount">Balance du compte:</label>
+         </div>
+         <input type="text" id="address" name="address" readonly="readonly" style="vertical-align: bottom;margin: 0px 0px 25px 10px;"/><br/>
+        <br/>
+        
+         <label for="amount">Balance:</label>
          <input type="text" id="amount" name="amount" readonly="readonly"><br>
-       </div><br>
+       </div><br/><br/>
        
-       <div id="transactions" style="display:none;">      
+       <div id="transactions" style="display:none;">  
+       </div><br/>
+       <div id="payement" style="display:none;"> 
+           Payement de 0.01 pour:<br/>
+           <div id="blockieTo" style="width: 40px; 
+                                  height: 40px; 
+                                  border: solid 1px black; 
+                                  margin: 3px;  
+                                  background-size: cover;
+                                  background-repeat: no-repeat;
+                                  border-radius: 20%;
+                                   display: inline-block;"></div>  
+           <input type="text" id="addressTo" name="addressTo" readonly="readonly" style="vertical-align: bottom;margin: 0px 0px 15px 10px;"/><br/> 
+           <label for="memo">Memo:</label><br/> 
+           <input type="text" id="memo" name="memo"/>
+           <input type="hidden" id="key_message" name="key_message"/><br/> <br/> 
+           <input type="submit" id="payer" name="payer" value="Payer" onClick="pay();">
+           
+              
        </div>
     </div>
     <div style="width:48%; display:inline-block;vertical-align: top; padding:20px;color:white; background-color:black;">
@@ -142,24 +163,80 @@ var unlock = function() {
                 if (result.length==0) {
                         document.getElementById("transactions").innerHTML= "Pas de transaction pour le moment!"; 
                 } else {
-                   document.getElementById("transactions").innerHTML= "Derni&egrave;res transactions en date<br/>"; 
+                   document.getElementById("transactions").innerHTML= "Derni&egrave;res transactions en date:<br/>"; 
                 }
                 for (var ind = result.length-1; ind >=0 ; ind--) {
                   var data = JSON.parse(result[ind]);
                   var tr_date = new Date(data.time*1000);
-                  document.getElementById("transactions").innerHTML+= "<div style=\"border:black solid 2px;\"> date:"+
+                  document.getElementById("transactions").innerHTML = "<div style=\"border:black solid 2px;padding:3px;\"> date:"+
                                 tr_date+" <br/>De:"+data.addr_from+" <br/>A&nbsp;&nbsp;:"+data.addr_to+
-                                "  <br/>montant:"+ data.recieved/100.0+" <br/> memo:"+getTransactionMemo(data)+"</div><br/>"; 
+                                "  <br/>montant:"+ data.recieved/100.0+" <br/> memo:"+getTransactionMemo(data)+"</div><br/>" + document.getElementById("transactions").innerHTML; 
                   
                 }
+                
+                // Affichage payement
+                document.getElementById("Message").innerHTML+= "<br/>Affichage du bloc payement...";
+                var address_dest = "0x77bd202703d482e9ffce1a2db571c52a6d1a5cd3"
+                document.getElementById("addressTo").value = address_dest;
+                
+                document.getElementById("blockieTo").style.backgroundImage = 'url(' + Wallet.blockies(address_dest) +')';
+                
+                document.getElementById("Message").innerHTML+= "<br/>R&eacute;cu&eacute;ration de la clef de message...";
+                jsc3l_message().getMessageKey(address_dest, false, function(remote_key) {
+                   if (remote_key.public_message_key !== undefined) {
+                    document.getElementById("key_message").value = remote_key.public_message_key;
+                   }
+                   
+                   
+                   document.getElementById("payement").style.display="inline-block"; 
+               });
+                
+                
+                
            });
         });
     });
+}
     
     
+var pay = function () {
+    document.getElementById("payer").style.display="none"; 
+    document.getElementById("Message").innerHTML+= "<br/>Pr&eacute;paration des donn&eacute;es additionelles...";
+    
+    var data={};
+    // encrypte le message
+    if (document.getElementById("memo").value.length>0) {
+      if (document.getElementById("key_message").value.length>0) {
+        data['memo_to'] = jsc3l_message().cipherMessage(document.getElementById("key_message").value, document.getElementById("memo").value);
+      }
+      
+      if (local_wallet.message_key.pub && local_wallet.message_key.pub.length>0) {
+        data['memo_from'] = jsc3l_message().cipherMessage(local_wallet.message_key.pub, document.getElementById("memo").value);
+      }
+    }
+    
+    
+    // envoie le payement
+    document.getElementById("Message").innerHTML+= "<br/>Envois de l'ordre de transaction...";
+    jsc3l_bcTransaction.TransfertNant(local_wallet, document.getElementById("addressTo").value, 0.01, data,  function(res){
+                    if (res.isError){
+				       document.getElementById("Message").innerHTML+= "<br/>"+res.error;
+                    } else {
+
+                       document.getElementById("Message").innerHTML+= "<br/>Ordre transmis...";
+                      
+                       document.getElementById("Message").innerHTML+= "<br/>Rafraichissement de la balance...";
+                        jsc3l_bcRead.getGlobalBalance(local_wallet.getAddressString(), function(value){
+                            document.getElementById("amount").value = value;
+                        });
+                    }
+                 
+		        });
+}
+
                        
     
  
-}
+
 </script>
 </html>
