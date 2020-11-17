@@ -163,14 +163,17 @@ var unlock = function() {
                 if (result.length==0) {
                         document.getElementById("transactions").innerHTML= "Pas de transaction pour le moment!"; 
                 } else {
-                   document.getElementById("transactions").innerHTML= "Derni&egrave;res transactions en date:<br/>"; 
-                }
-                for (var ind = result.length-1; ind >=0 ; ind--) {
-                  var data = JSON.parse(result[ind]);
-                  var tr_date = new Date(data.time*1000);
-                  document.getElementById("transactions").innerHTML = "<div style=\"border:black solid 2px;padding:3px;\"> date:"+
-                                tr_date+" <br/>De:"+data.addr_from+" <br/>A&nbsp;&nbsp;:"+data.addr_to+
-                                "  <br/>montant:"+ data.recieved/100.0+" <br/> memo:"+getTransactionMemo(data)+"</div><br/>" + document.getElementById("transactions").innerHTML; 
+                  
+                    for (var ind = result.length-1; ind >=0 ; ind--) {
+                      var data = JSON.parse(result[ind]);
+                      var tr_date = new Date(data.time*1000);
+                      document.getElementById("transactions").innerHTML = "<div style=\"border:black solid 2px;padding:3px;\"> date:"+
+                                    tr_date+" <br/>De:"+data.addr_from+" <br/>A&nbsp;&nbsp;:"+data.addr_to+
+                                    "  <br/>montant:"+ data.recieved/100.0+" <br/> memo:"+getTransactionMemo(data)+"</div><br/>" + document.getElementById("transactions").innerHTML; 
+                                    
+                   }
+                   
+                   document.getElementById("transactions").innerHTML= "Derni&egrave;res transactions en date:<br/>"+ document.getElementById("transactions").innerHTML; 
                   
                 }
                 
@@ -224,6 +227,7 @@ var pay = function () {
                     } else {
 
                        document.getElementById("Message").innerHTML+= "<br/>Ordre transmis...";
+                       alert("l'ordre a été transmis");
                       
                        document.getElementById("Message").innerHTML+= "<br/>Rafraichissement de la balance...";
                         jsc3l_bcRead.getGlobalBalance(local_wallet.getAddressString(), function(value){
