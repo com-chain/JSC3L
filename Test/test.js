@@ -32,9 +32,10 @@ var jsc3l_customization = require('../jsc3l_customization');
 window.jsc3l_customization = jsc3l_customization;
 var jsc3l_bcRead = require('../jsc3l_bcRead');
 window.jsc3l_bcRead = jsc3l_bcRead;
-jsc3l_message
 var jsc3l_message = require('../jsc3l_message');
 window.jsc3l_message = jsc3l_message;
+var jsc3l_wallet = require('../jsc3l_wallet');
+window.jsc3l_wallet = jsc3l_wallet;
 var jsc3l_bcTransaction = require('../jsc3l_bcTransaction');
 window.jsc3l_bcTransaction = jsc3l_bcTransaction;
 
