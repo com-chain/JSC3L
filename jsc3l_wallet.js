@@ -10,7 +10,7 @@ jsc3l_wallet.kdf = "scrypt";
 
 jsc3l_wallet.createWallet = function(callback) {
     var wallet = Wallet.generate(false); 
-    messageService.ensureWalletMessageKeyensureWalletMessageKey(wallet, '', function(complete_wall) {
+    jsc3l_message().ensureWalletMessageKey(wallet, '', function(complete_wall) {
        callback(complete_wall);                         
     }); 
 }
@@ -27,9 +27,8 @@ jsc3l_wallet.validateEnrollment = function(code_id, signature, callback) {
     ajaxReq.validateEnrollmentLetter(code_id, 
                                      jsc3l_customization.getCurencyName(), 
                                      signature,
-                                     function(data){
-                                        callback(data.result=="OK");
-                                     });
+                                     callback
+                                     );
 }
 
 

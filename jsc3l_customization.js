@@ -88,7 +88,7 @@ jsc3l_customization.getUnlockUrl = function(){
 
 jsc3l_customization.getLang = function(){
     var lang = getServerConfig('lang');  
-    if (!lang || lang=="") {
+    if (lang==undefined || lang=="") {
         lang = conf_locale.server.lang;
     }
     return lang;
@@ -96,7 +96,7 @@ jsc3l_customization.getLang = function(){
 
 jsc3l_customization.getNoteValues = function(){
     var notes = getServerConfig('notes');  
-    if (notes=="") {
+    if (notes==undefined || notes=="") {
         notes = conf_locale.server.notes;
     }
     return notes;
@@ -104,7 +104,7 @@ jsc3l_customization.getNoteValues = function(){
 
 jsc3l_customization.hasBn = function(){
     var notes = jsc3l_customization.getNoteValues();
-    return notes && notes.length>0;
+    return notes!=undefined && notes.length>0;
 }
 
 jsc3l_customization.hasBnCheck = function(){
