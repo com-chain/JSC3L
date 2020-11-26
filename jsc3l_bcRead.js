@@ -42,7 +42,7 @@ jsc3l_bcRead.getTaxAccount = function(callback) {
 // Get Historical infos infos: Global balance
 jsc3l_bcRead.getHistoricalGlobalBalance = function(walletAddress, block_nb, callback) {
     var globalBalance = "0x70a08231"; 
-    getAmmountAt(globalBalance, taxAccountAddress, block_nb, callback);
+    getAmmountAt(globalBalance, walletAddress, block_nb, callback);
 }
 
 
