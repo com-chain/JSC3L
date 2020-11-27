@@ -86,6 +86,10 @@ jsc3l_customization.getUnlockUrl = function(){
     return getServerConfig('url_unlock');  
 }
 
+jsc3l_customization.getCreationMessage = function(){
+    return getServerConfig('creat_message');  
+}
+
 jsc3l_customization.getLang = function(){
     var lang = getServerConfig('lang');  
     if (lang==undefined || lang=="") {
