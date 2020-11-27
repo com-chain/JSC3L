@@ -154,7 +154,7 @@ jsc3l_customization.hasPayRequest = function(){
 jsc3l_customization.passwordAutocomplete = function(){
     var number = 10000;
     try{
-        config =  JSON.parse(localStorage.getItem('ComChainServerConf')).server;
+        var config =  JSON.parse(localStorage.getItem('ComChainServerConf')).server;
         if (config['passwordAutocomplete'] && config['passwordAutocomplete']>0){
             number = config['passwordAutocomplete'];
         }
