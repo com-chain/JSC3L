@@ -86,12 +86,17 @@ jsc3l_customization.getUnlockUrl = function(){
     return getServerConfig('url_unlock');  
 }
 
+
 jsc3l_customization.getHowToUrl = function(){
     return getServerConfig('url_howto');  
 }
 
 jsc3l_customization.getWalletAddress = function(){
     return getServerConfig('address');  
+}
+
+jsc3l_customization.getCreationMessage = function(){
+    return getServerConfig('creat_message');  
 }
 
 jsc3l_customization.getLang = function(){
@@ -162,7 +167,7 @@ jsc3l_customization.hasPayRequest = function(){
 jsc3l_customization.passwordAutocomplete = function(){
     var number = 10000;
     try{
-        config =  JSON.parse(localStorage.getItem('ComChainServerConf')).server;
+        var config =  JSON.parse(localStorage.getItem('ComChainServerConf')).server;
         if (config['passwordAutocomplete'] && config['passwordAutocomplete']>0){
             number = config['passwordAutocomplete'];
         }

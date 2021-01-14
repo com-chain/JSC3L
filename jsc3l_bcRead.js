@@ -24,7 +24,7 @@ for (var key in balance_function) {
 var account_function = {"getAccountStatus":"0x61242bdd",
                         "getAccountType":"0xba99af70", 
                         "getIsOwner":"0x2f54bf6e",
-                        "getTaxAmount":"0x4f2eabe0",
+                        "getTaxAmount":"0x98a9cfac",
                         "getLegTaxAmount":"0x48455399",
                         "getTotalAmount":"0x18160ddd"};                      
                       
@@ -42,7 +42,7 @@ jsc3l_bcRead.getTaxAccount = function(callback) {
 // Get Historical infos infos: Global balance
 jsc3l_bcRead.getHistoricalGlobalBalance = function(walletAddress, block_nb, callback) {
     var globalBalance = "0x70a08231"; 
-    getAmmountAt(globalBalance, taxAccountAddress, block_nb, callback);
+    getAmmountAt(globalBalance, walletAddress, block_nb, callback);
 }
 
 
