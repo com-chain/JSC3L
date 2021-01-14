@@ -86,6 +86,14 @@ jsc3l_customization.getUnlockUrl = function(){
     return getServerConfig('url_unlock');  
 }
 
+jsc3l_customization.getHowToUrl = function(){
+    return getServerConfig('url_howto');  
+}
+
+jsc3l_customization.getWalletAddress = function(){
+    return getServerConfig('address');  
+}
+
 jsc3l_customization.getLang = function(){
     var lang = getServerConfig('lang');  
     if (lang==undefined || lang=="") {
