@@ -115,6 +115,29 @@ jsc3l_connection.testNode = function(api_address,callback) {
     });
 }
 
+jsc3l_connection.getCurrentBlock = function(api_address, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', api_address + '/api.php', true); 
+    xhr.responseType = 'json';
+    xhr.timeout = 5000;
+    xhr.onreadystatechange = function (oEvent) {  
+    if (xhr.readyState === 4) {  
+        if (xhr.status === 200) { 
+          try{
+              var answer = xhr.response;
+              if(typeof answer =='object'){
+                        answer = JSON.stringify(xhr.response);
+               }  
+               callback(answer);
+          } catch(e){
+          }  
+         
+        }
+      }  
+    }; 
+    xhr.send();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 var checkRepo = function(repoList, callback){
