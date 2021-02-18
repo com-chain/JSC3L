@@ -124,7 +124,7 @@ var Decrypt = function(privKey, encrypted) {
         }
         
         var data_str = JSON.stringify(data_obj);
-        var msg=ethUtil.toBuffer(data_str);
+        var msg=Buffer.from(data_str);
 	    var msgHash = ethUtil.hashPersonalMessage(msg);
 	    var signature = ethUtil.ecsign(msgHash, wallet.getPrivateKey());
         var sign = ethUtil.bufferToHex(Buffer.concat([ signature.r, signature.s, ethUtil.toBuffer(signature.v) ]))
@@ -224,7 +224,7 @@ var Decrypt = function(privKey, encrypted) {
                 }
                 
                 var data_str = JSON.stringify(data_obj);
-                var msg=ethUtil.toBuffer(data_str);
+                var msg= Buffer.from(data_str);
                 var msgHash = ethUtil.hashPersonalMessage(msg);
                 var signature = ethUtil.ecsign(msgHash, wallet.getPrivateKey());
                 var sign = ethUtil.bufferToHex(Buffer.concat([ signature.r, signature.s, ethUtil.toBuffer(signature.v) ]))
