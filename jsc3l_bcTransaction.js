@@ -305,7 +305,7 @@ var internalGenTx = function(contract, wallet, fuct_address, values, additional_
     
 }  
 
-var generateTx = function(contract, wallet, fuct_address, values, additional_post_data, callback){
+jsc3l_bcTransaction.generateTx = function(contract, wallet, fuct_address, values, additional_post_data, callback){
     internalGenTx(contract, wallet, fuct_address, values, additional_post_data, callback);
 }  
 

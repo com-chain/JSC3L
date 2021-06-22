@@ -3,24 +3,21 @@ JavaScript Com-Chain Communication Library
 
 
 
-# Work in progress
+# History
 This lib was extracted from Biletujo project.
-
-The following files have to be cleaned:
- - myetherwallet
- - uiFunc
- - etherUnits
- - ajaxReq
- - ethFuncs
-
-Other functionality may still be ported into JSC3L
- - messages with the transaction
- - account creation 
 
 # Dependency
 see the example in Test directory
 
+In particular you need the following package with fixed versions:
+
  - BigNumber:  npm install bignumber.js@2.4.0
  - Etherumjs-tx:  npm install ethereumjs-tx@1.1.2
  
- 
+# Exemple and tests
+- copy the Test directory outside of the package
+- navigate into the copied directory
+- >npm install <full_path>/JSC3L
+- >gulp
+- go to the Output folder
+- serve test.html with a webserver 
