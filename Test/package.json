@@ -9,17 +9,18 @@
   "author": "dubathf",
   "license": "ISC",
   "devDependencies": {
+    "browserify": "^17.0.0",
     "gulp": "^4.0.2",
-    "gulp-browserify": "^0.5.1"
+    "gulp-notify": "^3.2.0",
+    "gulp-rename": "github:hparra/gulp-rename#4020fb2991d0000bf46067f3002bff92b31de8b3"
   },
   "dependencies": {
+    "@com-chain.org/jsc3l": "file:..",
     "bignumber.js": "2.4.0",
-    "ethereumjs-util": "^7.0.7",
-    "gulp": "^4.0.2",
-    "gulp-shell": "^0.8.0",
-    "gulp-util": "^3.0.8",
-    "gulp-notify": "^3.2.0",
-    "gulp-cli": "^2.3.0",
-    "scryptsy": "^2.1.0"
+    "ethereumjs-tx": "^1.1.2",
+    "scryptsy": "^2.1.0",
+    "sha3": "^2.1.4",
+    "through2": "^4.0.2",
+    "uuid": "^8.3.2"
   }
 }

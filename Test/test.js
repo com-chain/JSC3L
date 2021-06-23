@@ -4,7 +4,7 @@ window.BigNumber = BigNumber;
 
 var ethUtil = require('ethereumjs-util'); 
 ethUtil.crypto = require('crypto'); 
-ethUtil.Tx = require('ethereumjs-tx');   ///npm install ethereumjs-tx@1.1.2
+ethUtil.Tx = require('ethereumjs-tx');
 ethUtil.scrypt = require('scryptsy');
 ethUtil.uuid = require('uuid');
 ethUtil.sha3 = require('sha3');
