@@ -1,5 +1,7 @@
 var jsc3l = function() {};
 
+var blockies = require('./blockies');
+jsc3l.blockies = blockies;
 var Wallet = require('./myetherwallet');
 jsc3l.Wallet = Wallet;
 var uiFuncs = require('./uiFuncs');

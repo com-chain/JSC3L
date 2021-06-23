@@ -121,11 +121,16 @@ var getTransactionMemo = function(transaction) {
  
      var memo = ""
      if (transaction.addr_to.toLowerCase() == local_wallet.getAddressString().toLowerCase() && transaction.message_to != '') {
-        memo = jsc3l_message().decipherMessage(key, transaction.message_to);
+         if (transaction.message_to) {
+            memo = jsc3l_message().decipherMessage(key, ""+transaction.message_to);
+         } 
+     
      }
      
      if (transaction.addr_from.toLowerCase() == local_wallet.getAddressString().toLowerCase() && transaction.message_from != '') {
-        memo = jsc3l_message().decipherMessage(key, transaction.message_from);
+        if (transaction.message_from) {
+            memo = jsc3l_message().decipherMessage(key, transaction.message_from);
+        }
      }
      
      return memo;

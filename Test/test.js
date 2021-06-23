@@ -13,7 +13,6 @@ window.ethUtil = ethUtil;
 
 var jsc3l = require('@com-chain.org/jsc3l');
 
-var blockies = jsc3l.blockies;
 window.blockies = jsc3l.blockies;
 window.Wallet = jsc3l.Wallet;
 window.uiFuncs = jsc3l.uiFuncs;
