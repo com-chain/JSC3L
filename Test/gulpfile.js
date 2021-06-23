@@ -50,9 +50,13 @@ gulp.task('copy-wallet', function() {
        .pipe(notify({message:'Copy wallet Complete', onLast:true}));
 });
 
+gulp.task('reload', function () {
+  browserSync.reload();
+  return Promise.resolve();
+});
 
-gulp.task('default',  gulp.series( 'browserify','copy-wallet','copy-html')); 
 
+gulp.task('default', gulp.series('browserify', 'copy-wallet', 'copy-html'));
 
 // Server
 
@@ -65,4 +69,14 @@ gulp.task('server', function() {
   });
 });
 
-gulp.task('serve',  gulp.series( 'default', 'server'));
+
+gulp.task('watch', function () {
+  gulp.watch('test.js', gulp.series('browserify', 'reload'));
+  gulp.watch('test.html', gulp.series('copy-html', 'reload'));
+  gulp.watch('wallet.json', gulp.series('copy-wallet', 'reload'));
+});
+
+
+gulp.task('serve', gulp.series('default', gulp.parallel('watch', 'server')));
+
+
