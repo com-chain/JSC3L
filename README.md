@@ -11,7 +11,6 @@ tested working on node versions 8+.
 
     cd Test
     npm install
-    npx gulp
+    npx gulp serve
 
-- go to the Output folder
-- serve test.html with a webserver 
+A browser window should pop-up with the running demo.

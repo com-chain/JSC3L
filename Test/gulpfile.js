@@ -3,7 +3,7 @@ var notify = require('gulp-notify');
 var browserify = require('browserify');
 var through2 = require('through2');
 var rename = require('gulp-rename');
-
+var browserSync = require('browser-sync').create();
 
 var output =  './output/';
 
@@ -54,3 +54,15 @@ gulp.task('copy-wallet', function() {
 gulp.task('default',  gulp.series( 'browserify','copy-wallet','copy-html')); 
 
 
+// Server
+
+gulp.task('server', function() {
+  browserSync.init({
+    server: {
+      baseDir: output,
+      index: "test.html"
+    },
+  });
+});
+
+gulp.task('serve',  gulp.series( 'default', 'server'));
