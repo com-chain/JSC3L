@@ -59,13 +59,14 @@
     </div>
     <div style="width:48%; display:inline-block;vertical-align: top; padding:20px;color:white; background-color:black;">
 
-      <div id="Message" >
+      <div id="message" >
       </div>
     </div>
+    <script type="text/javascript">
 
-  </body>
+   var $ = function (...args) { return document.getElementById(...args); };
+   var $msg = $("message");
 
-  <script type="text/javascript">
 
    var readWallet = function(callback) {
        var xobj = new XMLHttpRequest();
@@ -83,31 +84,31 @@
    var json_wallet = "";
 
 
-   document.getElementById("Message").innerHTML= "R&eacute;cup&eacute;ration d'un r&eacute;po...";
+   $msg.innerHTML= "R&eacute;cup&eacute;ration d'un repo...";
 
 
    jsc3l_connection.ensureComChainRepo(function(success_repo) {
        if (!success_repo) {
-           document.getElementById("Message").innerHTML= "Pas de r&eacute;po disponible!";
+           $msg.innerHTML= "Pas de r&eacute;po disponible!";
        } else {
            // Obtention du back-end ComChain
-           document.getElementById("Message").innerHTML+= "<br/>Obtention du back-end ComChain...";
+           $msg.innerHTML+= "<br/>Obtention du back-end ComChain...";
            jsc3l_connection.acquireEndPoint(function(success_end_point){
                if (!success_end_point) {
-                   document.getElementById("Message").innerHTML= "Pas de back-end disponible!";
+                   $msg.innerHTML= "Pas de back-end disponible!";
                } else {
-                   document.getElementById("Message").innerHTML+= "<br/>R&eacute;cup&eacute;ration du compte...";
+                   $msg.innerHTML+= "<br/>R&eacute;cup&eacute;ration du compte...";
                    readWallet(function(json_data) {
                        json_wallet = json_data;
                        var name_currency = JSON.parse(json_wallet).server.name;
                        //Configure la monnaie
-                       document.getElementById("Message").innerHTML+= "<br/>Configuration de la monnaie...";
+                       $msg.innerHTML+= "<br/>Configuration de la monnaie...";
                        jsc3l_customization.getConfJSON(name_currency,function(success_config){
                            if (!success_config) {
-                               document.getElementById("Message").innerHTML= "Erreur dans la configuration de la monnaie!";
+                               $msg.innerHTML= "Erreur dans la configuration de la monnaie!";
                            } else {
-                               document.getElementById("passwrd").style.display="inline-block";
-                               document.getElementById("Message").innerHTML+= "<br/>Attente du mot de passe du compte...";
+                               $("passwrd").style.display="inline-block";
+                               $msg.innerHTML+= "<br/>Attente du mot de passe du compte...";
                            }
                        });
 
@@ -143,76 +144,76 @@
    }
 
    var unlock = function () {
-       var password = document.getElementById("psw").value;
+       var password = $("psw").value;
        // Décryptage du wallet
        try {
 
            local_wallet = Wallet.getWalletFromPrivKeyFile(json_wallet,password);
-           document.getElementById("Message").innerHTML += "<br/>D&eacute;verrouillage du compte...";
+           $msg.innerHTML += "<br/>D&eacute;verrouillage du compte...";
        } catch (error) {
-           document.getElementById("Message").innerHTML = error;
+           $msg.innerHTML = error;
            throw error;
        }
 
        // vérification que la clef de message est présente
-       document.getElementById("Message").innerHTML += "<br/>R&eacute;cup&eacute;ration de la clef de message...";
+       $msg.innerHTML += "<br/>R&eacute;cup&eacute;ration de la clef de message...";
        jsc3l_message().ensureWalletMessageKey(local_wallet, '', function(wallet){
            local_wallet = wallet;
            // obtention de la balance du compte
-           document.getElementById("Message").innerHTML += "<br/>R&eacute;cup&eacute;ration de la balance...";
+           $msg.innerHTML += "<br/>R&eacute;cup&eacute;ration de la balance...";
            jsc3l_bcRead.getGlobalBalance(local_wallet.getAddressString(), function(value){
 
-               document.getElementById("passwrd").style.display = "none";
-               document.getElementById("balance").style.display = "inline-block";
-               document.getElementById("amount").value = value;
-               document.getElementById("address").value = local_wallet.getAddressString();
-               document.getElementById("blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
+               $("passwrd").style.display = "none";
+               $("balance").style.display = "inline-block";
+               $("amount").value = value;
+               $("address").value = local_wallet.getAddressString();
+               $("blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
 
                // récupération des transactions
 
-               document.getElementById("Message").innerHTML +=
+               $msg.innerHTML +=
                    "<br/>R&eacute;cup&eacute;ration des transactions...";
 
                ajaxReq.getTransList(local_wallet.getAddressString(), 10, 0, function (result) {
-                   document.getElementById("transactions").style.display = "inline-block";
+                   $("transactions").style.display = "inline-block";
                    if (result.length == 0) {
-                       document.getElementById("transactions").innerHTML = "Pas de transaction pour le moment!";
+                       $("transactions").innerHTML = "Pas de transaction pour le moment!";
                    } else {
                        for (var ind = result.length - 1 ; ind >= 0 ; ind--) {
                            var data = JSON.parse(result[ind]);
                            var tr_date = new Date(data.time * 1000);
-                           document.getElementById("transactions").innerHTML =
+                           $("transactions").innerHTML =
                                "<div style=\"border:black solid 2px;padding:3px;\"> date:" +
                                tr_date + " <br/>De:" + data.addr_from + " <br/>A&nbsp;&nbsp;:" +
                                data.addr_to + "  <br/>montant:" + data.recieved / 100.0 +
                                " <br/> memo:" + getTransactionMemo(data) +
                                "</div><br/>" +
-                               document.getElementById("transactions").innerHTML;
+                               $("transactions").innerHTML;
 
                        }
 
-                       document.getElementById("transactions").innerHTML =
+                       $("transactions").innerHTML =
                            "Derni&egrave;res transactions en date:<br/>" +
-                           document.getElementById("transactions").innerHTML;
+                           $("transactions").innerHTML;
 
                    }
 
                    // Affichage payement
-                   document.getElementById("Message").innerHTML+= "<br/>Affichage du bloc payement...";
+                   $msg.innerHTML+= "<br/>Affichage du bloc payement...";
                    var address_dest = "0x77bd202703d482e9ffce1a2db571c52a6d1a5cd3";
-                   document.getElementById("addressTo").value = address_dest;
+                   $("addressTo").value = address_dest;
 
-                   document.getElementById("blockieTo").style.backgroundImage =
+                   $("blockieTo").style.backgroundImage =
                        'url(' + Wallet.blockies(address_dest) + ')';
 
-                   document.getElementById("Message").innerHTML +=
+                   $msg.innerHTML +=
                        "<br/>R&eacute;cu&eacute;ration de la clef de message...";
 
                    jsc3l_message().getMessageKey(address_dest, false, function (remote_key) {
                        if (remote_key.public_message_key !== undefined) {
-                           document.getElementById("key_message").value = remote_key.public_message_key;
+                           $("key_message").value = remote_key.public_message_key;
                        }
-                       document.getElementById("payement").style.display="inline-block";
+                       $("payement").style.display="inline-block";
                    });
                });
            });
@@ -222,51 +223,51 @@
 
    var pay = function () {
 
-       document.getElementById("payer").style.display = "none";
-       document.getElementById("Message").innerHTML +=
+       $("payer").style.display = "none";
+       $msg.innerHTML +=
            "<br/>Pr&eacute;paration des donn&eacute;es additionelles...";
 
        var data = {};
        // encrypte le message
-       if (document.getElementById("memo").value.length > 0) {
+       if ($("memo").value.length > 0) {
 
-           if (document.getElementById("key_message").value.length > 0) {
+           if ($("key_message").value.length > 0) {
                data['memo_to'] = jsc3l_message().cipherMessage(
-                   document.getElementById("key_message").value,
-                   document.getElementById("memo").value);
+                   $("key_message").value,
+                   $("memo").value);
            }
 
            if (local_wallet.message_key.pub &&
                local_wallet.message_key.pub.length > 0) {
                data['memo_from'] = jsc3l_message().cipherMessage(
                    local_wallet.message_key.pub,
-                   document.getElementById("memo").value);
+                   $("memo").value);
            }
        }
 
        // envoie le payement
 
-       document.getElementById("Message").innerHTML += "<br/>Envois de l'ordre de transaction...";
+       $msg.innerHTML += "<br/>Envois de l'ordre de transaction...";
        jsc3l_bcTransaction.TransfertNant(
            local_wallet,
-           document.getElementById("addressTo").value,
+           $("addressTo").value,
            0.01,
            data,
            function(res){
-               if (res.isError){
-	               document.getElementById("Message").innerHTML += "<br/>" + res.error;
-               } else {
-
-                   document.getElementById("Message").innerHTML += "<br/>Ordre transmis...";
-                   alert("l'ordre a été transmis");
-
-                   document.getElementById("Message").innerHTML += "<br/>Rafraichissement de la balance...";
-                   jsc3l_bcRead.getGlobalBalance(local_wallet.getAddressString(), function(value){
-                       document.getElementById("amount").value = value;
-                   });
+               if (res.isError) {
+	               $msg.innerHTML += "<br/>" + res.error;
+                   return;
                }
+
+               $msg.innerHTML += "<br/>Ordre transmis...";
+               alert("l'ordre a été transmis");
+
+               $msg.innerHTML += "<br/>Rafraichissement de la balance...";
+               jsc3l_bcRead.getGlobalBalance(local_wallet.getAddressString(), function(value){
+                   $("amount").value = value;
+               });
 	   });
    }
-
-  </script>
+    </script>
+  </body>
 </html>
