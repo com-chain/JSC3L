@@ -5,13 +5,13 @@
   <body>
     <div style="width:48%; display:inline-block;vertical-align: top;" >
       <div id="passwrd" style="display:none;">
-        <label for="password">Mot de passe:</label>
+        <label for="password">Wallet password:</label>
         <input type="password" id="psw" name="psw"><br>
-        <input type="submit" value="D&eacute;v&eacute;rouiller" onClick="unlock();">
+        <input type="submit" value="Unlock wallet" onClick="unlock();">
       </div>
 
       <div id="balance" style="display:none;">
-        Compte:<br/>
+        Account:<br/>
         <div style="width: 60px;display:inline-block;vertical-align: top;">
           <div id="blockie" style="width: 60px;
                                    height: 60px;
@@ -35,7 +35,7 @@
       <div id="transactions" style="display:none;">
       </div><br/>
       <div id="payement" style="display:none;">
-        Payement de 0.01 pour:<br/>
+        Payment of 0.01 to:<br/>
         <div id="blockieTo" style="width: 40px;
                                    height: 40px;
                                    border: solid 1px black;
@@ -84,38 +84,38 @@
      var json_wallet = "";
 
 
-     $msg.innerHTML= "R&eacute;cup&eacute;ration d'un repo...";
+     $msg.innerHTML= "Retrieve repository...";
 
 
      jsc3l_connection.ensureComChainRepo(function(success_repo) {
          if (!success_repo) {
-             $msg.innerHTML = "Pas de r&eacute;po disponible!";
+             $msg.innerHTML = "No repository available!";
              return;
          }
 
          // Obtention du back-end ComChain
 
-         $msg.innerHTML += "<br/>Obtention du back-end ComChain...";
+         $msg.innerHTML += "<br/>Acquire ComChain endpoint...";
          jsc3l_connection.acquireEndPoint(function(success_end_point){
              if (!success_end_point) {
-                 $msg.innerHTML = "Pas de back-end disponible!";
+                 $msg.innerHTML = "No ComChain endpoint!";
                  return;
              }
 
-             $msg.innerHTML += "<br/>R&eacute;cup&eacute;ration du compte...";
+             $msg.innerHTML += "<br/>Retrieving account...";
              readWallet(function(json_data) {
                  json_wallet = json_data;
                  var name_currency = JSON.parse(json_wallet).server.name;
                  //Configure la monnaie
-                 $msg.innerHTML+= "<br/>Configuration de la monnaie...";
+                 $msg.innerHTML+= "<br/>Currency customization...";
                  jsc3l_customization.getConfJSON(name_currency, function(success_config) {
                      if (!success_config) {
-                         $msg.innerHTML = "Erreur dans la configuration de la monnaie!";
+                         $msg.innerHTML = "Error while currency configuration!";
                          return;
                      }
 
                      $("passwrd").style.display="inline-block";
-                     $msg.innerHTML += "<br/>Attente du mot de passe du compte...";
+                     $msg.innerHTML += "<br/>Waiting for wallet password...";
                  });
 
              });
@@ -150,18 +150,18 @@
          // Décryptage du wallet
          try {
              local_wallet = Wallet.getWalletFromPrivKeyFile(json_wallet,password);
-             $msg.innerHTML += "<br/>D&eacute;verrouillage du compte...";
+             $msg.innerHTML += "<br/>Unlocking account...";
          } catch (error) {
              $msg.innerHTML = error;
              throw error;
          }
 
          // vérification que la clef de message est présente
-         $msg.innerHTML += "<br/>R&eacute;cup&eacute;ration de la clef de message...";
+         $msg.innerHTML += "<br/>Retrieval of the message key...";
          jsc3l_message().ensureWalletMessageKey(local_wallet, '', function(wallet) {
              local_wallet = wallet;
              // obtention de la balance du compte
-             $msg.innerHTML += "<br/>R&eacute;cup&eacute;ration de la balance...";
+             $msg.innerHTML += "<br/>Retrieval of the balance...";
              jsc3l_bcRead.getGlobalBalance(local_wallet.getAddressString(), function(value) {
 
                  $("passwrd").style.display = "none";
@@ -172,12 +172,12 @@
 
                  // récupération des transactions
 
-                 $msg.innerHTML += "<br/>R&eacute;cup&eacute;ration des transactions...";
+                 $msg.innerHTML += "<br/>Retrieval of transactions...";
 
                  ajaxReq.getTransList(local_wallet.getAddressString(), 10, 0, function (result) {
                      $("transactions").style.display = "inline-block";
                      if (result.length == 0) {
-                         $("transactions").innerHTML = "Pas de transaction pour le moment!";
+                         $("transactions").innerHTML = "No transactions yet!";
                      } else {
                          for (var ind = result.length - 1 ; ind >= 0 ; ind--) {
                              var data = JSON.parse(result[ind]);
@@ -192,20 +192,20 @@
 
                          }
 
-                         $("transactions").innerHTML = "Derni&egrave;res transactions en date:<br/>" +
+                         $("transactions").innerHTML = "Last transactions:<br/>" +
                              $("transactions").innerHTML;
 
                      }
 
                      // Affichage payement
-                     $msg.innerHTML+= "<br/>Affichage du bloc payement...";
+                     $msg.innerHTML+= "<br/>Displaying payment bloc...";
                      var address_dest = "0x77bd202703d482e9ffce1a2db571c52a6d1a5cd3";
                      $("addressTo").value = address_dest;
 
                      $("blockieTo").style.backgroundImage =
                          'url(' + Wallet.blockies(address_dest) + ')';
 
-                     $msg.innerHTML += "<br/>R&eacute;cu&eacute;ration de la clef de message...";
+                     $msg.innerHTML += "<br/>Retrieval of the message key...";
 
                      jsc3l_message().getMessageKey(address_dest, false, function (remote_key) {
                          if (remote_key.public_message_key !== undefined) {
@@ -222,7 +222,7 @@
      var pay = function () {
 
          $("payer").style.display = "none";
-         $msg.innerHTML += "<br/>Pr&eacute;paration des donn&eacute;es additionelles...";
+         $msg.innerHTML += "<br/>Preparation of additional data...";
 
          var data = {};
          // encrypte le message
@@ -246,7 +246,7 @@
 
          // envoie le payement
 
-         $msg.innerHTML += "<br/>Envois de l'ordre de transaction...";
+         $msg.innerHTML += "<br/>Sending transaction order...";
          jsc3l_bcTransaction.TransfertNant(
              local_wallet,
              $("addressTo").value,
@@ -258,10 +258,10 @@
                      return;
                  }
 
-                 $msg.innerHTML += "<br/>Ordre transmis...";
-                 alert("l'ordre a été transmis");
+                 $msg.innerHTML += "<br/>Order sent...";
+                 alert("The order was sent");
 
-                 $msg.innerHTML += "<br/>Rafraichissement de la balance...";
+                 $msg.innerHTML += "<br/>Refreshing balance...";
                  jsc3l_bcRead.getGlobalBalance(local_wallet.getAddressString(), function(value){
                      $("amount").value = value;
                  });
