@@ -1,66 +1,51 @@
 <html>
   <head>
+    <title>JSC3L demo</title>
     <script type="text/javascript" src="./test-master.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-    <div style="width:48%; display:inline-block;vertical-align: top;" >
-      <div id="passwrd" style="display:none;">
+    <div class="left">
+      <div id="password">
         <label for="password">Wallet password:</label>
-        <input type="password" id="psw" name="psw"><br>
+        <input type="password" id="psw" name="psw"><br/>
         <input type="submit" value="Unlock wallet" onClick="unlock();">
       </div>
 
-      <div id="balance" style="display:none;">
+      <div id="balance">
         Account:<br/>
-        <div style="width: 60px;display:inline-block;vertical-align: top;">
-          <div id="blockie" style="width: 60px;
-                                   height: 60px;
-                                   border: solid 1px black;
-                                   margin: 3px;
-                                   background-size: cover;
-                                   background-repeat: no-repeat;
-                                   border-radius: 20%;"></div>
+        <div>
+          <div id="blockie" class="blockie"></div>
         </div>
-        <input type="text"
-               id="address"
-               name="address"
-               readonly="readonly"
-               style="vertical-align: bottom;margin: 0px 0px 25px 10px;"/><br/>
+        <input id="address" type="text" name="address" readonly="readonly" />
+        <br/>
         <br/>
 
         <label for="amount">Balance:</label>
-        <input type="text" id="amount" name="amount" readonly="readonly"><br>
-      </div><br/><br/>
+        <input type="text" id="amount" name="amount" readonly="readonly" />
+        <br/>
+      </div>
+      <br/>
+      <br/>
 
-      <div id="transactions" style="display:none;">
-      </div><br/>
-      <div id="payement" style="display:none;">
+      <div id="transactions"></div>
+      <br/>
+      <div id="payment">
         Payment of 0.01 to:<br/>
-        <div id="blockieTo" style="width: 40px;
-                                   height: 40px;
-                                   border: solid 1px black;
-                                   margin: 3px;
-                                   background-size: cover;
-                                   background-repeat: no-repeat;
-                                   border-radius: 20%;
-                                   display: inline-block;"></div>
-        <input type="text"
-               id="addressTo"
-               name="addressTo"
-               readonly="readonly"
-               style="vertical-align: bottom;margin: 0px 0px 15px 10px;"/><br/>
+        <div id="blockieTo" class="blockie"></div>
+        <input type="text" id="addressTo" name="addressTo" readonly="readonly" />
+        <br/>
         <label for="memo">Memo:</label> <br/>
         <input type="text" id="memo" name="memo"/>
-        <input type="hidden" id="key_message" name="key_message"/><br/> <br/>
+        <input type="hidden" id="key_message" name="key_message"/>
+        <br/>
+        <br/>
         <input type="submit" id="payer" name="payer" value="Payer" onClick="pay();">
-
 
       </div>
     </div>
-    <div style="width:48%; display:inline-block;vertical-align: top; padding:20px;color:white; background-color:black;">
-
-      <div id="message" >
-      </div>
+    <div class="right">
+      <div id="message"></div>
     </div>
     <script type="text/javascript">
 
@@ -91,20 +76,20 @@
          log("Retrieve repository...");
          await jsc3l.connection.ensureComChainRepo();
 
-         log("<br/>Acquire ComChain endpoint...");
+         log("Acquire ComChain endpoint...");
          await jsc3l.connection.acquireEndPoint();
 
-         log("<br/>Retrieving account...");
+         log("Retrieving account...");
 
          json_wallet = await readWallet();
 
          let name_currency = JSON.parse(json_wallet).server.name;
 
-         log("<br/>Currency customization...");
+         log("Currency customization...");
          await jsc3l.customization.getConfJSON(name_currency);
 
-         $("passwrd").style.display = "inline-block";
-         log("<br/>Waiting for wallet password...");
+         $("password").style.display = "inline-block";
+         log("Waiting for wallet password...");
 
      }
 
@@ -139,21 +124,21 @@
          // Décryptage du wallet
          try {
              local_wallet = Wallet.getWalletFromPrivKeyFile(json_wallet, password);
-             log("<br/>Unlocking account...");
+             log("Unlocking account...");
          } catch (error) {
              log(`Error: ${error.message}`);
              throw error;
          }
 
          // vérification que la clef de message est présente
-         log("<br/>Retrieval of the message key...");
+         log("Retrieval of the message key...");
          local_wallet = await jsc3l.message.ensureWalletMessageKey(local_wallet, '');
 
          // obtention de la balance du compte
-         log("<br/>Retrieval of the balance...");
+         log("Retrieval of the balance...");
          let value = await jsc3l.bcRead.getGlobalBalance(local_wallet.getAddressString());
 
-         $("passwrd").style.display = "none";
+         $("password").style.display = "none";
          $("balance").style.display = "inline-block";
          $("amount").value = value;
          $("address").value = local_wallet.getAddressString();
@@ -161,7 +146,7 @@
 
          // récupération des transactions
 
-         log("<br/>Retrieval of transactions...");
+         log("Retrieval of transactions...");
 
          let result = await jsc3l.ajaxReq.getTransList(local_wallet.getAddressString(), 10, 0);
 
@@ -187,29 +172,28 @@
 
          }
 
-         // Affichage payement
-         log("<br/>Displaying payment bloc...");
+         log("Displaying payment bloc...");
          var address_dest = "0x77bd202703d482e9ffce1a2db571c52a6d1a5cd3";
          $("addressTo").value = address_dest;
 
          $("blockieTo").style.backgroundImage =
              'url(' + Wallet.blockies(address_dest) + ')';
 
-         log("<br/>Retrieval of the message key...");
+         log("Retrieval of the message key...");
 
          remote_key = await jsc3l.message.getMessageKey(address_dest, false);
          if (remote_key.public_message_key !== undefined) {
              $("key_message").value = remote_key.public_message_key;
          }
 
-         $("payement").style.display="inline-block";
+         $("payment").style.display="inline-block";
      }
 
 
      var pay = async function () {
 
          $("payer").style.display = "none";
-         log("<br/>Preparation of additional data...");
+         log("Preparation of additional data...");
 
          var data = {};
 
@@ -232,15 +216,15 @@
              }
          }
 
-         // envoie le payement
+         // envoie le payment
 
-         log("<br/>Sending transaction order...");
+         log("Sending transaction order...");
          await jsc3l.bcTransaction.TransfertNant(local_wallet, $("addressTo").value, 0.01, data);
 
-         log("<br/>Order sent...");
+         log("Order sent...");
          alert("The order was sent");
 
-         log("<br/>Refreshing balance...");
+         log("Refreshing balance...");
          $("amount").value = await jsc3l.bcRead.getGlobalBalance(local_wallet.getAddressString())
      }
 

@@ -4,6 +4,8 @@ var browserify = require('browserify');
 var through2 = require('through2');
 var rename = require('gulp-rename');
 var browserSync = require('browser-sync').create();
+const sass = require('gulp-sass');
+
 
 var output =  './output/';
 
@@ -35,6 +37,13 @@ gulp.task('browserify', function() {
         .pipe(gulp.dest(output));
 });
 
+
+gulp.task('sass', function() {
+    return gulp.src('style.sass')
+        .pipe(sass().on('error', sass.logError))
+        .pipe(gulp.dest(output));
+});
+
 // Copy files
 
 gulp.task('copy-html', function() {
@@ -56,9 +65,11 @@ gulp.task('reload', function () {
 });
 
 
-gulp.task('default', gulp.series('browserify', 'copy-wallet', 'copy-html'));
+gulp.task('default', gulp.series('browserify', 'sass', 'copy-wallet', 'copy-html'));
+
 
 // Server
+
 
 gulp.task('server', function() {
   browserSync.init({
@@ -74,6 +85,7 @@ gulp.task('watch', function () {
   gulp.watch('test.js', gulp.series('browserify', 'reload'));
   gulp.watch('test.html', gulp.series('copy-html', 'reload'));
   gulp.watch('wallet.json', gulp.series('copy-wallet', 'reload'));
+  gulp.watch('style.sass', gulp.series('sass', 'reload'));
 });
 
 
