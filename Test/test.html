@@ -1,68 +1,71 @@
 <html>
-   <head>
-     <script type="text/javascript" src="./test-master.js"></script>
-
-
-
-   </head>
-   <body>
+  <head>
+    <script type="text/javascript" src="./test-master.js"></script>
+  </head>
+  <body>
     <div style="width:48%; display:inline-block;vertical-align: top;" >
-       <div id="passwrd" style="display:none;">
-         <label for="password">Mot de passe:</label>
-         <input type="password" id="psw" name="psw"><br>
-         <input type="submit" value="D&eacute;v&eacute;rouiller" onClick="unlock();">
-       </div>
+      <div id="passwrd" style="display:none;">
+        <label for="password">Mot de passe:</label>
+        <input type="password" id="psw" name="psw"><br>
+        <input type="submit" value="D&eacute;v&eacute;rouiller" onClick="unlock();">
+      </div>
 
-
-
-       <div id="balance" style="display:none;">
-         Compte:<br/>
-         <div style="width: 60px;display:inline-block;vertical-align: top;">
-            <div id="blockie" style="width: 60px;
-                                  height: 60px;
-                                  border: solid 1px black;
-                                  margin: 3px;
-                                  background-size: cover;
-                                  background-repeat: no-repeat;
-                                  border-radius: 20%;"></div>
-         </div>
-         <input type="text" id="address" name="address" readonly="readonly" style="vertical-align: bottom;margin: 0px 0px 25px 10px;"/><br/>
+      <div id="balance" style="display:none;">
+        Compte:<br/>
+        <div style="width: 60px;display:inline-block;vertical-align: top;">
+          <div id="blockie" style="width: 60px;
+                                   height: 60px;
+                                   border: solid 1px black;
+                                   margin: 3px;
+                                   background-size: cover;
+                                   background-repeat: no-repeat;
+                                   border-radius: 20%;"></div>
+        </div>
+        <input type="text"
+               id="address"
+               name="address"
+               readonly="readonly"
+               style="vertical-align: bottom;margin: 0px 0px 25px 10px;"/><br/>
         <br/>
 
-         <label for="amount">Balance:</label>
-         <input type="text" id="amount" name="amount" readonly="readonly"><br>
-       </div><br/><br/>
+        <label for="amount">Balance:</label>
+        <input type="text" id="amount" name="amount" readonly="readonly"><br>
+      </div><br/><br/>
 
-       <div id="transactions" style="display:none;">
-       </div><br/>
-       <div id="payement" style="display:none;">
-           Payement de 0.01 pour:<br/>
-           <div id="blockieTo" style="width: 40px;
-                                  height: 40px;
-                                  border: solid 1px black;
-                                  margin: 3px;
-                                  background-size: cover;
-                                  background-repeat: no-repeat;
-                                  border-radius: 20%;
+      <div id="transactions" style="display:none;">
+      </div><br/>
+      <div id="payement" style="display:none;">
+        Payement de 0.01 pour:<br/>
+        <div id="blockieTo" style="width: 40px;
+                                   height: 40px;
+                                   border: solid 1px black;
+                                   margin: 3px;
+                                   background-size: cover;
+                                   background-repeat: no-repeat;
+                                   border-radius: 20%;
                                    display: inline-block;"></div>
-           <input type="text" id="addressTo" name="addressTo" readonly="readonly" style="vertical-align: bottom;margin: 0px 0px 15px 10px;"/><br/>
-           <label for="memo">Memo:</label><br/>
-           <input type="text" id="memo" name="memo"/>
-           <input type="hidden" id="key_message" name="key_message"/><br/> <br/>
-           <input type="submit" id="payer" name="payer" value="Payer" onClick="pay();">
+        <input type="text"
+               id="addressTo"
+               name="addressTo"
+               readonly="readonly"
+               style="vertical-align: bottom;margin: 0px 0px 15px 10px;"/><br/>
+        <label for="memo">Memo:</label> <br/>
+        <input type="text" id="memo" name="memo"/>
+        <input type="hidden" id="key_message" name="key_message"/><br/> <br/>
+        <input type="submit" id="payer" name="payer" value="Payer" onClick="pay();">
 
 
-       </div>
+      </div>
     </div>
     <div style="width:48%; display:inline-block;vertical-align: top; padding:20px;color:white; background-color:black;">
 
-        <div id="Message" >
-        </div>
+      <div id="Message" >
+      </div>
     </div>
 
-   </body>
+  </body>
 
- <script type="text/javascript">
+  <script type="text/javascript">
 
 
 var readWallet = function(callback) {
@@ -247,5 +250,5 @@ var pay = function () {
 
 
 
-</script>
+  </script>
 </html>
