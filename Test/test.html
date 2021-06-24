@@ -6,47 +6,43 @@
   </head>
   <body>
     <div class="left">
-      <div id="password">
+
+      <form id="password" action="#" onsubmit="unlock(); return false;">
         <label for="password">Wallet password:</label>
         <input type="password" id="psw" name="psw"><br/>
-        <input type="submit" value="Unlock wallet" onClick="unlock();">
-      </div>
+        <input type="submit" value="Unlock wallet">
+      </form>
 
       <div id="balance">
         Account:<br/>
         <div>
           <div id="blockie" class="blockie"></div>
         </div>
-        <input id="address" type="text" name="address" readonly="readonly" />
-        <br/>
-        <br/>
+        <input id="address" type="text" name="address" readonly="readonly" /><br/>
 
         <label for="amount">Balance:</label>
         <input type="text" id="amount" name="amount" readonly="readonly" />
         <br/>
       </div>
-      <br/>
-      <br/>
 
       <div id="transactions"></div>
-      <br/>
-      <div id="payment">
+
+      <form id="payment" action="#" onsubmit="pay(); return false;">
         Payment of 0.01 to:<br/>
         <div id="blockieTo" class="blockie"></div>
-        <input type="text" id="addressTo" name="addressTo" readonly="readonly" />
-        <br/>
-        <label for="memo">Memo:</label> <br/>
-        <input type="text" id="memo" name="memo"/>
+        <input type="text" id="addressTo" name="addressTo" readonly="readonly" /><br/>
+        <label for="memo">Memo:</label>
+        <input type="text" id="memo" name="memo"/><br/>
         <input type="hidden" id="key_message" name="key_message"/>
-        <br/>
-        <br/>
-        <input type="submit" id="payer" name="payer" value="Payer" onClick="pay();">
+        <input type="submit" id="payer" name="payer" value="Payer">
+      </form>
 
-      </div>
     </div>
+
     <div class="right">
       <div id="message"></div>
     </div>
+
     <script type="text/javascript">
 
      var $ = function (...args) { return document.querySelector(...args); };
