@@ -25,7 +25,9 @@
         <br/>
       </div>
 
-      <div id="transactions"></div>
+      <div id="transactions">
+          No transactions yet!
+      </div>
 
       <form id="payment" action="#" onsubmit="onClickPay(); return false;">
         Payment of 0.01 to:<br/>
@@ -112,29 +114,24 @@
              $("#blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
 
              log("Retrieval of transactions...");
-
              let result = await jsc3l.ajaxReq.getTransList(local_wallet.getAddressString(), 10, 0);
 
              $("#transactions").show();
-             if (result.length == 0) {
-                 $("#transactions").innerHTML = "No transactions yet!";
-             } else {
-                 for (var ind = result.length - 1 ; ind >= 0 ; ind--) {
-                     var data = JSON.parse(result[ind]);
-                     var tr_date = new Date(data.time * 1000);
-                     $("#transactions").innerHTML =
-                         "<div style=\"border:black solid 2px;padding:3px;\"> date:" +
-                         tr_date + " <br/>De:" + data.addr_from + " <br/>A&nbsp;&nbsp;:" +
-                         data.addr_to + "  <br/>montant:" + data.recieved / 100.0 +
-                         " <br/> memo:" + getTransactionMemo(local_wallet, data) +
-                         "</div><br/>" +
-                         $("#transactions").innerHTML;
-                 }
 
-                 $("#transactions").innerHTML = "Last transactions:<br/>" +
-                                                $("#transactions").innerHTML;
-
-             }
+             if (result.length > 0) {
+                 $("#transactions").innerHTML = "Last transactions:<br/>";
+             };
+             result.reverse().forEach(elt => {
+                 let data = JSON.parse(elt);
+                 $("#transactions").innerHTML +=
+                     "<div class='transaction'>" +
+                     `  Date: ${new Date(data.time * 1000)}<br/>` +
+                     `  From: ${data.addr_from}<br/>` +
+                     `  To: ${data.addr_to}<br/>` +
+                     `  Amount: ${data.recieved / 100.0}<br/>` +
+                     `  memo: ${getTransactionMemo(local_wallet, data)}` +
+                     "</div>";
+             });
 
              log("Displaying payment bloc...");
              var address_dest = "0x77bd202703d482e9ffce1a2db571c52a6d1a5cd3";
