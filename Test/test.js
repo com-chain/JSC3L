@@ -117,3 +117,41 @@ window.jsc3l = {
     },
   },
 };
+
+
+window.readWallet = function() {
+  return new Promise(function (resolve, reject) {
+    var xobj = new XMLHttpRequest();
+    xobj.overrideMimeType("application/json");
+    xobj.open('GET', 'wallet.json', true);
+    xobj.onreadystatechange = function () {
+      if (xobj.readyState == 4 && xobj.status == "200") {
+        resolve(xobj.responseText);
+      }
+    };
+    xobj.send(null);
+  });
+};
+
+
+window.getTransactionMemo = function(wallet, transaction) {
+  let key = jsc3l_message().messageKeysFromCrypted(wallet, wallet.message_key.priv).clear_priv;
+
+  let memo = "";
+  let wallet_address = wallet.getAddressString().toLowerCase();
+  if (transaction.addr_to.toLowerCase() == wallet_address &&
+      transaction.message_to != '' &&
+      transaction.message_to) {
+    memo = jsc3l_message().decipherMessage(key, "" + transaction.message_to);
+  }
+
+  if (transaction.addr_from.toLowerCase() == wallet_address &&
+      transaction.message_from != '' &&
+      transaction.message_from) {
+    memo = jsc3l_message().decipherMessage(key, transaction.message_from);
+  }
+
+  return memo;
+};
+
+
