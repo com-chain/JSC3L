@@ -11,7 +11,7 @@ var output =  './output/';
 
 // Compile JS Files
 
-var mainjs = "./test.js";
+var mainjs = "./src/index.js";
 
 
 function browserified() {
@@ -30,6 +30,7 @@ function browserified() {
     });
 }
 
+
 gulp.task('browserify', function() {
     return gulp.src(mainjs)
         .pipe(browserified())
@@ -39,22 +40,25 @@ gulp.task('browserify', function() {
 
 
 gulp.task('sass', function() {
-    return gulp.src('style.sass')
+    return gulp.src('src/style.sass')
         .pipe(sass().on('error', sass.logError))
         .pipe(gulp.dest(output));
 });
 
+
 // Copy files
 
+
 gulp.task('copy-html', function() {
-  return gulp.src('test.html')
+  return gulp.src('src/index.html')
        .pipe(gulp.dest(output))
        .pipe(notify({message:'Copy HTML Complete', onLast:true}));
 
 });
 
+
 gulp.task('copy-wallet', function() {
-   return gulp.src('wallet.json')
+   return gulp.src('src/wallet.json')
        .pipe(gulp.dest(output))
        .pipe(notify({message:'Copy wallet Complete', onLast:true}));
 });
@@ -74,18 +78,17 @@ gulp.task('default', gulp.series('browserify', 'sass', 'copy-wallet', 'copy-html
 gulp.task('server', function() {
   browserSync.init({
     server: {
-      baseDir: output,
-      index: "test.html"
+      baseDir: output
     },
   });
 });
 
 
 gulp.task('watch', function () {
-  gulp.watch('test.js', gulp.series('browserify', 'reload'));
-  gulp.watch('test.html', gulp.series('copy-html', 'reload'));
-  gulp.watch('wallet.json', gulp.series('copy-wallet', 'reload'));
-  gulp.watch('style.sass', gulp.series('sass', 'reload'));
+  gulp.watch('src/index.js', gulp.series('browserify', 'reload'));
+  gulp.watch('src/index.html', gulp.series('copy-html', 'reload'));
+  gulp.watch('src/wallet.json', gulp.series('copy-wallet', 'reload'));
+  gulp.watch('src/style.sass', gulp.series('sass', 'reload'));
 });
 
 

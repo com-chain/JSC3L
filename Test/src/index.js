@@ -2,8 +2,8 @@
 var BigNumber = require('bignumber.js'); //npm install bignumber.js@2.4.0
 window.BigNumber = BigNumber;
 
-var ethUtil = require('ethereumjs-util'); 
-ethUtil.crypto = require('crypto'); 
+var ethUtil = require('ethereumjs-util');
+ethUtil.crypto = require('crypto');
 ethUtil.Tx = require('ethereumjs-tx');
 ethUtil.scrypt = require('scryptsy');
 ethUtil.uuid = require('uuid');
