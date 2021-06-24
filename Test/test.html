@@ -66,128 +66,135 @@
 
 
      async function onLoad () {
+         try {
+             log("Retrieve repository...");
+             await jsc3l.connection.ensureComChainRepo();
 
-         log("Retrieve repository...");
-         await jsc3l.connection.ensureComChainRepo();
+             log("Acquire ComChain endpoint...");
+             await jsc3l.connection.acquireEndPoint();
 
-         log("Acquire ComChain endpoint...");
-         await jsc3l.connection.acquireEndPoint();
+             log("Retrieving account...");
+             json_wallet = await fetchUrl('wallet.json');
 
-         log("Retrieving account...");
-         json_wallet = await fetchUrl('wallet.json');
+             let name_currency = JSON.parse(json_wallet).server.name;
 
-         let name_currency = JSON.parse(json_wallet).server.name;
+             log("Currency customization...");
+             await jsc3l.customization.getConfJSON(name_currency);
 
-         log("Currency customization...");
-         await jsc3l.customization.getConfJSON(name_currency);
-
-         $("#password").show();
-         log("Waiting for wallet password...");
-
+             $("#password").show();
+             log("Waiting for wallet password...");
+         } catch(err) {
+             log(`Error: ${err.message}`);
+             throw err;
+         }
      }
 
 
      var onClickUnlock = async function () {
-
-         var password = $("#psw").value;
-
          try {
+
+             var password = $("#psw").value;
+
              log("Unlocking wallet file...");
              local_wallet = Wallet.getWalletFromPrivKeyFile(json_wallet, password);
-         } catch (error) {
-             log(`Error: ${error.message}`);
-             throw error;
-         }
 
-         log("Retrieval of the message key...");
-         local_wallet = await jsc3l.message.ensureWalletMessageKey(local_wallet, '');
+             log("Retrieval of the message key...");
+             local_wallet = await jsc3l.message.ensureWalletMessageKey(local_wallet, '');
 
-         log("Retrieval of the balance...");
-         let value = await jsc3l.bcRead.getGlobalBalance(local_wallet.getAddressString());
+             log("Retrieval of the balance...");
+             let value = await jsc3l.bcRead.getGlobalBalance(local_wallet.getAddressString());
 
-         $("#password").hide();
-         $("#balance").show();
+             $("#password").hide();
+             $("#balance").show();
 
-         $("#amount").value = value;
-         $("#address").value = local_wallet.getAddressString();
-         $("#blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
+             $("#amount").value = value;
+             $("#address").value = local_wallet.getAddressString();
+             $("#blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
 
-         log("Retrieval of transactions...");
+             log("Retrieval of transactions...");
 
-         let result = await jsc3l.ajaxReq.getTransList(local_wallet.getAddressString(), 10, 0);
+             let result = await jsc3l.ajaxReq.getTransList(local_wallet.getAddressString(), 10, 0);
 
-         $("#transactions").show();
-         if (result.length == 0) {
-             $("#transactions").innerHTML = "No transactions yet!";
-         } else {
-             for (var ind = result.length - 1 ; ind >= 0 ; ind--) {
-                 var data = JSON.parse(result[ind]);
-                 var tr_date = new Date(data.time * 1000);
-                 $("#transactions").innerHTML =
-                     "<div style=\"border:black solid 2px;padding:3px;\"> date:" +
-                     tr_date + " <br/>De:" + data.addr_from + " <br/>A&nbsp;&nbsp;:" +
-                     data.addr_to + "  <br/>montant:" + data.recieved / 100.0 +
-                     " <br/> memo:" + getTransactionMemo(local_wallet, data) +
-                     "</div><br/>" +
-                     $("#transactions").innerHTML;
+             $("#transactions").show();
+             if (result.length == 0) {
+                 $("#transactions").innerHTML = "No transactions yet!";
+             } else {
+                 for (var ind = result.length - 1 ; ind >= 0 ; ind--) {
+                     var data = JSON.parse(result[ind]);
+                     var tr_date = new Date(data.time * 1000);
+                     $("#transactions").innerHTML =
+                         "<div style=\"border:black solid 2px;padding:3px;\"> date:" +
+                         tr_date + " <br/>De:" + data.addr_from + " <br/>A&nbsp;&nbsp;:" +
+                         data.addr_to + "  <br/>montant:" + data.recieved / 100.0 +
+                         " <br/> memo:" + getTransactionMemo(local_wallet, data) +
+                         "</div><br/>" +
+                         $("#transactions").innerHTML;
+                 }
+
+                 $("#transactions").innerHTML = "Last transactions:<br/>" +
+                                                $("#transactions").innerHTML;
 
              }
 
-             $("#transactions").innerHTML = "Last transactions:<br/>" +
-                                           $("#transactions").innerHTML;
+             log("Displaying payment bloc...");
+             var address_dest = "0x77bd202703d482e9ffce1a2db571c52a6d1a5cd3";
+             $("#addressTo").value = address_dest;
 
+             $("#blockieTo").style.backgroundImage =
+                 'url(' + Wallet.blockies(address_dest) + ')';
+
+             log("Retrieval of the message key...");
+             remote_key = await jsc3l.message.getMessageKey(address_dest, false);
+             if (remote_key.public_message_key !== undefined) {
+                 $("#key_message").value = remote_key.public_message_key;
+             }
+
+             $("#payment").show();
+
+         } catch (err) {
+             log(`Error: ${err.message}`);
+             throw err;
          }
-
-         log("Displaying payment bloc...");
-         var address_dest = "0x77bd202703d482e9ffce1a2db571c52a6d1a5cd3";
-         $("#addressTo").value = address_dest;
-
-         $("#blockieTo").style.backgroundImage =
-             'url(' + Wallet.blockies(address_dest) + ')';
-
-         log("Retrieval of the message key...");
-
-         remote_key = await jsc3l.message.getMessageKey(address_dest, false);
-         if (remote_key.public_message_key !== undefined) {
-             $("#key_message").value = remote_key.public_message_key;
-         }
-
-         $("#payment").show();
      }
 
 
      var onClickPay = async function () {
 
-         $("#payer").hide();
+         try {
+             $("#payer").hide();
 
-         log("Preparation of additional data...");
+             log("Preparation of additional data...");
 
-         let memo = $("#memo").value;
+             let memo = $("#memo").value;
 
-         var data = {};
+             var data = {};
 
-         // Cipher message if any
-         if (memo != '') {
-             if ($("#key_message").value != '') {
-                 data['memo_to'] = jsc3l_message().cipherMessage(
-                     $("#key_message").value, memo);
+             // Cipher message if any
+             if (memo != '') {
+                 if ($("#key_message").value != '') {
+                     data['memo_to'] = jsc3l_message().cipherMessage(
+                         $("#key_message").value, memo);
+                 }
+
+                 if (local_wallet.message_key.pub &&
+                     local_wallet.message_key.pub != '') {
+                     data['memo_from'] = jsc3l_message().cipherMessage(
+                         local_wallet.message_key.pub, memo);
+                 }
              }
 
-             if (local_wallet.message_key.pub &&
-                 local_wallet.message_key.pub != '') {
-                 data['memo_from'] = jsc3l_message().cipherMessage(
-                     local_wallet.message_key.pub, memo);
-             }
+             log("Sending transaction order...");
+             await jsc3l.bcTransaction.TransfertNant(local_wallet, $("#addressTo").value, 0.01, data);
+
+             log("Order sent...");
+             alert("The order was sent");
+
+             log("Refreshing balance...");
+             $("#amount").value = await jsc3l.bcRead.getGlobalBalance(local_wallet.getAddressString())
+         } catch (err) {
+             log(`Error: ${err.message}`);
+             throw err;
          }
-
-         log("Sending transaction order...");
-         await jsc3l.bcTransaction.TransfertNant(local_wallet, $("#addressTo").value, 0.01, data);
-
-         log("Order sent...");
-         alert("The order was sent");
-
-         log("Refreshing balance...");
-         $("#amount").value = await jsc3l.bcRead.getGlobalBalance(local_wallet.getAddressString())
      }
 
 
