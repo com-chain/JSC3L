@@ -60,7 +60,7 @@
 
          log("Retrieving account...");
 
-         json_wallet = await readWallet();
+         json_wallet = await fetchUrl('wallet.json');
 
          let name_currency = JSON.parse(json_wallet).server.name;
 

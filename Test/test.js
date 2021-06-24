@@ -119,11 +119,11 @@ window.jsc3l = {
 };
 
 
-window.readWallet = function() {
+window.fetchUrl = function(url) {
   return new Promise(function (resolve, reject) {
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
-    xobj.open('GET', 'wallet.json', true);
+    xobj.open('GET', url, true);
     xobj.onreadystatechange = function () {
       if (xobj.readyState == 4 && xobj.status == "200") {
         resolve(xobj.responseText);
