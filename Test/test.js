@@ -135,23 +135,20 @@ window.fetchUrl = function(url) {
 
 
 window.getTransactionMemo = function(wallet, transaction) {
-  let key = jsc3l_message().messageKeysFromCrypted(wallet, wallet.message_key.priv).clear_priv;
-
-  let memo = "";
+  let key = jsc3l.jsc3l_message().messageKeysFromCrypted(wallet, wallet.message_key.priv).clear_priv;
   let wallet_address = wallet.getAddressString().toLowerCase();
+
   if (transaction.addr_to.toLowerCase() == wallet_address &&
-      transaction.message_to != '' &&
       transaction.message_to) {
-    memo = jsc3l_message().decipherMessage(key, "" + transaction.message_to);
+    return jsc3l.jsc3l_message().decipherMessage(key, transaction.message_to);
   }
 
   if (transaction.addr_from.toLowerCase() == wallet_address &&
-      transaction.message_from != '' &&
       transaction.message_from) {
-    memo = jsc3l_message().decipherMessage(key, transaction.message_from);
+    return jsc3l.jsc3l_message().decipherMessage(key, transaction.message_from);
   }
 
-  return memo;
+  return "";
 };
 
 
