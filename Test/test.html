@@ -49,6 +49,9 @@
      var $msg = $("#message");
 
      function log(msg) { $msg.innerHTML += "\n" + msg; }
+     Element.prototype.hide = function() { this.style.display = 'none'; };
+     Element.prototype.show = function() { this.style.display = 'block'; };
+
 
      async function init () {
 
@@ -67,7 +70,7 @@
          log("Currency customization...");
          await jsc3l.customization.getConfJSON(name_currency);
 
-         $("#password").style.display = "inline-block";
+         $("#password").show();
          log("Waiting for wallet password...");
 
      }
@@ -96,8 +99,9 @@
          log("Retrieval of the balance...");
          let value = await jsc3l.bcRead.getGlobalBalance(local_wallet.getAddressString());
 
-         $("#password").style.display = "none";
-         $("#balance").style.display = "inline-block";
+         $("#password").hide();
+         $("#balance").show();
+
          $("#amount").value = value;
          $("#address").value = local_wallet.getAddressString();
          $("#blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
@@ -108,7 +112,7 @@
 
          let result = await jsc3l.ajaxReq.getTransList(local_wallet.getAddressString(), 10, 0);
 
-         $("#transactions").style.display = "inline-block";
+         $("#transactions").show();
          if (result.length == 0) {
              $("#transactions").innerHTML = "No transactions yet!";
          } else {
@@ -144,13 +148,13 @@
              $("#key_message").value = remote_key.public_message_key;
          }
 
-         $("#payment").style.display="inline-block";
+         $("#payment").show();
      }
 
 
      var pay = async function () {
 
-         $("#payer").style.display = "none";
+         $("#payer").hide();
          log("Preparation of additional data...");
 
          var data = {};
