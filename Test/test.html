@@ -7,10 +7,10 @@
   <body>
     <div class="left">
 
-      <form id="password" action="#" onsubmit="unlock(); return false;">
+      <form id="password" action="#" onsubmit="onClickUnlock(); return false;">
         <label for="password">Wallet password:</label>
         <input type="password" id="psw" name="psw"><br/>
-        <input type="submit" value="Unlock wallet">
+        <input type="submit" value="Unlock wallet" />
       </form>
 
       <div id="balance">
@@ -27,7 +27,7 @@
 
       <div id="transactions"></div>
 
-      <form id="payment" action="#" onsubmit="pay(); return false;">
+      <form id="payment" action="#" onsubmit="onClickPay(); return false;">
         Payment of 0.01 to:<br/>
         <div id="blockieTo" class="blockie"></div>
         <input type="text" id="addressTo" name="addressTo" readonly="readonly" /><br/>
@@ -45,6 +45,9 @@
 
     <script type="text/javascript">
 
+
+     // Helpers
+
      var $ = function (...args) { return document.querySelector(...args); };
      var $msg = $("#message");
 
@@ -53,7 +56,16 @@
      Element.prototype.show = function() { this.style.display = 'block'; };
 
 
-     async function init () {
+     // Global state variables
+
+     var json_wallet = "";
+     var local_wallet = {};
+
+
+     // Events
+
+
+     async function onLoad () {
 
          log("Retrieve repository...");
          await jsc3l.connection.ensureComChainRepo();
@@ -62,7 +74,6 @@
          await jsc3l.connection.acquireEndPoint();
 
          log("Retrieving account...");
-
          json_wallet = await fetchUrl('wallet.json');
 
          let name_currency = JSON.parse(json_wallet).server.name;
@@ -75,27 +86,22 @@
 
      }
 
-     var json_wallet = "";
-     var local_wallet = {};
 
-     var unlock = async function () {
+     var onClickUnlock = async function () {
 
          var password = $("#psw").value;
 
-         // Décryptage du wallet
          try {
+             log("Unlocking wallet file...");
              local_wallet = Wallet.getWalletFromPrivKeyFile(json_wallet, password);
-             log("Unlocking account...");
          } catch (error) {
              log(`Error: ${error.message}`);
              throw error;
          }
 
-         // vérification que la clef de message est présente
          log("Retrieval of the message key...");
          local_wallet = await jsc3l.message.ensureWalletMessageKey(local_wallet, '');
 
-         // obtention de la balance du compte
          log("Retrieval of the balance...");
          let value = await jsc3l.bcRead.getGlobalBalance(local_wallet.getAddressString());
 
@@ -105,8 +111,6 @@
          $("#amount").value = value;
          $("#address").value = local_wallet.getAddressString();
          $("#blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
-
-         // récupération des transactions
 
          log("Retrieval of transactions...");
 
@@ -152,33 +156,29 @@
      }
 
 
-     var pay = async function () {
+     var onClickPay = async function () {
 
          $("#payer").hide();
+
          log("Preparation of additional data...");
+
+         let memo = $("#memo").value;
 
          var data = {};
 
-         // encrypte le message
-         if ($("#memo").value.length > 0) {
-
-             if ($("#key_message").value.length > 0) {
+         // Cipher message if any
+         if (memo != '') {
+             if ($("#key_message").value != '') {
                  data['memo_to'] = jsc3l_message().cipherMessage(
-                     $("#key_message").value,
-                     $("#memo").value
-                 );
+                     $("#key_message").value, memo);
              }
 
              if (local_wallet.message_key.pub &&
-                 local_wallet.message_key.pub.length > 0) {
+                 local_wallet.message_key.pub != '') {
                  data['memo_from'] = jsc3l_message().cipherMessage(
-                     local_wallet.message_key.pub,
-                     $("#memo").value
-                 );
+                     local_wallet.message_key.pub, memo);
              }
          }
-
-         // envoie le payment
 
          log("Sending transaction order...");
          await jsc3l.bcTransaction.TransfertNant(local_wallet, $("#addressTo").value, 0.01, data);
@@ -191,7 +191,9 @@
      }
 
 
-     init();
+     // Trigger of onLoad event
+
+     onLoad();
 
     </script>
   </body>
