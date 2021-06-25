@@ -6,12 +6,15 @@
 // uiFuncs (generateTx & sendTx)
 ////
 
+
+var uiFuncs = require('./uiFuncs');
+
 var jsc3l_bcTransaction = function() {};
 
 /* Action in Contract 1*/ 
 jsc3l_bcTransaction.SetAccountParam = function(wallet, account_address, acc_status, acc_type, limit_minus, limit_plus, callback){
      var accAdd = padLeft(getNakedAddress(account_address), 64);
-     generateTx(jsc3l_customization.getContract1(), 
+     internalGenTx(jsc3l_customization.getContract1(), 
                 wallet, 
                 "0x848b2592",
                 [accAdd,
@@ -26,7 +29,7 @@ jsc3l_bcTransaction.SetAccountParam = function(wallet, account_address, acc_stat
 jsc3l_bcTransaction.PledgeAccount = function(wallet, account_address, amount, additional_post_data, callback){
      var amount_cent = encodeNumber(parseInt(100*amount,10));
      var accAdd = padLeft(getNakedAddress(account_address), 64);
-     generateTx(jsc3l_customization.getContract1(),
+     internalGenTx(jsc3l_customization.getContract1(),
                 wallet, 
                 "0x6c343eef", 
                 [accAdd, amount_cent],
@@ -36,7 +39,7 @@ jsc3l_bcTransaction.PledgeAccount = function(wallet, account_address, amount, ad
  
 jsc3l_bcTransaction.setAllowance = function(wallet, spender_address, amount, callback){
       var acc_add = padLeft(getNakedAddress(spender_address), 64);
-      generateTx(jsc3l_customization.getContract1(),
+      internalGenTx(jsc3l_customization.getContract1(),
                  wallet, 
                  "0xd4e12f2e", 
                  [acc_add, encodeNumber(parseInt(100*amount,10))], 
@@ -46,7 +49,7 @@ jsc3l_bcTransaction.setAllowance = function(wallet, spender_address, amount, cal
  
 jsc3l_bcTransaction.setDelegation = function (wallet, spender_address, limit,callback){
       var acc_add = padLeft(getNakedAddress(spender_address), 64);
-      generateTx(jsc3l_customization.getContract1(),
+      internalGenTx(jsc3l_customization.getContract1(),
                  wallet, 
                  "0x75741c79", 
                  [acc_add, encodeNumber(parseInt(100*limit,10))], 
@@ -55,7 +58,7 @@ jsc3l_bcTransaction.setDelegation = function (wallet, spender_address, limit,cal
 }
 
 jsc3l_bcTransaction.SetTaxAmount = function(wallet, amount, callback){
-     generateTx(jsc3l_customization.getContract1(),
+     internalGenTx(jsc3l_customization.getContract1(),
                  wallet, 
                  "0xf6f1897d", 
                  [encodeNumber(parseInt(amount,10))],
@@ -64,7 +67,7 @@ jsc3l_bcTransaction.SetTaxAmount = function(wallet, amount, callback){
 }
  
 jsc3l_bcTransaction.SetTaxLegAmount = function(wallet, amount, callback){
-     generateTx(jsc3l_customization.getContract1(),
+     internalGenTx(jsc3l_customization.getContract1(),
                  wallet, 
                  "0xfafaf4c0", 
                  [encodeNumber(parseInt(amount,10))],
@@ -74,7 +77,7 @@ jsc3l_bcTransaction.SetTaxLegAmount = function(wallet, amount, callback){
  
 jsc3l_bcTransaction.SetTaxAccount = function(wallet, account_address, callback){
      var accAdd = padLeft(getNakedAddress(account_address), 64);
-     generateTx(jsc3l_customization.getContract1(),
+     internalGenTx(jsc3l_customization.getContract1(),
                             wallet, 
                             "0xd0385b5e", 
                             [accAdd],
@@ -84,7 +87,7 @@ jsc3l_bcTransaction.SetTaxAccount = function(wallet, account_address, callback){
  
 jsc3l_bcTransaction.SetOwnerAccount = function(wallet, account_address, callback){
      var accAdd = padLeft(getNakedAddress(account_address), 64);
-     generateTx(jsc3l_customization.getContract1(),
+     internalGenTx(jsc3l_customization.getContract1(),
                             wallet, 
                             "0xf2fde38b", 
                             [accAdd],
@@ -95,7 +98,7 @@ jsc3l_bcTransaction.SetOwnerAccount = function(wallet, account_address, callback
 /*Action in contract 2*/
 jsc3l_bcTransaction.TransfertNant = function (wallet, to_address, amount, additional_post_data, callback){
       var to_add = padLeft(getNakedAddress(to_address), 64);
-      generateTx(jsc3l_customization.getContract2(), 
+      internalGenTx(jsc3l_customization.getContract2(), 
                              wallet, 
                              "0xa5f7c148", 
                              [to_add, encodeNumber(parseInt(100*amount,10))],
@@ -105,7 +108,7 @@ jsc3l_bcTransaction.TransfertNant = function (wallet, to_address, amount, additi
 
 jsc3l_bcTransaction.TransfertCM = function (wallet, to_address,amount, additional_post_data, callback){
       var to_add = padLeft(getNakedAddress(to_address), 64);
-      generateTx(jsc3l_customization.getContract2(), 
+      internalGenTx(jsc3l_customization.getContract2(), 
                      wallet, 
                      "0x60ca9c4c", 
                      [to_add, encodeNumber(parseInt(100*amount,10))], 
@@ -117,7 +120,7 @@ jsc3l_bcTransaction.TransfertOnBehalfNant = function (wallet, from_address, to_a
       additional_post_data["delegate"] = wallet.getAddressString();
       var from_add = padLeft(getNakedAddress(from_address), 64);
       var to_Add = padLeft(getNakedAddress(to_address), 64);
-      generateTx(jsc3l_customization.getContract2(),
+      internalGenTx(jsc3l_customization.getContract2(),
                              wallet, 
                              "0x1b6b1ee5", 
                              [from_add, to_Add, encodeNumber(parseInt(100*amount,10))], 
@@ -129,7 +132,7 @@ jsc3l_bcTransaction.TransfertOnBehalfCM = function (wallet, from_address, to_add
       additional_post_data["delegate"] = wallet.getAddressString();
       var from_add = padLeft(getNakedAddress(from_address), 64);
       var to_Add = padLeft(getNakedAddress(to_address), 64);
-      generateTx(jsc3l_customization.getContract2(),
+      internalGenTx(jsc3l_customization.getContract2(),
                              wallet, 
                              "0x74c421fe", 
                              [from_add, to_Add, encodeNumber(parseInt(100*amount,10))], 
@@ -140,7 +143,7 @@ jsc3l_bcTransaction.TransfertOnBehalfCM = function (wallet, from_address, to_add
 jsc3l_bcTransaction.askTransfertFrom = function (wallet,account_address, from_address,amount,callback){
       var from_add = padLeft(getNakedAddress(from_address), 64);
       var accAdd = padLeft(getNakedAddress(account_address), 64);
-      generateTx(jsc3l_customization.getContract2(),
+      internalGenTx(jsc3l_customization.getContract2(),
                              wallet, 
                              "0x58258353", 
                              [from_add, encodeNumber(parseInt(100*amount,10))], 
@@ -151,7 +154,7 @@ jsc3l_bcTransaction.askTransfertFrom = function (wallet,account_address, from_ad
 jsc3l_bcTransaction.askTransfertCMFrom = function (wallet,account_address, from_address,amount,callback){
       var from_add = padLeft(getNakedAddress(from_address), 64);
       var accAdd = padLeft(getNakedAddress(account_address), 64);
-      generateTx(jsc3l_customization.getContract2(),
+      internalGenTx(jsc3l_customization.getContract2(),
                              wallet, 
                              "0x2ef9ade2", 
                              [from_add, encodeNumber(parseInt(100*amount,10))], 
@@ -161,7 +164,7 @@ jsc3l_bcTransaction.askTransfertCMFrom = function (wallet,account_address, from_
 
 jsc3l_bcTransaction.PayRequestNant = function (wallet, to_address, amount, additional_data, callback){
       var to_Add = padLeft(getNakedAddress(to_address), 64);
-      generateTx(jsc3l_customization.getContract2(),
+      internalGenTx(jsc3l_customization.getContract2(),
                              wallet, 
                              "0x132019f4", 
                              [to_Add, encodeNumber(parseInt(100*amount,10))], 
@@ -171,7 +174,7 @@ jsc3l_bcTransaction.PayRequestNant = function (wallet, to_address, amount, addit
 
 jsc3l_bcTransaction.PayRequestCM = function (wallet, to_address, amount, additional_data, callback){
       var to_Add = padLeft(getNakedAddress(to_address), 64);
-      generateTx(jsc3l_customization.getContract2(),
+      internalGenTx(jsc3l_customization.getContract2(),
                              wallet, 
                              "0x1415707c", 
                              [to_Add, encodeNumber(parseInt(100*amount,10))],
@@ -181,7 +184,7 @@ jsc3l_bcTransaction.PayRequestCM = function (wallet, to_address, amount, additio
 
 jsc3l_bcTransaction.RejectRequest = function (wallet, to_address, callback){
       var to_Add = padLeft(getNakedAddress(to_address), 64);
-      generateTx(jsc3l_customization.getContract2(),
+      internalGenTx(jsc3l_customization.getContract2(),
                              wallet, 
                              "0xaf98f757", 
                              [to_Add],
@@ -191,7 +194,7 @@ jsc3l_bcTransaction.RejectRequest = function (wallet, to_address, callback){
  
 jsc3l_bcTransaction.DissmissAcceptedInfo = function(wallet, account_address, callback){
      var accAdd = padLeft(getNakedAddress(account_address), 64);
-     generateTx(jsc3l_customization.getContract2(),
+     internalGenTx(jsc3l_customization.getContract2(),
                             wallet, 
                             "0xccf93c7a", 
                             [accAdd], 
@@ -201,7 +204,7 @@ jsc3l_bcTransaction.DissmissAcceptedInfo = function(wallet, account_address, cal
  
 jsc3l_bcTransaction.DissmissRejectedInfo = function(wallet, account_address, callback){
      var accAdd = padLeft(getNakedAddress(account_address), 64);
-     generateTx(jsc3l_customization.getContract2(),
+     internalGenTx(jsc3l_customization.getContract2(),
                             wallet, 
                             "0x88759215", 
                             [accAdd], 
@@ -306,8 +309,12 @@ var internalGenTx = function(contract, wallet, fuct_address, values, additional_
 }  
 
 jsc3l_bcTransaction.generateTx = function(contract, wallet, fuct_address, values, additional_post_data, callback){
-    internalGenTx(contract, wallet, fuct_address, values, additional_post_data, callback);
-}  
+   internalGenTx(contract, wallet, fuct_address, values, additional_post_data, callback);
+} 
+
+
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
