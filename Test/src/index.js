@@ -33,9 +33,9 @@ window.jsc3l_bcTransaction = jsc3l.jsc3l_bcTransaction;
 
 window.jsc3l = {
   connection: {
-    ensureComChainRepo: function () {
-      return new Promise(function (resolve, reject) {
-        jsc3l.jsc3l_connection.ensureComChainRepo(function (r) {
+    ensureComChainRepo: () => {
+      return new Promise((resolve, reject) => {
+        jsc3l.jsc3l_connection.ensureComChainRepo(r => {
           if (r) {
             resolve(r);
           } else {
@@ -44,9 +44,9 @@ window.jsc3l = {
         });
       });
     },
-    acquireEndPoint: function () {
-      return new Promise(function (resolve, reject) {
-        jsc3l.jsc3l_connection.acquireEndPoint(function (r) {
+    acquireEndPoint: () => {
+      return new Promise((resolve, reject) => {
+        jsc3l.jsc3l_connection.acquireEndPoint(r => {
           if (r) {
             resolve(r);
           } else {
@@ -57,9 +57,9 @@ window.jsc3l = {
     },
   },
   customization: {
-    getConfJSON: function (name_currency) {
-      return new Promise(function(resolve, reject) {
-        jsc3l.jsc3l_customization.getConfJSON(name_currency, function(r) {
+    getConfJSON: name_currency => {
+      return new Promise((resolve, reject) => {
+        jsc3l.jsc3l_customization.getConfJSON(name_currency, r => {
           if (r) {
             resolve(r);
           } else {
@@ -70,43 +70,43 @@ window.jsc3l = {
     },
   },
   message: {
-    ensureWalletMessageKey: function (wallet, message) {
-      return new Promise(function(resolve, reject) {
-        jsc3l.jsc3l_message().ensureWalletMessageKey(wallet, message, function (w) {
+    ensureWalletMessageKey: (wallet, message) => {
+      return new Promise((resolve, reject) => {
+        jsc3l.jsc3l_message().ensureWalletMessageKey(wallet, message, w => {
           resolve(w);
         });
       });
     },
-    getMessageKey: function (address_dest, with_private) {
-      return new Promise(function(resolve, reject) {
-        jsc3l.jsc3l_message().getMessageKey(address_dest, with_private, function (remote_key) {
+    getMessageKey: (address_dest, with_private) => {
+      return new Promise((resolve, reject) => {
+        jsc3l.jsc3l_message().getMessageKey(address_dest, with_private, remote_key => {
           resolve(remote_key);
         });
       });
     },
   },
   ajaxReq: {
-    getTransList: function (id, count, offset) {
-      return new Promise(function(resolve, reject) {
-        jsc3l.ajaxReq.getTransList(id, count, offset, function (r) {
+    getTransList: (id, count, offset) => {
+      return new Promise((resolve, reject) => {
+        jsc3l.ajaxReq.getTransList(id, count, offset, r => {
           resolve(r);
         });
       });
     },
   },
   bcRead: {
-    getGlobalBalance: function (wallet_address) {
-      return new Promise(function(resolve, reject) {
-        jsc3l.jsc3l_bcRead.getGlobalBalance(wallet_address, function (r) {
+    getGlobalBalance: wallet_address => {
+      return new Promise((resolve, reject) => {
+        jsc3l.jsc3l_bcRead.getGlobalBalance(wallet_address, r => {
           resolve(r);
         });
       });
     },
   },
   bcTransaction: {
-    TransfertNant: function (wallet, to_address, amount, additional_post_data) {
-      return new Promise(function(resolve, reject) {
-        jsc3l.jsc3l_bcTransaction.TransfertNant(wallet, to_address, amount, additional_post_data, function (r) {
+    TransfertNant: (wallet, to_address, amount, additional_post_data) => {
+      return new Promise((resolve, reject) => {
+        jsc3l.jsc3l_bcTransaction.TransfertNant(wallet, to_address, amount, additional_post_data, r => {
           if (r.isError) {
 	        reject(new Error(r.error));
           } else {
@@ -119,12 +119,12 @@ window.jsc3l = {
 };
 
 
-window.fetchUrl = function(url) {
-  return new Promise(function (resolve, reject) {
+window.fetchUrl = url => {
+  return new Promise((resolve, reject) => {
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");
     xobj.open('GET', url, true);
-    xobj.onreadystatechange = function () {
+    xobj.onreadystatechange = () => {
       if (xobj.readyState == 4 && xobj.status == "200") {
         resolve(xobj.responseText);
       }
@@ -134,7 +134,7 @@ window.fetchUrl = function(url) {
 };
 
 
-window.getTransactionMemo = function(wallet, transaction) {
+window.getTransactionMemo = (wallet, transaction) => {
   let key = jsc3l.jsc3l_message().messageKeysFromCrypted(wallet, wallet.message_key.priv).clear_priv;
   let wallet_address = wallet.getAddressString().toLowerCase();
 

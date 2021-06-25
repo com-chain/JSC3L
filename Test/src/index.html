@@ -50,7 +50,7 @@
 
      // Helpers
 
-     var $ = function (...args) { return document.querySelector(...args); };
+     var $ = (...args) => { return document.querySelector(...args); };
      var $msg = $("#message");
 
      function log(msg) { $msg.innerHTML += "\n" + msg; }
@@ -58,16 +58,21 @@
      Element.prototype.show = function() { this.style.display = 'block'; };
 
 
+     // constants
+
+     const address_dest = "0x77bd202703d482e9ffce1a2db571c52a6d1a5cd3";
+
+
      // Global state variables
 
      var json_wallet = "";
-     var local_wallet = {};
+     var wallet = {};
 
 
      // Events
 
 
-     async function onLoad () {
+     async function onLoad() {
          try {
              log("Retrieve repository...");
              await jsc3l.connection.ensureComChainRepo();
@@ -92,35 +97,36 @@
      }
 
 
-     var onClickUnlock = async function () {
+     async function onClickUnlock() {
          try {
 
-             var password = $("#psw").value;
+             let password = $("#psw").value;
 
              log("Unlocking wallet file...");
-             local_wallet = Wallet.getWalletFromPrivKeyFile(json_wallet, password);
+             wallet = Wallet.getWalletFromPrivKeyFile(json_wallet, password);
 
              log("Retrieval of the message key...");
-             local_wallet = await jsc3l.message.ensureWalletMessageKey(local_wallet, '');
+             wallet = await jsc3l.message.ensureWalletMessageKey(wallet, '');
+
+             let wid = wallet.getAddressString();
 
              log("Retrieval of the balance...");
-             let value = await jsc3l.bcRead.getGlobalBalance(local_wallet.getAddressString());
+             $("#amount").value = await jsc3l.bcRead.getGlobalBalance(wid);
 
              $("#password").hide();
              $("#balance").show();
 
-             $("#amount").value = value;
-             $("#address").value = local_wallet.getAddressString();
-             $("#blockie").style.backgroundImage = 'url(' + local_wallet.blockies() +')';
+             $("#address").value = wid;
+             $("#blockie").style.backgroundImage = 'url(' + wallet.blockies() +')';
 
              log("Retrieval of transactions...");
-             let result = await jsc3l.ajaxReq.getTransList(local_wallet.getAddressString(), 10, 0);
-
-             $("#transactions").show();
+             let result = await jsc3l.ajaxReq.getTransList(wid, 10, 0);
 
              if (result.length > 0) {
                  $("#transactions").innerHTML = "Last transactions:<br/>";
              };
+             $("#transactions").show();
+
              result.reverse().forEach(elt => {
                  let data = JSON.parse(elt);
                  $("#transactions").innerHTML +=
@@ -129,21 +135,19 @@
                      `  From: ${data.addr_from}<br/>` +
                      `  To: ${data.addr_to}<br/>` +
                      `  Amount: ${data.recieved / 100.0}<br/>` +
-                     `  memo: ${getTransactionMemo(local_wallet, data)}` +
+                     `  memo: ${getTransactionMemo(wallet, data)}` +
                      "</div>";
              });
 
              log("Displaying payment bloc...");
-             var address_dest = "0x77bd202703d482e9ffce1a2db571c52a6d1a5cd3";
              $("#addressTo").value = address_dest;
 
-             $("#blockieTo").style.backgroundImage =
-                 'url(' + Wallet.blockies(address_dest) + ')';
+             $("#blockieTo").style.backgroundImage = `url(${Wallet.blockies(address_dest)})`;
 
              log("Retrieval of the message key...");
-             remote_key = await jsc3l.message.getMessageKey(address_dest, false);
-             if (remote_key.public_message_key !== undefined) {
-                 $("#key_message").value = remote_key.public_message_key;
+             let { public_message_key } = await jsc3l.message.getMessageKey(address_dest, false);
+             if (public_message_key) {
+                 $("#key_message").value = public_message_key;
              }
 
              $("#payment").show();
@@ -155,39 +159,35 @@
      }
 
 
-     var onClickPay = async function () {
+     async function onClickPay() {
 
          try {
              $("#payer").hide();
-
              log("Preparation of additional data...");
-
              let memo = $("#memo").value;
-
-             var data = {};
+             let data = {};
 
              // Cipher message if any
-             if (memo != '') {
-                 if ($("#key_message").value != '') {
+             if (memo) {
+                 if ($("#key_message").value) {
                      data['memo_to'] = jsc3l_message().cipherMessage(
                          $("#key_message").value, memo);
                  }
 
-                 if (local_wallet.message_key.pub &&
-                     local_wallet.message_key.pub != '') {
+                 if (wallet.message_key.pub) {
                      data['memo_from'] = jsc3l_message().cipherMessage(
-                         local_wallet.message_key.pub, memo);
+                         wallet.message_key.pub, memo);
                  }
              }
 
              log("Sending transaction order...");
-             await jsc3l.bcTransaction.TransfertNant(local_wallet, $("#addressTo").value, 0.01, data);
+             await jsc3l.bcTransaction.TransfertNant(wallet, $("#addressTo").value, 0.01, data);
 
              log("Order sent...");
              alert("The order was sent");
 
              log("Refreshing balance...");
-             $("#amount").value = await jsc3l.bcRead.getGlobalBalance(local_wallet.getAddressString())
+             $("#amount").value = await jsc3l.bcRead.getGlobalBalance(wallet.getAddressString());
          } catch (err) {
              log(`Error: ${err.message}`);
              throw err;
