@@ -1,23 +1,16 @@
 # JSC3L
 JavaScript Com-Chain Communication Library
 
-
-
 # History
 This lib was extracted from Biletujo project.
 
-# Dependency
-see the example in Test directory
+# Demo
 
-In particular you need the following package with fixed versions:
+An toy example is provided to show JSC3L usage. It was
+tested working on node versions 8+.
 
- - BigNumber:  npm install bignumber.js@2.4.0
- - Etherumjs-tx:  npm install ethereumjs-tx@1.1.2
- 
-# Exemple and tests
-- copy the Test directory outside of the package
-- navigate into the copied directory
-- >npm install <full_path>/JSC3L
-- >gulp
-- go to the Output folder
-- serve test.html with a webserver 
+    cd Test
+    npm install
+    npx gulp serve
+
+A browser window should pop-up with the running demo.

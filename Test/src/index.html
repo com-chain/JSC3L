@@ -1,0 +1,204 @@
+<html>
+  <head>
+    <title>JSC3L demo</title>
+    <script type="text/javascript" src="./index-master.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+  </head>
+  <body>
+    <div class="left">
+
+      <form id="password" action="#" onsubmit="onClickUnlock(); return false;">
+        <label for="password">Wallet password:</label>
+        <input type="password" id="psw" name="psw"><br/>
+        <input type="submit" value="Unlock wallet" />
+      </form>
+
+      <div id="balance">
+        Account:<br/>
+        <div>
+          <div id="blockie" class="blockie"></div>
+        </div>
+        <input id="address" type="text" name="address" readonly="readonly" /><br/>
+
+        <label for="amount">Balance:</label>
+        <input type="text" id="amount" name="amount" readonly="readonly" />
+        <br/>
+      </div>
+
+      <div id="transactions">
+          No transactions yet!
+      </div>
+
+      <form id="payment" action="#" onsubmit="onClickPay(); return false;">
+        Payment of 0.01 to:<br/>
+        <div id="blockieTo" class="blockie"></div>
+        <input type="text" id="addressTo" name="addressTo" readonly="readonly" /><br/>
+        <label for="memo">Memo:</label>
+        <input type="text" id="memo" name="memo"/><br/>
+        <input type="hidden" id="key_message" name="key_message"/>
+        <input type="submit" id="payer" name="payer" value="Payer">
+      </form>
+
+    </div>
+
+    <div class="right">
+      <div id="message"></div>
+    </div>
+
+    <script type="text/javascript">
+
+
+     // Helpers
+
+     var $ = (...args) => { return document.querySelector(...args); };
+     var $msg = $("#message");
+
+     function log(msg) { $msg.innerHTML += "\n" + msg; }
+     Element.prototype.hide = function() { this.style.display = 'none'; };
+     Element.prototype.show = function() { this.style.display = 'block'; };
+
+
+     // constants
+
+     const address_dest = "0x77bd202703d482e9ffce1a2db571c52a6d1a5cd3";
+
+
+     // Global state variables
+
+     var json_wallet = "";
+     var wallet = {};
+
+
+     // Events
+
+
+     async function onLoad() {
+         try {
+             log("Retrieve repository...");
+             await jsc3l.connection.ensureComChainRepo();
+
+             log("Acquire ComChain endpoint...");
+             await jsc3l.connection.acquireEndPoint();
+
+             log("Retrieving account...");
+             json_wallet = await fetchUrl('wallet.json');
+
+             let name_currency = JSON.parse(json_wallet).server.name;
+
+             log("Currency customization...");
+             await jsc3l.customization.getConfJSON(name_currency);
+
+             $("#password").show();
+             log("Waiting for wallet password...");
+         } catch(err) {
+             log(`Error: ${err.message}`);
+             throw err;
+         }
+     }
+
+
+     async function onClickUnlock() {
+         try {
+
+             let password = $("#psw").value;
+
+             log("Unlocking wallet file...");
+             wallet = Wallet.getWalletFromPrivKeyFile(json_wallet, password);
+
+             log("Retrieval of the message key...");
+             wallet = await jsc3l.message.ensureWalletMessageKey(wallet, '');
+
+             let wid = wallet.getAddressString();
+
+             log("Retrieval of the balance...");
+             $("#amount").value = await jsc3l.bcRead.getGlobalBalance(wid);
+
+             $("#password").hide();
+             $("#balance").show();
+
+             $("#address").value = wid;
+             $("#blockie").style.backgroundImage = 'url(' + wallet.blockies() +')';
+
+             log("Retrieval of transactions...");
+             let result = await jsc3l.ajaxReq.getTransList(wid, 10, 0);
+
+             if (result.length > 0) {
+                 $("#transactions").innerHTML = "Last transactions:<br/>";
+             };
+             $("#transactions").show();
+
+             result.reverse().forEach(elt => {
+                 let data = JSON.parse(elt);
+                 $("#transactions").innerHTML +=
+                     "<div class='transaction'>" +
+                     `  Date: ${new Date(data.time * 1000)}<br/>` +
+                     `  From: ${data.addr_from}<br/>` +
+                     `  To: ${data.addr_to}<br/>` +
+                     `  Amount: ${data.recieved / 100.0}<br/>` +
+                     `  memo: ${getTransactionMemo(wallet, data)}` +
+                     "</div>";
+             });
+
+             log("Displaying payment bloc...");
+             $("#addressTo").value = address_dest;
+
+             $("#blockieTo").style.backgroundImage = `url(${Wallet.blockies(address_dest)})`;
+
+             log("Retrieval of the message key...");
+             let { public_message_key } = await jsc3l.message.getMessageKey(address_dest, false);
+             if (public_message_key) {
+                 $("#key_message").value = public_message_key;
+             }
+
+             $("#payment").show();
+
+         } catch (err) {
+             log(`Error: ${err.message}`);
+             throw err;
+         }
+     }
+
+
+     async function onClickPay() {
+
+         try {
+             $("#payer").hide();
+             log("Preparation of additional data...");
+             let memo = $("#memo").value;
+             let data = {};
+
+             // Cipher message if any
+             if (memo) {
+                 if ($("#key_message").value) {
+                     data['memo_to'] = jsc3l_message().cipherMessage(
+                         $("#key_message").value, memo);
+                 }
+
+                 if (wallet.message_key.pub) {
+                     data['memo_from'] = jsc3l_message().cipherMessage(
+                         wallet.message_key.pub, memo);
+                 }
+             }
+
+             log("Sending transaction order...");
+             await jsc3l.bcTransaction.TransfertNant(wallet, $("#addressTo").value, 0.01, data);
+
+             log("Order sent...");
+             alert("The order was sent");
+
+             log("Refreshing balance...");
+             $("#amount").value = await jsc3l.bcRead.getGlobalBalance(wallet.getAddressString());
+         } catch (err) {
+             log(`Error: ${err.message}`);
+             throw err;
+         }
+     }
+
+
+     // Trigger of onLoad event
+
+     onLoad();
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,64 @@
+%pane-shared
+  width: 48%
+  display: inline-block
+  vertical-align: top
+
+
+div.left
+  @extend %pane-shared
+
+div.right
+  @extend %pane-shared
+  padding: 20px
+  color: white
+  background-color: black
+
+div.blockie
+  border: solid 1px black
+  margin: 3px
+  background-size: cover
+  background-repeat: no-repeat
+  border-radius: 20%
+
+form#password
+  display: none
+
+#balance
+  display: none
+
+  > div
+    width: 60px
+    display: inline-block
+    vertical-align: top
+
+    > div#blockie
+      width: 60px
+      height: 60px
+
+  #address
+    vertical-align: bottom
+    margin: 0px 0px 25px 10px
+
+#transactions
+  display: none
+
+  div.transaction
+    border: black solid 2px
+    padding: 3px
+    margin-bottom: 1em
+
+form#payment
+  display: none
+
+  #blockieTo
+    width: 40px
+    height: 40px
+    display: inline-block
+
+  #addressTo
+    vertical-align: bottom
+    margin: 0px 0px 15px 10px
+
+div#message
+  font-family: monospace
+  white-space: pre
