@@ -1,116 +1,116 @@
-'use strict';
-var blockies = function() {}
+'use strict'
+
+const blockies = function () {}
 
 // Adapted from
 // https://github.com/alexvandesande/blockies/blob/master/blockies.js
 // updated tayvano 3.9.16
 
+// The random number is a js implementation of the Xorshift PRNG
+const randseed = new Array(4) // Xorshift: [x, y, z, w] 32 bit values
 
-  // The random number is a js implementation of the Xorshift PRNG
-  var randseed = new Array(4); // Xorshift: [x, y, z, w] 32 bit values
+const seedrand = function (seed) {
+  for (var i = 0; i < randseed.length; i++) {
+    randseed[i] = 0
+  }
+  for (var i = 0; i < seed.length; i++) {
+    randseed[i % 4] = ((randseed[i % 4] << 5) - randseed[i % 4]) + seed.charCodeAt(i)
+  }
+}
 
-  var seedrand = function(seed) {
-    for (var i = 0; i < randseed.length; i++) {
-      randseed[i] = 0;
+const rand = function () {
+  // based on Java's String.hashCode(), expanded to 4 32bit values
+  const t = randseed[0] ^ (randseed[0] << 11)
+
+  randseed[0] = randseed[1]
+  randseed[1] = randseed[2]
+  randseed[2] = randseed[3]
+  randseed[3] = (randseed[3] ^ (randseed[3] >> 19) ^ t ^ (t >> 8))
+
+  return (randseed[3] >>> 0) / ((1 << 31) >>> 0)
+}
+
+const createColor = function () {
+  // saturation is the whole color spectrum
+  const h = Math.floor(rand() * 360)
+  // saturation goes from 40 to 100, it avoids greyish colors
+  const s = ((rand() * 60) + 40) + '%'
+  // lightness can be anything from 0 to 100, but probabilities are a bell curve around 50%
+  const l = ((rand() + rand() + rand() + rand()) * 25) + '%'
+
+  const color = 'hsl(' + h + ',' + s + ',' + l + ')'
+  return color
+}
+
+const createImageData = function (size) {
+  const width = size // Only support square icons for now
+  const height = size
+
+  const dataWidth = Math.ceil(width / 2)
+  const mirrorWidth = width - dataWidth
+
+  const data = []
+  for (let y = 0; y < height; y++) {
+    let row = []
+    for (let x = 0; x < dataWidth; x++) {
+      // this makes foreground and background color to have a 43% (1/2.3) probability
+      // spot color has 13% chance
+      row[x] = Math.floor(rand() * 2.3)
     }
-    for (var i = 0; i < seed.length; i++) {
-      randseed[i%4] = ((randseed[i%4] << 5) - randseed[i%4]) + seed.charCodeAt(i);
+    const r = row.slice(0, mirrorWidth)
+    r.reverse()
+    row = row.concat(r)
+
+    for (let i = 0; i < row.length; i++) {
+      data.push(row[i])
     }
   }
 
-  var rand = function() {
-    // based on Java's String.hashCode(), expanded to 4 32bit values
-    var t = randseed[0] ^ (randseed[0] << 11);
+  return data
+}
 
-    randseed[0] = randseed[1];
-    randseed[1] = randseed[2];
-    randseed[2] = randseed[3];
-    randseed[3] = (randseed[3] ^ (randseed[3] >> 19) ^ t ^ (t >> 8));
+const createCanvas = function (imageData, color, scale, bgcolor, spotcolor) {
+  const c = document.createElement('canvas')
+  const width = Math.sqrt(imageData.length)
+  c.width = c.height = width * scale
 
-    return (randseed[3]>>>0) / ((1 << 31)>>>0);
-  }
+  const cc = c.getContext('2d')
+  cc.fillStyle = bgcolor
+  cc.fillRect(0, 0, c.width, c.height)
+  cc.fillStyle = color
 
-  var createColor = function() {
-    //saturation is the whole color spectrum
-    var h = Math.floor(rand() * 360);
-    //saturation goes from 40 to 100, it avoids greyish colors
-    var s = ((rand() * 60) + 40) + '%';
-    //lightness can be anything from 0 to 100, but probabilities are a bell curve around 50%
-    var l = ((rand()+rand()+rand()+rand()) * 25) + '%';
+  for (let i = 0; i < imageData.length; i++) {
+    const row = Math.floor(i / width)
+    const col = i % width
+    // if data is 2, choose spot color, if 1 choose foreground
+    cc.fillStyle = (imageData[i] == 1) ? color : spotcolor
 
-    var color = 'hsl(' + h + ',' + s + ',' + l + ')';
-    return color;
-  }
-
-  var createImageData  = function(size) {
-    var width = size; // Only support square icons for now
-    var height = size;
-
-    var dataWidth = Math.ceil(width / 2);
-    var mirrorWidth = width - dataWidth;
-
-    var data = [];
-    for(var y = 0; y < height; y++) {
-      var row = [];
-      for(var x = 0; x < dataWidth; x++) {
-        // this makes foreground and background color to have a 43% (1/2.3) probability
-        // spot color has 13% chance
-        row[x] = Math.floor(rand()*2.3);
-      }
-      var r = row.slice(0, mirrorWidth);
-      r.reverse();
-      row = row.concat(r);
-
-      for(var i = 0; i < row.length; i++) {
-        data.push(row[i]);
-      }
+    // if data is 0, leave the background
+    if (imageData[i]) {
+      cc.fillRect(col * scale, row * scale, scale, scale)
     }
-
-    return data;
   }
 
-  var createCanvas = function(imageData, color, scale, bgcolor, spotcolor) {
-    var c = document.createElement('canvas');
-    var width = Math.sqrt(imageData.length);
-    c.width = c.height = width * scale;
+  return c
+}
 
-    var cc = c.getContext('2d');
-    cc.fillStyle = bgcolor;
-    cc.fillRect(0, 0, c.width, c.height);
-    cc.fillStyle = color;
+const createIcon = function (opts) {
+  opts = opts || {}
+  const size = opts.size || 8
+  const scale = opts.scale || 4
+  const seed = opts.seed || Math.floor((Math.random() * Math.pow(10, 16))).toString(16)
 
-    for(var i = 0; i < imageData.length; i++) {
-      var row = Math.floor(i / width);
-      var col = i % width;
-      // if data is 2, choose spot color, if 1 choose foreground
-      cc.fillStyle = (imageData[i] == 1) ? color : spotcolor;
+  seedrand(seed)
 
-      // if data is 0, leave the background
-      if(imageData[i]) {
-        cc.fillRect(col * scale, row * scale, scale, scale);
-      }
-    }
+  const color = opts.color || createColor()
+  const bgcolor = opts.bgcolor || createColor()
+  const spotcolor = opts.spotcolor || createColor()
+  const imageData = createImageData(size)
+  const canvas = createCanvas(imageData, color, scale, bgcolor, spotcolor)
 
-    return c;
-  }
+  return canvas
+}
 
-  var createIcon = function(opts) {
-    opts = opts || {};
-    var size = opts.size || 8;
-    var scale = opts.scale || 4;
-    var seed = opts.seed || Math.floor((Math.random()*Math.pow(10,16))).toString(16);
+blockies.create = createIcon
 
-    seedrand(seed);
-
-    var color = opts.color || createColor();
-    var bgcolor = opts.bgcolor || createColor();
-    var spotcolor = opts.spotcolor || createColor();
-    var imageData = createImageData(size);
-    var canvas = createCanvas(imageData, color, scale, bgcolor, spotcolor);
-
-    return canvas;
-  }
-
-blockies.create = createIcon;
-
-module.exports = blockies;
+module.exports = blockies

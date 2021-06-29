@@ -20,5 +20,12 @@
   "bugs": {
     "url": "https://github.com/com-chain/JSC3L/issues"
   },
-  "homepage": "https://github.com/com-chain/JSC3L#readme"
+  "homepage": "https://github.com/com-chain/JSC3L#readme",
+  "devDependencies": {
+    "eslint": "^7.29.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0"
+  }
 }
