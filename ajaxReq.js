@@ -130,13 +130,6 @@ const encodeUriQuery = function (val, pctEncodeSpaces) {
   return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%3B/gi, ';').replace(/%20/g, pctEncodeSpaces ? '%20' : '+')
 }
 
-const isArray = function (arg) {
-  if (Array.isArray) {
-    return Array.isArray(arg)
-  }
-  return objectToString(arg) === '[object Array]'
-}
-
 var isUndefined = function (value) {
   return typeof value === 'undefined'
 }
@@ -157,7 +150,7 @@ const HttpParamSerializerProvider = function (params) {
 
   function serialize (toSerialize, prefix, topLevel) {
     if (toSerialize === null || isUndefined(toSerialize)) { return }
-    if (isArray(toSerialize)) {
+    if (Array.isArray(toSerialize)) {
       forEach(toSerialize, function (value, index) {
         serialize(value, prefix + '[' + (isObject(value) ? index : '') + ']')
       })
