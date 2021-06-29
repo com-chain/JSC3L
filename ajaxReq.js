@@ -1,79 +1,78 @@
 
 /* AJAX Request to the backend */
 
-const isSuccess = function (status) {
-  return status >= 200 && status < 300
-}
+class http {
+  static isSuccess (status) { return status >= 200 && status < 300 }
 
-const http = {}
+  static get (url) {
+    return new Promise(function (resolve, reject) {
+      const xhttp = new XMLHttpRequest()
+      xhttp.onreadystatechange = function () {
+        if (this.readyState === 4) {
+          let jsonObj = {}
+          let error = true
+          try {
+            jsonObj = JSON.parse(this.response)
+            error = false
+          } catch (err) {}
 
-http.get = function (url) {
-  return new Promise(function (resolve, reject) {
-    const xhttp = new XMLHttpRequest()
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4) {
-        let json_obj = {}
-        let error = true
-        try {
-          json_obj = JSON.parse(this.response)
-          error = false
-        } catch (err) {}
+          const respData = {
+            data: jsonObj,
+            status: this.status,
+            headers: '',
+            config: '',
+            statusText: this.statusText
+          }
 
-        const resp_obj = {
-          data: json_obj,
-          status: this.status,
-          headers: '',
-          config: '',
-          statusText: this.statusText
-        }
-
-        if (isSuccess(this.status) && !error) {
-          resolve(resp_obj)
-        } else {
-          reject(resp_obj)
+          if (http.isSuccess(this.status) && !error) {
+            resolve(respData)
+          } else {
+            reject(respData)
+          }
         }
       }
-    }
-    xhttp.open('GET', url, true)
-    xhttp.send()
-  })
-}
+      xhttp.open('GET', url, true)
+      xhttp.send()
+    })
+  }
 
-http.post = function (url, data, config) {
-  return new Promise(function (resolve, reject) {
-    const xhttp = new XMLHttpRequest()
-    xhttp.onreadystatechange = function () {
-      if (this.readyState == 4) {
-        let json_obj = {}
-        let error = true
-        try {
-          json_obj = JSON.parse(this.response)
-          error = false
-        } catch (err) {}
+  static post (url, data, config) {
+    return new Promise(function (resolve, reject) {
+      const xhttp = new XMLHttpRequest()
+      xhttp.onreadystatechange = function () {
+        if (this.readyState === 4) {
+          let jsonObj = {}
+          let error = true
+          try {
+            jsonObj = JSON.parse(this.response)
+            error = false
+          } catch (err) {}
 
-        const resp_obj = {
-          data: json_obj,
-          status: this.status,
-          headers: '',
-          config: '',
-          statusText: this.statusText
-        }
+          const respData = {
+            data: jsonObj,
+            status: this.status,
+            headers: '',
+            config: '',
+            statusText: this.statusText
+          }
 
-        if (isSuccess(this.status) && !error) {
-          resolve(resp_obj)
-        } else {
-          reject(resp_obj)
+          if (http.isSuccess(this.status) && !error) {
+            resolve(respData)
+          } else {
+            reject(respData)
+          }
         }
       }
-    }
-    xhttp.open('POST', url, true)
+      xhttp.open('POST', url, true)
 
-    // set headers
-    xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+      // set headers
+      xhttp.setRequestHeader(
+        'Content-Type', 'application/x-www-form-urlencoded')
 
-    // send request
-    xhttp.send(data)
-  })
+      // send request
+      xhttp.send(data)
+    })
+  }
 }
 
 /// ///////////////////////////
