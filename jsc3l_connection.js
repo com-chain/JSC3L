@@ -1,4 +1,4 @@
-'use strict'
+
 
 const jsc3l_connection = function () {}
 

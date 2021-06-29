@@ -1,4 +1,4 @@
-'use strict'
+
 const uiFuncs = function () {}
 
 const isNumeric = function (n) {

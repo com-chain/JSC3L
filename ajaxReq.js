@@ -1,6 +1,5 @@
 
 /* AJAX Request to the backend */
-'use strict'
 
 const isSuccess = function (status) {
   return status >= 200 && status < 300

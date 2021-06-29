@@ -1,4 +1,4 @@
-'use strict'
+
 const Wallet = function (priv) {
   this.privKey = priv.length == 32 ? priv : Buffer(priv, 'hex')
 }

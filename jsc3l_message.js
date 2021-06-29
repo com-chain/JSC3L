@@ -1,4 +1,4 @@
-'use strict'
+
 const jsc3l_message = function () {
 /// Code adapted from https://github.com/LimelabsTech/eth-ecies
 
