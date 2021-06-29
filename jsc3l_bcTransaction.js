@@ -2,7 +2,7 @@
 ////
 // Pre-requisit:
 // BigNumber (npm install bignumber.js@2.4.0)
-// 
+//
 // uiFuncs (generateTx & sendTx)
 ////
 
@@ -11,96 +11,96 @@ var uiFuncs = require('./uiFuncs');
 
 var jsc3l_bcTransaction = function() {};
 
-/* Action in Contract 1*/ 
+/* Action in Contract 1*/
 jsc3l_bcTransaction.SetAccountParam = function(wallet, account_address, acc_status, acc_type, limit_minus, limit_plus, callback){
      var accAdd = padLeft(getNakedAddress(account_address), 64);
-     internalGenTx(jsc3l_customization.getContract1(), 
-                wallet, 
+     internalGenTx(jsc3l_customization.getContract1(),
+                wallet,
                 "0x848b2592",
                 [accAdd,
                  encodeNumber(acc_status),
                  encodeNumber(acc_type),
                  encodeNumber(parseInt(100*limit_plus,10)),
-                 encodeNumber(parseInt(100*limit_minus,10))], 
+                 encodeNumber(parseInt(100*limit_minus,10))],
                 {},
                 callback);
  }
- 
+
 jsc3l_bcTransaction.PledgeAccount = function(wallet, account_address, amount, additional_post_data, callback){
      var amount_cent = encodeNumber(parseInt(100*amount,10));
      var accAdd = padLeft(getNakedAddress(account_address), 64);
      internalGenTx(jsc3l_customization.getContract1(),
-                wallet, 
-                "0x6c343eef", 
+                wallet,
+                "0x6c343eef",
                 [accAdd, amount_cent],
                 additional_post_data,
-                callback);       
+                callback);
  }
- 
+
 jsc3l_bcTransaction.setAllowance = function(wallet, spender_address, amount, callback){
       var acc_add = padLeft(getNakedAddress(spender_address), 64);
       internalGenTx(jsc3l_customization.getContract1(),
-                 wallet, 
-                 "0xd4e12f2e", 
-                 [acc_add, encodeNumber(parseInt(100*amount,10))], 
+                 wallet,
+                 "0xd4e12f2e",
+                 [acc_add, encodeNumber(parseInt(100*amount,10))],
                  {},
                  callback);
 }
- 
+
 jsc3l_bcTransaction.setDelegation = function (wallet, spender_address, limit,callback){
       var acc_add = padLeft(getNakedAddress(spender_address), 64);
       internalGenTx(jsc3l_customization.getContract1(),
-                 wallet, 
-                 "0x75741c79", 
-                 [acc_add, encodeNumber(parseInt(100*limit,10))], 
+                 wallet,
+                 "0x75741c79",
+                 [acc_add, encodeNumber(parseInt(100*limit,10))],
                  {},
                  callback);
 }
 
 jsc3l_bcTransaction.SetTaxAmount = function(wallet, amount, callback){
      internalGenTx(jsc3l_customization.getContract1(),
-                 wallet, 
-                 "0xf6f1897d", 
+                 wallet,
+                 "0xf6f1897d",
                  [encodeNumber(parseInt(amount,10))],
                  {},
-                 callback);       
+                 callback);
 }
- 
+
 jsc3l_bcTransaction.SetTaxLegAmount = function(wallet, amount, callback){
      internalGenTx(jsc3l_customization.getContract1(),
-                 wallet, 
-                 "0xfafaf4c0", 
+                 wallet,
+                 "0xfafaf4c0",
                  [encodeNumber(parseInt(amount,10))],
                  {},
-                 callback);       
+                 callback);
 }
- 
+
 jsc3l_bcTransaction.SetTaxAccount = function(wallet, account_address, callback){
      var accAdd = padLeft(getNakedAddress(account_address), 64);
      internalGenTx(jsc3l_customization.getContract1(),
-                            wallet, 
-                            "0xd0385b5e", 
+                            wallet,
+                            "0xd0385b5e",
                             [accAdd],
                             {},
-                            callback);       
+                            callback);
 }
- 
+
 jsc3l_bcTransaction.SetOwnerAccount = function(wallet, account_address, callback){
      var accAdd = padLeft(getNakedAddress(account_address), 64);
      internalGenTx(jsc3l_customization.getContract1(),
-                            wallet, 
-                            "0xf2fde38b", 
+                            wallet,
+                            "0xf2fde38b",
                             [accAdd],
                             {},
-                            callback);       
+                            callback);
  }
 
 /*Action in contract 2*/
 jsc3l_bcTransaction.TransfertNant = function (wallet, to_address, amount, additional_post_data, callback){
       var to_add = padLeft(getNakedAddress(to_address), 64);
-      internalGenTx(jsc3l_customization.getContract2(), 
-                             wallet, 
-                             "0xa5f7c148", 
+      internalGenTx(jsc3l_customization.getContract2(),
+                             wallet,
+                             "0xa5f7c148",
                              [to_add, encodeNumber(parseInt(100*amount,10))],
                              additional_post_data,
                              callback);
@@ -108,11 +108,11 @@ jsc3l_bcTransaction.TransfertNant = function (wallet, to_address, amount, additi
 
 jsc3l_bcTransaction.TransfertCM = function (wallet, to_address,amount, additional_post_data, callback){
       var to_add = padLeft(getNakedAddress(to_address), 64);
-      internalGenTx(jsc3l_customization.getContract2(), 
-                     wallet, 
-                     "0x60ca9c4c", 
-                     [to_add, encodeNumber(parseInt(100*amount,10))], 
-                     additional_post_data,        
+      internalGenTx(jsc3l_customization.getContract2(),
+                     wallet,
+                     "0x60ca9c4c",
+                     [to_add, encodeNumber(parseInt(100*amount,10))],
+                     additional_post_data,
                      callback);
 }
 
@@ -121,10 +121,10 @@ jsc3l_bcTransaction.TransfertOnBehalfNant = function (wallet, from_address, to_a
       var from_add = padLeft(getNakedAddress(from_address), 64);
       var to_Add = padLeft(getNakedAddress(to_address), 64);
       internalGenTx(jsc3l_customization.getContract2(),
-                             wallet, 
-                             "0x1b6b1ee5", 
-                             [from_add, to_Add, encodeNumber(parseInt(100*amount,10))], 
-                             additional_post_data, 
+                             wallet,
+                             "0x1b6b1ee5",
+                             [from_add, to_Add, encodeNumber(parseInt(100*amount,10))],
+                             additional_post_data,
                              callback);
 }
 
@@ -133,10 +133,10 @@ jsc3l_bcTransaction.TransfertOnBehalfCM = function (wallet, from_address, to_add
       var from_add = padLeft(getNakedAddress(from_address), 64);
       var to_Add = padLeft(getNakedAddress(to_address), 64);
       internalGenTx(jsc3l_customization.getContract2(),
-                             wallet, 
-                             "0x74c421fe", 
-                             [from_add, to_Add, encodeNumber(parseInt(100*amount,10))], 
-                             additional_post_data, 
+                             wallet,
+                             "0x74c421fe",
+                             [from_add, to_Add, encodeNumber(parseInt(100*amount,10))],
+                             additional_post_data,
                              callback);
 }
 
@@ -144,9 +144,9 @@ jsc3l_bcTransaction.askTransfertFrom = function (wallet,account_address, from_ad
       var from_add = padLeft(getNakedAddress(from_address), 64);
       var accAdd = padLeft(getNakedAddress(account_address), 64);
       internalGenTx(jsc3l_customization.getContract2(),
-                             wallet, 
-                             "0x58258353", 
-                             [from_add, encodeNumber(parseInt(100*amount,10))], 
+                             wallet,
+                             "0x58258353",
+                             [from_add, encodeNumber(parseInt(100*amount,10))],
                              {},
                              callback);
 }
@@ -155,9 +155,9 @@ jsc3l_bcTransaction.askTransfertCMFrom = function (wallet,account_address, from_
       var from_add = padLeft(getNakedAddress(from_address), 64);
       var accAdd = padLeft(getNakedAddress(account_address), 64);
       internalGenTx(jsc3l_customization.getContract2(),
-                             wallet, 
-                             "0x2ef9ade2", 
-                             [from_add, encodeNumber(parseInt(100*amount,10))], 
+                             wallet,
+                             "0x2ef9ade2",
+                             [from_add, encodeNumber(parseInt(100*amount,10))],
                              {},
                              callback);
 }
@@ -165,53 +165,53 @@ jsc3l_bcTransaction.askTransfertCMFrom = function (wallet,account_address, from_
 jsc3l_bcTransaction.PayRequestNant = function (wallet, to_address, amount, additional_data, callback){
       var to_Add = padLeft(getNakedAddress(to_address), 64);
       internalGenTx(jsc3l_customization.getContract2(),
-                             wallet, 
-                             "0x132019f4", 
-                             [to_Add, encodeNumber(parseInt(100*amount,10))], 
-                             additional_data, 
+                             wallet,
+                             "0x132019f4",
+                             [to_Add, encodeNumber(parseInt(100*amount,10))],
+                             additional_data,
                              callback);
 }
 
 jsc3l_bcTransaction.PayRequestCM = function (wallet, to_address, amount, additional_data, callback){
       var to_Add = padLeft(getNakedAddress(to_address), 64);
       internalGenTx(jsc3l_customization.getContract2(),
-                             wallet, 
-                             "0x1415707c", 
+                             wallet,
+                             "0x1415707c",
                              [to_Add, encodeNumber(parseInt(100*amount,10))],
-                             additional_data, 
+                             additional_data,
                              callback);
 }
 
 jsc3l_bcTransaction.RejectRequest = function (wallet, to_address, callback){
       var to_Add = padLeft(getNakedAddress(to_address), 64);
       internalGenTx(jsc3l_customization.getContract2(),
-                             wallet, 
-                             "0xaf98f757", 
+                             wallet,
+                             "0xaf98f757",
                              [to_Add],
                              {},
                              callback);
 }
- 
+
 jsc3l_bcTransaction.DissmissAcceptedInfo = function(wallet, account_address, callback){
      var accAdd = padLeft(getNakedAddress(account_address), 64);
      internalGenTx(jsc3l_customization.getContract2(),
-                            wallet, 
-                            "0xccf93c7a", 
-                            [accAdd], 
+                            wallet,
+                            "0xccf93c7a",
+                            [accAdd],
                             {},
-                            callback);       
+                            callback);
 }
- 
+
 jsc3l_bcTransaction.DissmissRejectedInfo = function(wallet, account_address, callback){
      var accAdd = padLeft(getNakedAddress(account_address), 64);
      internalGenTx(jsc3l_customization.getContract2(),
-                            wallet, 
-                            "0x88759215", 
-                            [accAdd], 
+                            wallet,
+                            "0x88759215",
+                            [accAdd],
                             {},
-                            callback);       
+                            callback);
 }
- 
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //  CM VS Nant Handling
@@ -219,7 +219,7 @@ jsc3l_bcTransaction.DissmissRejectedInfo = function(wallet, account_address, cal
 jsc3l_bcTransaction.getSplitting = function(nant_val, cm_val, cm_minus_lim, amount){
     var nant =0;
     var cm=0;
-    
+
     var res=parseFloat(amount);
     if (parseFloat(cm_val)>0){
         if (parseFloat(cm_val)>=res){
@@ -231,7 +231,7 @@ jsc3l_bcTransaction.getSplitting = function(nant_val, cm_val, cm_minus_lim, amou
             cm_val=0;
         }
     }
-    
+
     if (parseFloat(nant_val)>0){
         if (parseFloat(nant_val)>=res){
             nant=res;
@@ -242,12 +242,12 @@ jsc3l_bcTransaction.getSplitting = function(nant_val, cm_val, cm_minus_lim, amou
             //nant_val=0;
         }
     }
-    
+
     if (res>0 && parseFloat(cm_val)-parseFloat(cm_minus_lim)>=res){
         cm = cm + res;
         res = 0;
     }
-    
+
     var possible = res==0;
     return  {'possible': possible,'nant':nant, 'cm':cm};
 }
@@ -271,7 +271,7 @@ var encodeNumber=function(number){
      } else{
         valueHex = padLeft(new BigNumber(number).toString(16), 64);
      }
-     
+
      return valueHex;
 }
 
@@ -287,7 +287,7 @@ var internalGenTx = function(contract, wallet, fuct_address, values, additional_
         gasPrice: null,
         donate: false
     }
-        
+
     var concatenated_variable='';
     for (var index = 0; index < values.length; ++index) {
         var valueHex = values[index];
@@ -295,22 +295,22 @@ var internalGenTx = function(contract, wallet, fuct_address, values, additional_
     }
     tx.data = fuct_address + concatenated_variable;
     tx.from = wallet.getAddressString();
-    tx.key = wallet.getPrivateKeyString(); 
+    tx.key = wallet.getPrivateKeyString();
     uiFuncs.generateTx(tx, function(rawTx){
         if (!rawTx.isError){
             uiFuncs.sendTx(rawTx.signedTx, additional_post_data, function(res){
-               callback(res);    
+               callback(res);
             });
-        } else { 
+        } else {
             callback(rawTx);
         }
     });
-    
-}  
+
+}
 
 jsc3l_bcTransaction.generateTx = function(contract, wallet, fuct_address, values, additional_post_data, callback){
    internalGenTx(contract, wallet, fuct_address, values, additional_post_data, callback);
-} 
+}
 
 
 

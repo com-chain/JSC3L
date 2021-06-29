@@ -1,7 +1,7 @@
 'use strict';
 var blockies = function() {}
 
-// Adapted from 
+// Adapted from
 // https://github.com/alexvandesande/blockies/blob/master/blockies.js
 // updated tayvano 3.9.16
 

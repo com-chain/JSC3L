@@ -28,8 +28,8 @@ uiFuncs.generateTx = function(txData, callback) {
 				data: ethFuncs.sanitizeHex(txData.data)
 			}
 			var eTx = new ethUtil.Tx(rawTx);
-            
-            
+
+
 			eTx.sign(new Buffer(txData.key, 'hex'));
 			rawTx.rawTx = JSON.stringify(rawTx);
 			rawTx.signedTx = '0x' + eTx.serialize().toString('hex');

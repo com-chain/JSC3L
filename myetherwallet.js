@@ -67,8 +67,8 @@ Wallet.prototype.toV3 = function(password, opts) {
 	}
 	var ciphertext = Buffer.concat([cipher.update(this.privKey), cipher.final()])
 	var mac = ethUtil.keccak(Buffer.concat([derivedKey.slice(16, 32), new Buffer(ciphertext, 'hex')]))
-        
-        
+
+
 	var obj = {
 		version: 3,
 		id: ethUtil.uuid.v4({
@@ -88,11 +88,11 @@ Wallet.prototype.toV3 = function(password, opts) {
         // ComChain addition:
         server: {name:opts.server_name}
 	};
-    
+
     if (opts.message_key !=="undefined") {
         obj.message_key = opts.message_key;
     }
-    
+
     return obj;
 }
 

@@ -1,12 +1,12 @@
 
     /* AJAX Request to the backend*/
     'use strict';
-    
-    
+
+
   var isSuccess = function(status) {
         return 200 <= status && status < 300;
-  }  
-    
+  }
+
   var http = {};
   http.get = function(url){
       return new Promise(function(resolve, reject) {
@@ -19,15 +19,15 @@
                     json_obj=JSON.parse(this.response);
                     error = false;
                 } catch(err) {}
-                
+
                 var resp_obj = {
                     data: json_obj,
                     status: this.status,
                     headers: '',
                     config: '',
                     statusText: this.statusText
-                };    
-                    
+                };
+
                 if (isSuccess(this.status) && !error) {
                     resolve(resp_obj);
                 } else {
@@ -37,12 +37,12 @@
           };
           xhttp.open("GET", url, true);
           xhttp.send();
-      
-      }); 
+
+      });
   }
- 
-  
-  
+
+
+
   http.post = function(url, data, config){
       return new Promise(function(resolve, reject) {
         var xhttp = new XMLHttpRequest();
@@ -54,15 +54,15 @@
                     json_obj=JSON.parse(this.response);
                     error = false;
                 } catch(err) {}
-                
+
                 var resp_obj = {
                     data: json_obj,
                     status: this.status,
                     headers: '',
                     config: '',
                     statusText: this.statusText
-                };    
-                    
+                };
+
                 if (isSuccess(this.status) && !error) {
                     resolve(resp_obj);
                 } else {
@@ -80,19 +80,19 @@
     xhttp.send(data);
 
 
-   }); 
+   });
   }
- 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-////////////////////////////// 
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////
    var isScope= function(obj) {
                 return obj && obj.$evalAsync && obj.$watch;
             }
@@ -111,13 +111,13 @@
                     val = '$SCOPE';
                 }
                 return val;
-                
-            }        
-            
+
+            }
+
             var isNumber = function(arg) {
             return typeof arg === 'number';
         }
-        
+
         var toJson = function(obj, pretty) {
                 if (isUndefined(obj))
                     return undefined;
@@ -129,7 +129,7 @@
             var isDate = function(value) {
                 return toString.call(value) === '[object Date]';
             }
-            
+
             var isObject = function(value) {
                 return value !== null && typeof value === 'object';
             }
@@ -139,11 +139,11 @@ var serializeValue = function(v) {
                 }
                 return v;
 }
-                
+
 var encodeUriQuery = function(val, pctEncodeSpaces) {
                 return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%3B/gi, ';').replace(/%20/g, pctEncodeSpaces ? '%20' : '+');
             }
-            
+
 var isArray = function(arg) {
                 if (Array.isArray) {
                     return Array.isArray(arg);
@@ -161,8 +161,8 @@ var forEachSorted = function(obj, iterator, context) {
                     iterator.call(context, obj[keys[i]], keys[i]);
                 }
                 return keys;
-            }    
-    
+            }
+
 
 var HttpParamSerializerProvider = function (params) {
     if (!params)
@@ -170,7 +170,7 @@ var HttpParamSerializerProvider = function (params) {
     var parts = [];
     serialize(params, '', true);
     return parts.join('&');
-    
+
     function serialize(toSerialize, prefix, topLevel) {
         if (toSerialize === null || isUndefined(toSerialize))
             return;
@@ -190,7 +190,7 @@ var HttpParamSerializerProvider = function (params) {
 
 
 
-                       
+
 
 
 ////////////////////////////////////////////
@@ -233,14 +233,14 @@ var HttpParamSerializerProvider = function (params) {
     ajaxReq.getEthCall = function(txobj, callback) {
 	    this.post({ethCall: txobj}, callback);
     }
-    
+
      ajaxReq.getEthCallAt = function(txobj, block_nb, callback) {
          this.post({ethCallAt: txobj, blockNb: block_nb}, callback);
     }
     ajaxReq.queuePost = function() {
         var data = this.pendingPosts[0].data;
         var callback = this.pendingPosts[0].callback;
-      
+
         try{
 	        this.http.post(jsc3l_customization.getEndpointAddress()+this.SERVERURL, this.postSerializer(data), this.config).then(function(data) {
 		        callback(data.data);
@@ -255,7 +255,7 @@ var HttpParamSerializerProvider = function (params) {
                     ajaxReq.queuePost();
         }
     }
-    
+
     ajaxReq.post = function(data, callback) {
 	    this.pendingPosts.push({data: data,callback: callback});
 
@@ -265,12 +265,12 @@ var HttpParamSerializerProvider = function (params) {
     }
 
     ajaxReq.enrollPost = function(data,callback){
-       
+
          this.http.post(jsc3l_customization.getEndpointAddress()+this.ENROLLURL, this.postSerializer(data), this.config).then(function(data) {
 		    callback(data.data);
 	    });
     }
-    
+
     ajaxReq.validateEnrollmentLetter = function(id, currency, signature, callback){
         var data = {};
         data["id"]=id;
@@ -278,7 +278,7 @@ var HttpParamSerializerProvider = function (params) {
         data["signature"]=signature;
         ajaxReq.enrollPost({data: JSON.stringify(data)},callback);
     }
-    
+
     ajaxReq.enrollAddress = function(id, address, currency, token, callback){
         var data = {};
         data["id"]=id;
@@ -287,73 +287,73 @@ var HttpParamSerializerProvider = function (params) {
 	data["currency"]=currency;
         ajaxReq.enrollPost({data: JSON.stringify(data)},callback);
     }
-    
+
     ajaxReq.getTransList = function(id,count,offset, callback){
         this.http.get(jsc3l_customization.getEndpointAddress()+ajaxReq.TRANLIST+"?addr="+id+"&count="+count+"&offset="+offset).then(function(data){
              callback(data.data);
         });
     }
-    
+
     ajaxReq.getTransCheck = function(hash, callback){
         this.http.get(jsc3l_customization.getEndpointAddress()+ajaxReq.TRANCHECK+"?hash="+hash).then(function(data){
              callback(data.data);
         });
     }
-    
-    
-    
-    
+
+
+
+
     ajaxReq.getExportTransList = function(id,date_start,date_end, callback){
         this.http.get(jsc3l_customization.getEndpointAddress()+ajaxReq.EXPORTTRAN+"?addr="+id+"&start="+date_start+"&end="+date_end).then(function(data){
              callback(data.data);
         });
     }
-    
+
     ajaxReq.getExportTransListWithId = function(id,date_start,date_end, callback){
         this.http.get(jsc3l_customization.getEndpointAddress()+ajaxReq.EXPORTTRAN+"?addr="+id+"&start="+date_start+"&end="+date_end).then(function(data){
              callback(data.data,id);
         });
     }
-    
+
     ajaxReq.getCodesFromAddresses = function(addresses,currency,caller,signature, callback){
-        
+
         var data = {};
         data["server"]=currency;
         data["caller"]=caller;
         data["signature"]=signature;
         data["addresses"]=addresses;
-        
+
         this.http.post(jsc3l_customization.getEndpointAddress()+ajaxReq.GETCODE, this.postSerializer(data), this.config).then(function(data) {
 		    callback(data.data);
-	    }); 
+	    });
     }
-    
+
     ajaxReq.getAddressesFromCode = function(code,currency,caller,signature, callback){
-        
+
         var data = {};
         data["server"]=currency;
         data["caller"]=caller;
         data["signature"]=signature;
         data["code"]=code;
-        
+
         this.http.post(jsc3l_customization.getEndpointAddress()+ajaxReq.GETADDRESS, this.postSerializer(data), this.config).then(function(data) {
 		    callback(data.data);
 	    });
-        
+
     }
-    
-    
+
+
     ajaxReq.getMessageKey = function(address, with_private, callback) {
         var query_string = '?addr='+encodeURIComponent(address);
         if (with_private) {
            query_string = query_string + "&private=1" ;
         }
-        
+
         this.http.get(jsc3l_customization.getEndpointAddress()+ajaxReq.keystore+query_string).then(function(data){
              callback(data.data);
         });
     }
-    
+
     ajaxReq.publishMessageKey = function(data_str, sign, callback) {
         var data = {};
         data["data"]=data_str;
@@ -362,7 +362,7 @@ var HttpParamSerializerProvider = function (params) {
 		    callback(data.data);
 	    });
     }
-    
+
      ajaxReq.requestUnlock = function(address, url, callback) {
         var data = {};
         data["address"]=address;
@@ -370,16 +370,16 @@ var HttpParamSerializerProvider = function (params) {
 		    callback(data);
 	    });
     }
-    
+
     ajaxReq.getReqMessages = function(add_from, add_to, callback) {
         var query_string = '?add_req='+encodeURIComponent(add_from)+ '&add_cli='+encodeURIComponent(add_to);
 
         this.http.get(jsc3l_customization.getEndpointAddress()+ajaxReq.requestMessages+query_string).then(function(data){
              callback(data.data);
         });
-        
+
     }
-    
+
     ajaxReq.publishReqMessages = function(data_str, sign, callback) {
         var data = {};
         data["data"]=data_str;
@@ -388,30 +388,30 @@ var HttpParamSerializerProvider = function (params) {
 		    callback(data.data);
 	    });
     }
-    
-    
+
+
     ajaxReq.currBlock = function(callback){
         this.http.get(jsc3l_customization.getEndpointAddress()+ajaxReq.SERVERURL).then(function(data){
              callback(data.data);
         });
     }
-    
+
     ajaxReq.getBlock = function(hash, callback){
          this.http.get(jsc3l_customization.getEndpointAddress()+ajaxReq.SERVERURL+"?hash="+hash).then(function(data){
              if (data.data && typeof data.data !='object'){
-                 data.data = JSON.parse(data.data).transaction 
+                 data.data = JSON.parse(data.data).transaction
              }
-                
+
              callback(data.data);
         });
 
     }
-    
-   
 
-    
-    
-    
-    
+
+
+
+
+
+
 
     module.exports = ajaxReq;

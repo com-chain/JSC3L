@@ -39,7 +39,7 @@ ethFuncs.contractOutToArray = function(hex) {
 	hex = hex.replace('0x', '').match(/.{64}/g);
     for(var i=0;i<hex.length;i++){
         hex[i] = hex[i].replace(/^0+/, '');
-        hex[i] = hex[i] == "" ? "0" : hex[i]; 
+        hex[i] = hex[i] == "" ? "0" : hex[i];
     }
     return hex;
 }

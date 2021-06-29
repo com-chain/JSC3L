@@ -9,11 +9,11 @@ jsc3l_connection.ensureComChainRepo = function(callback) {
     // 1. Check if a list of end-point is stored locally (avoid a IPNS slow call)
     var storedEndPoints=[];
     try{
-          storedEndPoints = JSON.parse(localStorage.getItem('ComChainApiNodes')); 
+          storedEndPoints = JSON.parse(localStorage.getItem('ComChainApiNodes'));
     } catch(e){
         storedEndPoints=[];
     }
-     
+
     checkRepo(storedEndPoints, function (result_stored){
          if (result_stored){
              callback(true);
@@ -37,42 +37,42 @@ jsc3l_connection.ensureComChainRepo = function(callback) {
 jsc3l_connection.acquireEndPoint = function(callback) {
     jsc3l_connection.getCCEndPointList(function(list_success) {
         if (list_success) {
-            var endpoint_list = JSON.parse(localStorage.getItem('ComChainApiNodes')); 
+            var endpoint_list = JSON.parse(localStorage.getItem('ComChainApiNodes'));
             jsc3l_connection.selectEndPoint(endpoint_list, callback);
         } else {
             callback(false);
         }
     });
 }
- 
+
 ///
 // [Lower level] Get from the IPFS/IPNS node stored it in the localstorage under 'ComChainRepo' the list of ComChain end-points
-/// 
+///
 jsc3l_connection.getCCEndPointList = function(callback){
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', localStorage.getItem('ComChainRepo') + jsc3l_config.nodesRepo+'?_=' + new Date().getTime(), true); 
+    xhr.open('GET', localStorage.getItem('ComChainRepo') + jsc3l_config.nodesRepo+'?_=' + new Date().getTime(), true);
     xhr.responseType = 'json';
-    xhr.onreadystatechange = function (oEvent) {  
-      if (xhr.readyState === 4) {  
-        if (xhr.status === 200) { 
+    xhr.onreadystatechange = function (oEvent) {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
             try{
                 var to_push = xhr.response;
                 if(typeof to_push =='object')
                 {
                     to_push = JSON.stringify(xhr.response);
                 }
-                
-                localStorage.setItem('ComChainApiNodes',to_push); 
+
+                localStorage.setItem('ComChainApiNodes',to_push);
                 callback(true);
             } catch(e){
-                callback(false);  
-            }  
-     
-        } else {  
+                callback(false);
+            }
+
+        } else {
             callback(false);
-        }  
-      }  
-    }; 
+        }
+      }
+    };
     xhr.send();
 }
 
@@ -87,16 +87,16 @@ jsc3l_connection.selectEndPoint = function(nodes, callback){
         //randomly select a node (poor man's load balancing)
         var id = Math.floor((Math.random() * nodes.length));
         var node = nodes[id];
-        
+
         // check the node is up and running
         jsc3l_connection.testNode(node,function(success){
             if (success){
-                // store the node 
+                // store the node
                 localStorage.setItem('ComChainAPI', node);
                 callback(true);
             }else{
                 nodes.splice(id,1);
-                jsc3l_connection.selectEndPoint(nodes,callback);      
+                jsc3l_connection.selectEndPoint(nodes,callback);
             }
         });
     }
@@ -124,20 +124,20 @@ var checkRepo = function(repoList, callback){
          var id = Math.floor((Math.random() * repoList.length));
          var repo = repoList[id];
          var xhr = new XMLHttpRequest();
-         xhr.open('GET',repo + jsc3l_config.ping, true); 
+         xhr.open('GET',repo + jsc3l_config.ping, true);
          xhr.responseType = 'json';
          xhr.timeout = 3000;
-         xhr.onreadystatechange = function (oEvent) {  
-           if (xhr.readyState === 4) {  
-             if (xhr.status === 200) { 
+         xhr.onreadystatechange = function (oEvent) {
+           if (xhr.readyState === 4) {
+             if (xhr.status === 200) {
                     localStorage.setItem('ComChainRepo', repo);
                     callback(true);
-             } else {  
+             } else {
                  repoList.splice(id,1);
-                 checkRepo(repoList, callback); 
-            }  
-          }  
-       }; 
+                 checkRepo(repoList, callback);
+            }
+          }
+       };
 
     xhr.send();
     }
@@ -146,48 +146,48 @@ var checkRepo = function(repoList, callback){
 
 var testApi = function(api_address, callback) {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', api_address + '/api.php', true); 
+    xhr.open('GET', api_address + '/api.php', true);
     xhr.responseType = 'json';
     xhr.timeout = 5000;
-    xhr.onreadystatechange = function (oEvent) {  
-    if (xhr.readyState === 4) {  
-        if (xhr.status === 200) { 
+    xhr.onreadystatechange = function (oEvent) {
+    if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
           try{
               var answer = xhr.response;
               if(typeof answer =='object'){
                         answer = JSON.stringify(xhr.response);
-               }  
+               }
                callback(answer && answer!="null" && !answer.error);
           } catch(e){
-            callback(false);  
-          }  
-         
-        } else {  
+            callback(false);
+          }
+
+        } else {
            callback(false);
-        }  
-        }  
-    }; 
+        }
+        }
+    };
     xhr.send();
 }
 
 var testDbApi = function(api_address, callback) {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', api_address + '/dbcheck.php', true); 
+    xhr.open('GET', api_address + '/dbcheck.php', true);
     xhr.timeout = 5000;
-    xhr.onreadystatechange = function (oEvent) {  
-    if (xhr.readyState === 4) {  
-        if (xhr.status === 200 ) { 
+    xhr.onreadystatechange = function (oEvent) {
+    if (xhr.readyState === 4) {
+        if (xhr.status === 200 ) {
           try{
             callback(xhr.response==='pong');
           } catch(e){
-            callback(false);  
-          }  
-         
-        } else {  
+            callback(false);
+          }
+
+        } else {
            callback(false);
-        }  
-        }  
-    }; 
+        }
+        }
+    };
     xhr.send();
 }
 
