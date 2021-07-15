@@ -1,19 +1,6 @@
 
 let jsc3l = require('@com-chain.org/jsc3l');
 
-window.Wallet = jsc3l.Wallet;
-window.uiFuncs = jsc3l.uiFuncs;
-window.etherUnits = jsc3l.etherUnits;
-window.ajaxReq = jsc3l.ajaxReq;
-window.ethFuncs =  jsc3l.ethFuncs;
-window.jsc3l_config = jsc3l.jsc3l_config;
-window.jsc3l_connection =  jsc3l.jsc3l_connection;
-window.jsc3l_customization =  jsc3l.jsc3l_customization;
-window.jsc3l_bcRead = jsc3l.jsc3l_bcRead;
-window.jsc3l_message = jsc3l.jsc3l_message;
-window.jsc3l_wallet = jsc3l.jsc3l_wallet;
-window.jsc3l_bcTransaction = jsc3l.jsc3l_bcTransaction;
-
 
 // callback to async
 
@@ -70,6 +57,7 @@ window.jsc3l = {
         });
       });
     },
+    cipherMessage: jsc3l.jsc3l_message().cipherMessage,
   },
   ajaxReq: {
     getTransList: (id, count, offset) => {
@@ -102,6 +90,8 @@ window.jsc3l = {
       });
     },
   },
+  Wallet: jsc3l.Wallet,
+
 };
 
 

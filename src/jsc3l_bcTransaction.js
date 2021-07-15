@@ -2,6 +2,8 @@ import BigNumber from 'bignumber.js'
 
 import { getNakedAddress, padLeft } from './ethFuncs'
 
+import jsc3l_customization from './jsc3l_customization'
+
 /// /
 // Pre-requisit:
 // BigNumber (npm install bignumber.js@2.4.0)

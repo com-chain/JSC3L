@@ -1,5 +1,9 @@
 import Tx from 'ethereumjs-tx'
 
+import ajaxReq from './ajaxReq'
+import * as ethFuncs from './ethFuncs'
+import * as etherUnits from './etherUnits'
+
 const uiFuncs = function () {}
 
 const isNumeric = function (n) {

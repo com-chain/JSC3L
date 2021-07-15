@@ -103,7 +103,7 @@
              let password = $("#psw").value;
 
              log("Unlocking wallet file...");
-             wallet = Wallet.getWalletFromPrivKeyFile(json_wallet, password);
+             wallet = jsc3l.Wallet.getWalletFromPrivKeyFile(json_wallet, password);
 
              log("Retrieval of the message key...");
              wallet = await jsc3l.message.ensureWalletMessageKey(wallet, '');
@@ -142,7 +142,7 @@
              log("Displaying payment bloc...");
              $("#addressTo").value = address_dest;
 
-             $("#blockieTo").style.backgroundImage = `url(${Wallet.blockies(address_dest)})`;
+             $("#blockieTo").style.backgroundImage = `url(${jsc3l.Wallet.blockies(address_dest)})`;
 
              log("Retrieval of the message key...");
              let { public_message_key } = await jsc3l.message.getMessageKey(address_dest, false);
@@ -170,12 +170,12 @@
              // Cipher message if any
              if (memo) {
                  if ($("#key_message").value) {
-                     data['memo_to'] = jsc3l_message().cipherMessage(
+                     data['memo_to'] = jsc3l.message.cipherMessage(
                          $("#key_message").value, memo);
                  }
 
                  if (wallet.message_key.pub) {
-                     data['memo_from'] = jsc3l_message().cipherMessage(
+                     data['memo_from'] = jsc3l.message.cipherMessage(
                          wallet.message_key.pub, memo);
                  }
              }

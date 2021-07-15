@@ -2,6 +2,8 @@ import crypto from 'crypto'
 import ethUtil from 'ethereumjs-util'
 import { ec as EC } from 'elliptic'
 
+import ajaxReq from './ajaxReq'
+
 const jsc3l_message = function () {
 /// Code adapted from https://github.com/LimelabsTech/eth-ecies
 
