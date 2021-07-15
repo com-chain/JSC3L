@@ -1,8 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-const etherUnits = function () {}
-
-etherUnits.unitMap = {
+const unitMap = {
   wei: '1',
   kwei: '1000',
   ada: '1000',
@@ -29,33 +27,39 @@ etherUnits.unitMap = {
   tether: '1000000000000000000000000000000'
 }
 
-etherUnits.getValueOfUnit = function (unit) {
+export const getValueOfUnit = function (unit) {
   unit = unit ? unit.toLowerCase() : 'ether'
-  const unitValue = this.unitMap[unit]
+  const unitValue = unitMap[unit]
   if (unitValue === undefined) {
-    throw new Error("This unit doesn\'t exists, please use the one of the following units " + JSON.stringify(this.unitMap, null, 2))
+    throw new Error(
+      "This unit doesn't exists, please use the " +
+        'one of the following units ' + JSON.stringify(unitMap, null, 2))
   }
   return new BigNumber(unitValue, 10)
 }
 
-etherUnits.fiatToWei = function (number, pricePerEther) {
-  const returnValue = new BigNumber(String(number)).div(pricePerEther).times(this.getValueOfUnit('ether')).round(0)
+export const fiatToWei = function (number, pricePerEther) {
+  const returnValue = new BigNumber(String(number))
+    .div(pricePerEther)
+    .times(this.getValueOfUnit('ether'))
+    .round(0)
   return returnValue.toString(10)
 }
 
-etherUnits.toFiat = function (number, unit, multi) {
-  const returnValue = new BigNumber(this.toEther(number, unit)).times(multi).round(5)
+export const toFiat = function (number, unit, multi) {
+  const returnValue = new BigNumber(this.toEther(number, unit))
+    .times(multi).round(5)
   return returnValue.toString(10)
 }
 
-etherUnits.toEther = function (number, unit) {
-  const returnValue = new BigNumber(this.toWei(number, unit)).div(this.getValueOfUnit('ether'))
+export const toEther = function (number, unit) {
+  const returnValue = new BigNumber(this.toWei(number, unit))
+    .div(this.getValueOfUnit('ether'))
   return returnValue.toString(10)
 }
 
-etherUnits.toWei = function (number, unit) {
-  const returnValue = new BigNumber(String(number)).times(this.getValueOfUnit(unit))
+export const toWei = function (number, unit) {
+  const returnValue = new BigNumber(String(number))
+    .times(this.getValueOfUnit(unit))
   return returnValue.toString(10)
 }
-
-module.exports = etherUnits
