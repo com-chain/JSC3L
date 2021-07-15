@@ -1,11 +1,14 @@
+import crypto from 'crypto'
+import ethUtil from 'ethereumjs-util'
+import { ec as EC } from 'elliptic'
 
 const jsc3l_message = function () {
 /// Code adapted from https://github.com/LimelabsTech/eth-ecies
 
-  const ec = new ethUtil.EC('secp256k1')
+  const ec = new EC('secp256k1')
 
   const AES256CbcEncrypt = function (iv, key, plaintext) {
-    const cipher = ethUtil.crypto.createCipheriv('aes-256-cbc', key, iv)
+    const cipher = crypto.createCipheriv('aes-256-cbc', key, iv)
     const firstChunk = cipher.update(plaintext)
     const secondChunk = cipher.final()
 
@@ -13,7 +16,7 @@ const jsc3l_message = function () {
   }
 
   const AES256CbcDecrypt = function (iv, key, ciphertext) {
-    const cipher = ethUtil.crypto.createDecipheriv('aes-256-cbc', key, iv)
+    const cipher = crypto.createDecipheriv('aes-256-cbc', key, iv)
     const firstChunk = cipher.update(ciphertext)
     const secondChunk = cipher.final()
 
@@ -35,13 +38,13 @@ const jsc3l_message = function () {
 
   const Encrypt = function (publicKey, plaintext) {
   /* DEBUG */
-    const private_key = ethUtil.crypto.randomBytes(32)
+    const private_key = crypto.randomBytes(32)
     const public_key = ethUtil.privateToPublic(private_key)
 
     /* DEBUG */
 
     const pubKeyTo = Buffer.from(publicKey)
-    const ephemPrivKey = ec.keyFromPrivate(ethUtil.crypto.randomBytes(32))
+    const ephemPrivKey = ec.keyFromPrivate(crypto.randomBytes(32))
     const ephemPubKey = ephemPrivKey.getPublic()
     const ephemPubKeyEncoded = Buffer.from(ephemPubKey.encode())
 
@@ -51,13 +54,13 @@ const jsc3l_message = function () {
     const keys = ec.keyFromPublic(concatenated)
     const pub = keys.getPublic()
     const px = ephemPrivKey.derive(pub)
-    const hash = ethUtil.crypto.createHash('sha512').update(Buffer.from(px.toArray())).digest()
-    const iv = ethUtil.crypto.randomBytes(16)
+    const hash = crypto.createHash('sha512').update(Buffer.from(px.toArray())).digest()
+    const iv = crypto.randomBytes(16)
     const encryptionKey = hash.slice(0, 32)
     const macKey = hash.slice(32)
     const ciphertext = AES256CbcEncrypt(iv, encryptionKey, plaintext)
     const dataToMac = Buffer.concat([iv, ephemPubKeyEncoded, ciphertext])
-    const mac = ethUtil.crypto.createHmac('sha256', macKey).update(dataToMac).digest()
+    const mac = crypto.createHmac('sha256', macKey).update(dataToMac).digest()
 
     const serializedCiphertext = Buffer.concat([
       iv, // 16 bytes
@@ -82,11 +85,11 @@ const jsc3l_message = function () {
     const ephemPubKey = ec.keyFromPublic(ephemPubKeyEncoded).getPublic()
 
     const px = ec.keyFromPrivate(privKeyBuff).derive(ephemPubKey)
-    const hash = ethUtil.crypto.createHash('sha512').update(Buffer.from(px.toArray())).digest()
+    const hash = crypto.createHash('sha512').update(Buffer.from(px.toArray())).digest()
     const encryptionKey = hash.slice(0, 32)
     const macKey = hash.slice(32)
     const dataToMac = Buffer.concat([iv, ephemPubKeyEncoded, ciphertext])
-    const computedMac = ethUtil.crypto.createHmac('sha256', macKey).update(dataToMac).digest()
+    const computedMac = crypto.createHmac('sha256', macKey).update(dataToMac).digest()
 
     // Verify mac
     if (!BufferEqual(computedMac, mac)) {

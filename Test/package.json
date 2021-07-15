@@ -17,12 +17,6 @@
     "gulp-sass": "^4.1.0"
   },
   "dependencies": {
-    "@com-chain.org/jsc3l": "file:..",
-    "bignumber.js": "2.4.0",
-    "ethereumjs-tx": "^1.1.2",
-    "scryptsy": "^2.1.0",
-    "sha3": "^2.1.4",
-    "through2": "^4.0.2",
-    "uuid": "^8.3.2"
+    "@com-chain.org/jsc3l": "file:.."
   }
 }

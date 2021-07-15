@@ -1,4 +1,6 @@
+import BigNumber from 'bignumber.js'
 
+import { getNakedAddress, padLeft, getDataObj } from './ethFuncs'
 
 /// /
 // Pre-requisit:
@@ -105,22 +107,6 @@ const encodeNumber = function (number) {
   }
 
   return valueHex
-}
-
-var padLeft = function (n, width, z) {
-  z = z || '0'
-  n = n + ''
-  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n
-}
-
-const getDataObj = function (to, func, arrVals) {
-  let val = ''
-  for (let i = 0; i < arrVals.length; i++) val += padLeft(arrVals[i], 64)
-  return { to: to, data: func + val }
-}
-
-const getNakedAddress = function (address) {
-  return address.toLowerCase().replace('0x', '')
 }
 
 var getAmmount = function (address, walletAddress, callback) {

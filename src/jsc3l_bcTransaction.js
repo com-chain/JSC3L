@@ -1,4 +1,6 @@
+import BigNumber from 'bignumber.js'
 
+import { getNakedAddress, padLeft } from './ethFuncs'
 
 /// /
 // Pre-requisit:
@@ -252,16 +254,6 @@ jsc3l_bcTransaction.getSplitting = function (nant_val, cm_val, cm_minus_lim, amo
 }
 
 /// /////////////////////////////////////////////////////////////////////////////
-
-var padLeft = function (n, width, z) {
-  z = z || '0'
-  n = n + ''
-  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n
-}
-
-var getNakedAddress = function (address) {
-  return address.toLowerCase().replace('0x', '')
-}
 
 var encodeNumber = function (number) {
   let valueHex

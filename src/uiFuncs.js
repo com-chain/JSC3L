@@ -1,3 +1,4 @@
+import Tx from 'ethereumjs-tx'
 
 const uiFuncs = function () {}
 
@@ -27,7 +28,7 @@ uiFuncs.generateTx = function (txData, callback) {
         value: ethFuncs.sanitizeHex(ethFuncs.decimalToHex(etherUnits.toWei(txData.value, txData.unit))),
         data: ethFuncs.sanitizeHex(txData.data)
       }
-      const eTx = new ethUtil.Tx(rawTx)
+      const eTx = new Tx(rawTx)
 
       eTx.sign(new Buffer(txData.key, 'hex'))
       rawTx.rawTx = JSON.stringify(rawTx)
