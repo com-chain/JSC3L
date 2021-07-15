@@ -24,7 +24,9 @@ class AjaxReq {
   }
 
   enrollPost (data, callback) {
-    Endpoint.post(URL.ENROLL, data, this.config)
+    Endpoint.post(URL.ENROLL, {
+      data: JSON.stringify(data)
+    }, this.config)
       .then(function (data) {
         callback(data.data)
       })
@@ -38,16 +40,8 @@ class AjaxReq {
     this.post({ txdata: addr }, callback)
   }
 
-  sendRawTx (rawTx, additionalData, callback) {
-    const postData = { rawtx: rawTx }
-    if (additionalData &&
-        Object.keys(additionalData) &&
-        Object.keys(additionalData).length > 0) {
-      for (const item in additionalData) {
-        postData[item] = additionalData[item]
-      }
-    }
-    this.post(postData, callback)
+  sendRawTx (rawtx, additionalData, callback) {
+    this.post(Object.assign({}, { rawtx }, additionalData ?? {}), callback)
   }
 
   getEstimatedGas (txobj, callback) {
@@ -69,31 +63,20 @@ class AjaxReq {
     try {
       Endpoint.post(URL.SERVER, data, this.config).then(data => {
         callback(data.data)
-        this.pendingPosts.splice(0, 1)
-        if (this.pendingPosts.length > 0) { this.queuePost() }
       })
     } catch (err) {
       console.log(err)
-      this.pendingPosts.splice(0, 1)
-      if (this.pendingPosts.length > 0) { this.queuePost() }
     }
+    this.pendingPosts.splice(0, 1)
+    if (this.pendingPosts.length > 0) { this.queuePost() }
   }
 
   validateEnrollmentLetter (id, currency, signature, callback) {
-    const data = {}
-    data.id = id
-    data.currency = currency
-    data.signature = signature
-    this.enrollPost({ data: JSON.stringify(data) }, callback)
+    this.enrollPost({ id, currency, signature }, callback)
   }
 
   enrollAddress (id, address, currency, token, callback) {
-    const data = {}
-    data.id = id
-    data.adresse = address
-    data.token = token
-    data.currency = currency
-    this.enrollPost({ data: JSON.stringify(data) }, callback)
+    this.enrollPost({ id, addresse: address, token, currency }, callback)
   }
 
   getTransList (id, count, offset, callback) {
@@ -128,32 +111,25 @@ class AjaxReq {
   }
 
   getCodesFromAddresses (addresses, currency, caller, signature, callback) {
-    const data = {
+    Endpoint.post(URL.GETCODE, {
       server: currency,
-      caller: caller,
-      signature: signature,
-      addresses: addresses
-    }
-    Endpoint.post(URL.GETCODE, data,
-      this.config)
-      .then(function (data) {
-        callback(data.data)
-      })
+      caller,
+      signature,
+      addresses
+    }).then(function (data) {
+      callback(data.data)
+    })
   }
 
   getAddressesFromCode (code, currency, caller, signature, callback) {
-    const data = {
+    Endpoint.post(URL.GETADDRESS, {
       server: currency,
-      caller: caller,
-      signature: signature,
-      code: code
-    }
-    Endpoint.post(URL.GETADDRESS,
-      data,
-      this.config)
-      .then(function (data) {
-        callback(data.data)
-      })
+      caller,
+      signature,
+      code
+    }).then(function (data) {
+      callback(data.data)
+    })
   }
 
   getMessageKey (address, withPrivate, callback) {
@@ -168,21 +144,15 @@ class AjaxReq {
       })
   }
 
-  publishMessageKey (dataStr, sign, callback) {
-    const data = {}
-    data.data = dataStr
-    data.sign = sign
-    Endpoint.post(URL.KEYSTORE,
-      data, this.config)
+  publishMessageKey (data, sign, callback) {
+    Endpoint.post(URL.KEYSTORE, { data, sign })
       .then(function (data) {
         callback(data.data)
       })
   }
 
   requestUnlock (address, url, callback) {
-    const data = {}
-    data.address = address
-    Endpoint.post(url, data, this.config)
+    Endpoint.post(url, { address })
       .then(function (data) {
         callback(data)
       })
@@ -198,12 +168,8 @@ class AjaxReq {
     })
   }
 
-  publishReqMessages (dataStr, sign, callback) {
-    const data = {}
-    data.data = dataStr
-    data.sign = sign
-    Endpoint.post(URL.requestMessages,
-      data, this.config)
+  publishReqMessages (data, sign, callback) {
+    Endpoint.post(URL.requestMessages, { data, sign })
       .then(function (data) {
         callback(data.data)
       })
