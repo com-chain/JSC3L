@@ -2,9 +2,11 @@
   "name": "@com-chain.org/jsc3l",
   "version": "0.1.0",
   "description": "JavaScript Com-Chain Communication Library",
-  "main": "src/main.js",
+  "main": "build/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel src -d build",
+    "watch": "babel src -d build -w"
   },
   "repository": {
     "type": "git",
@@ -22,6 +24,10 @@
   },
   "homepage": "https://github.com/com-chain/JSC3L#readme",
   "devDependencies": {
+    "@babel/cli": "^7.14.5",
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "babel-eslint": "^10.1.0",
     "eslint": "^7.29.0",
     "eslint-config-standard": "^16.0.3",
     "eslint-plugin-import": "^2.23.4",
