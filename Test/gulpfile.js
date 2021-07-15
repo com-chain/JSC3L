@@ -15,19 +15,14 @@ var mainjs = "./src/index.js";
 
 
 function browserified() {
-    return through2.obj(function(file, enc, next) {
-        browserify(file.path, {
-                debug: false
-            })
-            .bundle(function(err, res) {
-                if (err) {
-                    return next(err);
-                }
-
-                file.contents = res;
-                next(null, file);
-            });
+  return through2.obj(function(file, enc, next) {
+    browserify(file.path, { debug: false, })
+      .bundle(function(err, res) {
+      if (err) return next(err);
+      file.contents = res;
+      next(null, file);
     });
+  });
 }
 
 
