@@ -1,6 +1,7 @@
 import ajaxReq from './ajaxReq'
 
 import jsc3l_customization from './jsc3l_customization'
+import * as jsc3l_message from './jsc3l_message'
 
 const jsc3l_wallet = function () {}
 
@@ -11,7 +12,7 @@ jsc3l_wallet.kdf = 'scrypt'
 
 jsc3l_wallet.createWallet = function (callback) {
   const wallet = Wallet.generate(false)
-  jsc3l_message().ensureWalletMessageKey(wallet, '', function (complete_wall) {
+  jsc3l_message.ensureWalletMessageKey(wallet, '', function (complete_wall) {
     callback(complete_wall)
   })
 }

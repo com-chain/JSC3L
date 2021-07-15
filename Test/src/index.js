@@ -45,19 +45,19 @@ window.jsc3l = {
   message: {
     ensureWalletMessageKey: (wallet, message) => {
       return new Promise((resolve, reject) => {
-        jsc3l.jsc3l_message().ensureWalletMessageKey(wallet, message, w => {
+        jsc3l.jsc3l_message.ensureWalletMessageKey(wallet, message, w => {
           resolve(w);
         });
       });
     },
     getMessageKey: (address_dest, with_private) => {
       return new Promise((resolve, reject) => {
-        jsc3l.jsc3l_message().getMessageKey(address_dest, with_private, remote_key => {
+        jsc3l.jsc3l_message.getMessageKey(address_dest, with_private, remote_key => {
           resolve(remote_key);
         });
       });
     },
-    cipherMessage: jsc3l.jsc3l_message().cipherMessage,
+    cipherMessage: jsc3l.jsc3l_message.cipherMessage,
   },
   ajaxReq: {
     getTransList: (id, count, offset) => {
@@ -111,17 +111,17 @@ window.fetchUrl = url => {
 
 
 window.getTransactionMemo = (wallet, transaction) => {
-  let key = jsc3l.jsc3l_message().messageKeysFromCrypted(wallet, wallet.message_key.priv).clear_priv;
+  let key = jsc3l.jsc3l_message.messageKeysFromCrypted(wallet, wallet.message_key.priv).clear_priv;
   let wallet_address = wallet.getAddressString().toLowerCase();
 
   if (transaction.addr_to.toLowerCase() == wallet_address &&
       transaction.message_to) {
-    return jsc3l.jsc3l_message().decipherMessage(key, transaction.message_to);
+    return jsc3l.jsc3l_message.decipherMessage(key, transaction.message_to);
   }
 
   if (transaction.addr_from.toLowerCase() == wallet_address &&
       transaction.message_from) {
-    return jsc3l.jsc3l_message().decipherMessage(key, transaction.message_from);
+    return jsc3l.jsc3l_message.decipherMessage(key, transaction.message_from);
   }
 
   return "";
