@@ -11,14 +11,16 @@ class PostSerializedHttp extends Http {
 }
 
 /**
- * Prepend endpoint address to url
- *
+ * Prepend endpoint address to url, and support passing data to
+ * querystring when method is GET.
  */
 export class Endpoint extends PostSerializedHttp {
   static request (method, url, data) {
-    return super.request(
-      method,
-      url.includes('://') ? url : getEndpointAddress() + url,
-      data)
+    url = url.includes('://') ? url : getEndpointAddress() + url
+    if (method === 'GET' && Object.keys(data).length != 0) {
+      url += '?' + (new URLSearchParams(data)).toString()
+    }
+
+    return super.request(method, url, method === 'GET' ? null : data)
   }
 }

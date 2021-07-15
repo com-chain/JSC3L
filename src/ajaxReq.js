@@ -24,9 +24,7 @@ class AjaxReq {
   }
 
   enrollPost (data, callback) {
-    Endpoint.post(URL.ENROLL, {
-      data: JSON.stringify(data)
-    }, this.config)
+    Endpoint.post(URL.ENROLL, { data: JSON.stringify(data) })
       .then(function (data) {
         callback(data.data)
       })
@@ -80,31 +78,28 @@ class AjaxReq {
   }
 
   getTransList (id, count, offset, callback) {
-    Endpoint.get(URL.TRANLIST +
-             '?addr=' + id + '&count=' + count + '&offset=' + offset)
+    Endpoint.get(URL.TRANLIST, { addr: id, count, offset })
       .then(function (data) {
         callback(data.data)
       })
   }
 
   getTransCheck (hash, callback) {
-    Endpoint.get(URL.TRANCHECK + '?hash=' + hash)
+    Endpoint.get(URL.TRANCHECK, { hash })
       .then(function (data) {
         callback(data.data)
       })
   }
 
-  getExportTransList (id, dateStart, dateEnd, callback) {
-    Endpoint.get(URL.EXPORTTRAN +
-             '?addr=' + id + '&start=' + dateStart + '&end=' + dateEnd)
+  getExportTransList (id, start, end, callback) {
+    Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
       .then(function (data) {
         callback(data.data)
       })
   }
 
-  getExportTransListWithId (id, dateStart, dateEnd, callback) {
-    Endpoint.get(URL.EXPORTTRAN +
-             '?addr=' + id + '&start=' + dateStart + '&end=' + dateEnd)
+  getExportTransListWithId (id, start, end, callback) {
+    Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
       .then(function (data) {
         callback(data.data, id)
       })
@@ -132,13 +127,10 @@ class AjaxReq {
     })
   }
 
-  getMessageKey (address, withPrivate, callback) {
-    let queryString = '?addr=' + encodeURIComponent(address)
-    if (withPrivate) {
-      queryString = queryString + '&private=1'
-    }
-
-    Endpoint.get(URL.KEYSTORE + queryString)
+  getMessageKey (addr, withPrivate, callback) {
+    const data = { addr }
+    if (withPrivate) data.private = '1'
+    Endpoint.get(URL.KEYSTORE, data)
       .then(function (data) {
         callback(data.data)
       })
@@ -159,13 +151,10 @@ class AjaxReq {
   }
 
   getReqMessages (addFrom, addTo, callback) {
-    const queryString = '?add_req=' + encodeURIComponent(addFrom) +
-          '&add_cli=' + encodeURIComponent(addTo)
-
-    Endpoint.get(URL.requestMessages +
-             queryString).then(function (data) {
-      callback(data.data)
-    })
+    Endpoint.get(URL.requestMessages, { add_req: addFrom, add_cli: addTo })
+      .then(function (data) {
+        callback(data.data)
+      })
   }
 
   publishReqMessages (data, sign, callback) {
@@ -183,7 +172,7 @@ class AjaxReq {
   }
 
   getBlock (hash, callback) {
-    Endpoint.get(URL.SERVER + '?hash=' + hash)
+    Endpoint.get(URL.SERVER, { hash })
       .then(function (data) {
         if (data.data && typeof data.data !== 'object') {
           data.data = JSON.parse(data.data).transaction
