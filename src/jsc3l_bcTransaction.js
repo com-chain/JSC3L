@@ -1,6 +1,5 @@
-import BigNumber from 'bignumber.js'
 
-import { getNakedAddress, padLeft } from './ethFuncs'
+import { getNakedAddress, padLeft, encodeNumber } from './ethFuncs'
 
 import jsc3l_customization from './jsc3l_customization'
 import { generateTx, sendTx } from './uiFuncs'
@@ -258,17 +257,6 @@ export function getSplitting (nantVal, cmVal, cmMinusLim, amount) {
 }
 
 // /////////////////////////////////////////////////////////////////////////////
-
-export function encodeNumber (number) {
-  let valueHex
-  if (number < 0) {
-    valueHex = padLeft(new BigNumber(16).pow(64).plus(number).toString(16), 64)
-  } else {
-    valueHex = padLeft(new BigNumber(number).toString(16), 64)
-  }
-
-  return valueHex
-}
 
 export function internalGenTx (contract, wallet, fuctAddress,
   values, additionalPostData, callback) {

@@ -82,3 +82,14 @@ export function getDataObj (to, func, arrVals) {
   for (let i = 0; i < arrVals.length; i++) val += padLeft(arrVals[i], 64)
   return { to: to, data: func + val }
 }
+
+export function encodeNumber (number) {
+  let valueHex
+  if (number < 0) {
+    valueHex = padLeft(new BigNumber(16).pow(64).plus(number).toString(16), 64)
+  } else {
+    valueHex = padLeft(new BigNumber(number).toString(16), 64)
+  }
+
+  return valueHex
+}
