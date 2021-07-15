@@ -1,7 +1,4 @@
 
-
-const blockies = function () {}
-
 // Adapted from
 // https://github.com/alexvandesande/blockies/blob/master/blockies.js
 // updated tayvano 3.9.16
@@ -9,12 +6,13 @@ const blockies = function () {}
 // The random number is a js implementation of the Xorshift PRNG
 const randseed = new Array(4) // Xorshift: [x, y, z, w] 32 bit values
 
-const seedrand = function (seed) {
-  for (var i = 0; i < randseed.length; i++) {
+function seedrand (seed) {
+  for (let i = 0; i < randseed.length; i++) {
     randseed[i] = 0
   }
-  for (var i = 0; i < seed.length; i++) {
-    randseed[i % 4] = ((randseed[i % 4] << 5) - randseed[i % 4]) + seed.charCodeAt(i)
+  for (let i = 0; i < seed.length; i++) {
+    randseed[i % 4] = ((randseed[i % 4] << 5) - randseed[i % 4]) +
+      seed.charCodeAt(i)
   }
 }
 
@@ -35,7 +33,8 @@ const createColor = function () {
   const h = Math.floor(rand() * 360)
   // saturation goes from 40 to 100, it avoids greyish colors
   const s = ((rand() * 60) + 40) + '%'
-  // lightness can be anything from 0 to 100, but probabilities are a bell curve around 50%
+  // lightness can be anything from 0 to 100, but probabilities are a
+  // bell curve around 50%
   const l = ((rand() + rand() + rand() + rand()) * 25) + '%'
 
   const color = 'hsl(' + h + ',' + s + ',' + l + ')'
@@ -53,8 +52,8 @@ const createImageData = function (size) {
   for (let y = 0; y < height; y++) {
     let row = []
     for (let x = 0; x < dataWidth; x++) {
-      // this makes foreground and background color to have a 43% (1/2.3) probability
-      // spot color has 13% chance
+      // this makes foreground and background color to have a 43%
+      // (1/2.3) probability spot color has 13% chance
       row[x] = Math.floor(rand() * 2.3)
     }
     const r = row.slice(0, mirrorWidth)
@@ -94,23 +93,22 @@ const createCanvas = function (imageData, color, scale, bgcolor, spotcolor) {
   return c
 }
 
-const createIcon = function (opts) {
-  opts = opts || {}
-  const size = opts.size || 8
-  const scale = opts.scale || 4
-  const seed = opts.seed || Math.floor((Math.random() * Math.pow(10, 16))).toString(16)
+export default {
+  create: function (opts) {
+    opts = opts || {}
+    const size = opts.size || 8
+    const scale = opts.scale || 4
+    const seed = opts.seed || Math.floor((Math.random() *
+                                        Math.pow(10, 16))).toString(16)
 
-  seedrand(seed)
+    seedrand(seed)
 
-  const color = opts.color || createColor()
-  const bgcolor = opts.bgcolor || createColor()
-  const spotcolor = opts.spotcolor || createColor()
-  const imageData = createImageData(size)
-  const canvas = createCanvas(imageData, color, scale, bgcolor, spotcolor)
+    const color = opts.color || createColor()
+    const bgcolor = opts.bgcolor || createColor()
+    const spotcolor = opts.spotcolor || createColor()
+    const imageData = createImageData(size)
+    const canvas = createCanvas(imageData, color, scale, bgcolor, spotcolor)
 
-  return canvas
+    return canvas
+  }
 }
-
-blockies.create = createIcon
-
-module.exports = blockies
