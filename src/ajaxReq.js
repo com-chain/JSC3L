@@ -1,3 +1,4 @@
+import { getEndpointAddress } from './jsc3l_customization'
 
 /* AJAX Request to the backend */
 
@@ -138,7 +139,7 @@ const encodeUriQuery = function (val, pctEncodeSpaces) {
     .replace(/%20/g, pctEncodeSpaces ? '%20' : '+')
 }
 
-var isUndefined = function (value) {
+const isUndefined = function (value) {
   return typeof value === 'undefined'
 }
 
@@ -150,7 +151,7 @@ const forEachSorted = function (obj, iterator, context) {
   return keys
 }
 
-const HttpParamSerializerProvider = function (params) {
+const postSerializer = function (params) {
   if (!params) { return '' }
   const parts = []
   serialize(params, '', true)
@@ -159,7 +160,7 @@ const HttpParamSerializerProvider = function (params) {
   function serialize (toSerialize, prefix, topLevel) {
     if (toSerialize === null || isUndefined(toSerialize)) { return }
     if (Array.isArray(toSerialize)) {
-      forEach(toSerialize, function (value, index) {
+      toSerialize.forEach(function (value, index) {
         serialize(value, prefix + '[' + (isObject(value) ? index : '') + ']')
       })
     } else if (isObject(toSerialize) && !isDate(toSerialize)) {
@@ -174,207 +175,208 @@ const HttpParamSerializerProvider = function (params) {
 
 /// /////////////////////////////////////////
 
-const ajaxReq = function () {}
-
-ajaxReq.http = http
-ajaxReq.postSerializer = HttpParamSerializerProvider
-ajaxReq.SERVERURL = 'api.php'
-ajaxReq.ENROLLURL = 'enroll.php'
-ajaxReq.TRANLIST = 'trnslist.php'
-ajaxReq.TRANCHECK = 'api.php'
-ajaxReq.EXPORTTRAN = 'export.php'
-ajaxReq.GETCODE = 'getuid.php'
-ajaxReq.GETADDRESS = 'getadd.php'
-ajaxReq.keystore = 'keys.php'
-ajaxReq.requestMessages = 'requestMessages.php'
-ajaxReq.pendingPosts = []
-ajaxReq.config = { headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' } }
-
-ajaxReq.getBalance = function (addr, callback) {
-  this.post({ balance: addr }, callback)
+class URL {
+  static SERVER = 'api.php';
+  static ENROLL = 'enroll.php';
+  static TRANLIST = 'trnslist.php';
+  static TRANCHECK = 'api.php';
+  static EXPORTTRAN = 'export.php';
+  static GETCODE = 'getuid.php';
+  static GETADDRESS = 'getadd.php';
+  static KEYSTORE = 'keys.php';
+  static requestMessages = 'requestMessages.php';
 }
 
-ajaxReq.getTransactionData = function (addr, callback) {
-  this.post({ txdata: addr }, callback)
-}
+class AjaxReq {
+  pendingPosts = []
+  config = { headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' } }
 
-ajaxReq.sendRawTx = function (rawTx, additional_data, callback) {
-  const post_data = { rawtx: rawTx }
-  if (additional_data && Object.keys(additional_data) && Object.keys(additional_data).length > 0) {
-    for (const item in additional_data) {
-      post_data[item] = additional_data[item]
+  post (data, callback) {
+    this.pendingPosts.push({ data: data, callback: callback })
+
+    if (this.pendingPosts.length === 1) {
+      this.queuePost()
     }
   }
-  this.post(post_data, callback)
-}
 
-ajaxReq.getEstimatedGas = function (txobj, callback) {
-  this.post({ estimatedGas: txobj }, callback)
-}
-
-ajaxReq.getEthCall = function (txobj, callback) {
-  this.post({ ethCall: txobj }, callback)
-}
-
-ajaxReq.getEthCallAt = function (txobj, block_nb, callback) {
-  this.post({ ethCallAt: txobj, blockNb: block_nb }, callback)
-}
-
-ajaxReq.queuePost = function () {
-  const data = this.pendingPosts[0].data
-  const callback = this.pendingPosts[0].callback
-
-  try {
-    this.http.post(jsc3l_customization.getEndpointAddress() + this.SERVERURL, this.postSerializer(data), this.config).then(function (data) {
-	  callback(data.data)
-      ajaxReq.pendingPosts.splice(0, 1)
-      if (ajaxReq.pendingPosts.length > 0) { ajaxReq.queuePost() }
+  enrollPost (data, callback) {
+    http.post(getEndpointAddress() + URL.ENROLL, postSerializer(data), this.config).then(function (data) {
+      callback(data.data)
     })
-  } catch (err) {
-    console.log(err)
-    ajaxReq.pendingPosts.splice(0, 1)
-    if (ajaxReq.pendingPosts.length > 0) { ajaxReq.queuePost() }
-  }
-}
-
-ajaxReq.post = function (data, callback) {
-  this.pendingPosts.push({ data: data, callback: callback })
-
-  if (this.pendingPosts.length == 1) {
-    this.queuePost()
-  }
-}
-
-ajaxReq.enrollPost = function (data, callback) {
-  this.http.post(jsc3l_customization.getEndpointAddress() + this.ENROLLURL, this.postSerializer(data), this.config).then(function (data) {
-    callback(data.data)
-  })
-}
-
-ajaxReq.validateEnrollmentLetter = function (id, currency, signature, callback) {
-  const data = {}
-  data.id = id
-  data.currency = currency
-  data.signature = signature
-  ajaxReq.enrollPost({ data: JSON.stringify(data) }, callback)
-}
-
-ajaxReq.enrollAddress = function (id, address, currency, token, callback) {
-  const data = {}
-  data.id = id
-  data.adresse = address
-  data.token = token
-  data.currency = currency
-  ajaxReq.enrollPost({ data: JSON.stringify(data) }, callback)
-}
-
-ajaxReq.getTransList = function (id, count, offset, callback) {
-  this.http.get(jsc3l_customization.getEndpointAddress() + ajaxReq.TRANLIST + '?addr=' + id + '&count=' + count + '&offset=' + offset).then(function (data) {
-    callback(data.data)
-  })
-}
-
-ajaxReq.getTransCheck = function (hash, callback) {
-  this.http.get(jsc3l_customization.getEndpointAddress() + ajaxReq.TRANCHECK + '?hash=' + hash).then(function (data) {
-    callback(data.data)
-  })
-}
-
-ajaxReq.getExportTransList = function (id, date_start, date_end, callback) {
-  this.http.get(jsc3l_customization.getEndpointAddress() + ajaxReq.EXPORTTRAN + '?addr=' + id + '&start=' + date_start + '&end=' + date_end).then(function (data) {
-    callback(data.data)
-  })
-}
-
-ajaxReq.getExportTransListWithId = function (id, date_start, date_end, callback) {
-  this.http.get(jsc3l_customization.getEndpointAddress() + ajaxReq.EXPORTTRAN + '?addr=' + id + '&start=' + date_start + '&end=' + date_end).then(function (data) {
-    callback(data.data, id)
-  })
-}
-
-ajaxReq.getCodesFromAddresses = function (addresses, currency, caller, signature, callback) {
-  const data = {}
-  data.server = currency
-  data.caller = caller
-  data.signature = signature
-  data.addresses = addresses
-
-  this.http.post(jsc3l_customization.getEndpointAddress() + ajaxReq.GETCODE, this.postSerializer(data), this.config).then(function (data) {
-    callback(data.data)
-  })
-}
-
-ajaxReq.getAddressesFromCode = function (code, currency, caller, signature, callback) {
-  const data = {}
-  data.server = currency
-  data.caller = caller
-  data.signature = signature
-  data.code = code
-
-  this.http.post(jsc3l_customization.getEndpointAddress() + ajaxReq.GETADDRESS, this.postSerializer(data), this.config).then(function (data) {
-    callback(data.data)
-  })
-}
-
-ajaxReq.getMessageKey = function (address, with_private, callback) {
-  let query_string = '?addr=' + encodeURIComponent(address)
-  if (with_private) {
-    query_string = query_string + '&private=1'
   }
 
-  this.http.get(jsc3l_customization.getEndpointAddress() + ajaxReq.keystore + query_string).then(function (data) {
-    callback(data.data)
-  })
-}
+  getBalance (addr, callback) {
+    this.post({ balance: addr }, callback)
+  }
 
-ajaxReq.publishMessageKey = function (data_str, sign, callback) {
-  const data = {}
-  data.data = data_str
-  data.sign = sign
-  this.http.post(jsc3l_customization.getEndpointAddress() + ajaxReq.keystore, this.postSerializer(data), this.config).then(function (data) {
-    callback(data.data)
-  })
-}
+  getTransactionData (addr, callback) {
+    this.post({ txdata: addr }, callback)
+  }
 
-ajaxReq.requestUnlock = function (address, url, callback) {
-  const data = {}
-  data.address = address
-  this.http.post(url, this.postSerializer(data), this.config).then(function (data) {
-    callback(data)
-  })
-}
+  sendRawTx (rawTx, additional_data, callback) {
+    const post_data = { rawtx: rawTx }
+    if (additional_data && Object.keys(additional_data) && Object.keys(additional_data).length > 0) {
+      for (const item in additional_data) {
+        post_data[item] = additional_data[item]
+      }
+    }
+    this.post(post_data, callback)
+  }
 
-ajaxReq.getReqMessages = function (add_from, add_to, callback) {
-  const query_string = '?add_req=' + encodeURIComponent(add_from) + '&add_cli=' + encodeURIComponent(add_to)
+  getEstimatedGas (txobj, callback) {
+    this.post({ estimatedGas: txobj }, callback)
+  }
 
-  this.http.get(jsc3l_customization.getEndpointAddress() + ajaxReq.requestMessages + query_string).then(function (data) {
-    callback(data.data)
-  })
-}
+  getEthCall (txobj, callback) {
+    this.post({ ethCall: txobj }, callback)
+  }
 
-ajaxReq.publishReqMessages = function (data_str, sign, callback) {
-  const data = {}
-  data.data = data_str
-  data.sign = sign
-  this.http.post(jsc3l_customization.getEndpointAddress() + ajaxReq.requestMessages, this.postSerializer(data), this.config).then(function (data) {
-    callback(data.data)
-  })
-}
+  getEthCallAt (txobj, block_nb, callback) {
+    this.post({ ethCallAt: txobj, blockNb: block_nb }, callback)
+  }
 
-ajaxReq.currBlock = function (callback) {
-  this.http.get(jsc3l_customization.getEndpointAddress() + ajaxReq.SERVERURL).then(function (data) {
-    callback(data.data)
-  })
-}
+  queuePost () {
+    const data = this.pendingPosts[0].data
+    const callback = this.pendingPosts[0].callback
 
-ajaxReq.getBlock = function (hash, callback) {
-  this.http.get(jsc3l_customization.getEndpointAddress() + ajaxReq.SERVERURL + '?hash=' + hash).then(function (data) {
-    if (data.data && typeof data.data !== 'object') {
-      data.data = JSON.parse(data.data).transaction
+    try {
+      http.post(getEndpointAddress() + URL.SERVER, postSerializer(data), this.config).then(data => {
+        callback(data.data)
+        this.pendingPosts.splice(0, 1)
+        if (this.pendingPosts.length > 0) { this.queuePost() }
+      })
+    } catch (err) {
+      console.log(err)
+      this.pendingPosts.splice(0, 1)
+      if (this.pendingPosts.length > 0) { this.queuePost() }
+    }
+  }
+
+  validateEnrollmentLetter (id, currency, signature, callback) {
+    const data = {}
+    data.id = id
+    data.currency = currency
+    data.signature = signature
+    this.enrollPost({ data: JSON.stringify(data) }, callback)
+  }
+
+  enrollAddress (id, address, currency, token, callback) {
+    const data = {}
+    data.id = id
+    data.adresse = address
+    data.token = token
+    data.currency = currency
+    this.enrollPost({ data: JSON.stringify(data) }, callback)
+  }
+
+  getTransList (id, count, offset, callback) {
+    http.get(getEndpointAddress() + URL.TRANLIST + '?addr=' + id + '&count=' + count + '&offset=' + offset).then(function (data) {
+      callback(data.data)
+    })
+  }
+
+  getTransCheck (hash, callback) {
+    http.get(getEndpointAddress() + URL.TRANCHECK + '?hash=' + hash).then(function (data) {
+      callback(data.data)
+    })
+  }
+
+  getExportTransList (id, date_start, date_end, callback) {
+    http.get(getEndpointAddress() + URL.EXPORTTRAN + '?addr=' + id + '&start=' + date_start + '&end=' + date_end).then(function (data) {
+      callback(data.data)
+    })
+  }
+
+  getExportTransListWithId (id, date_start, date_end, callback) {
+    http.get(getEndpointAddress() + URL.EXPORTTRAN + '?addr=' + id + '&start=' + date_start + '&end=' + date_end).then(function (data) {
+      callback(data.data, id)
+    })
+  }
+
+  getCodesFromAddresses (addresses, currency, caller, signature, callback) {
+    const data = {
+      server: currency,
+      caller: caller,
+      signature: signature,
+      addresses: addresses
+    }
+    http.post(getEndpointAddress() + URL.GETCODE, postSerializer(data), this.config).then(function (data) {
+      callback(data.data)
+    })
+  }
+
+  getAddressesFromCode (code, currency, caller, signature, callback) {
+    const data = {
+      server: currency,
+      caller: caller,
+      signature: signature,
+      code: code
+    }
+    http.post(getEndpointAddress() + URL.GETADDRESS, postSerializer(data), this.config).then(function (data) {
+      callback(data.data)
+    })
+  }
+
+  getMessageKey (address, with_private, callback) {
+    let query_string = '?addr=' + encodeURIComponent(address)
+    if (with_private) {
+      query_string = query_string + '&private=1'
     }
 
-    callback(data.data)
-  })
+    http.get(getEndpointAddress() + URL.KEYSTORE + query_string).then(function (data) {
+      callback(data.data)
+    })
+  }
+
+  publishMessageKey (data_str, sign, callback) {
+    const data = {}
+    data.data = data_str
+    data.sign = sign
+    http.post(getEndpointAddress() + URL.KEYSTORE, postSerializer(data), this.config).then(function (data) {
+      callback(data.data)
+    })
+  }
+
+  requestUnlock (address, url, callback) {
+    const data = {}
+    data.address = address
+    http.post(url, postSerializer(data), this.config).then(function (data) {
+      callback(data)
+    })
+  }
+
+  getReqMessages (add_from, add_to, callback) {
+    const query_string = '?add_req=' + encodeURIComponent(add_from) + '&add_cli=' + encodeURIComponent(add_to)
+
+    http.get(getEndpointAddress() + URL.requestMessages + query_string).then(function (data) {
+      callback(data.data)
+    })
+  }
+
+  publishReqMessages (data_str, sign, callback) {
+    const data = {}
+    data.data = data_str
+    data.sign = sign
+    http.post(getEndpointAddress() + URL.requestMessages, postSerializer(data), this.config).then(function (data) {
+      callback(data.data)
+    })
+  }
+
+  currBlock (callback) {
+    http.get(getEndpointAddress() + URL.SERVER).then(function (data) {
+      callback(data.data)
+    })
+  }
+
+  getBlock (hash, callback) {
+    http.get(getEndpointAddress() + URL.SERVER + '?hash=' + hash).then(function (data) {
+      if (data.data && typeof data.data !== 'object') {
+        data.data = JSON.parse(data.data).transaction
+      }
+
+      callback(data.data)
+    })
+  }
 }
 
-module.exports = ajaxReq
+export default new AjaxReq()
