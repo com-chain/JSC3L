@@ -87,7 +87,9 @@ const isWindow = function (obj) {
 
 const toJsonReplacer = function (key, value) {
   let val = value
-  if (typeof key === 'string' && key.charAt(0) === '$' && key.charAt(1) === '$') {
+  if (typeof key === 'string' &&
+      key.charAt(0) === '$' &&
+      key.charAt(1) === '$') {
     val = undefined
   } else if (isWindow(value)) {
     val = '$WINDOW'
@@ -127,7 +129,13 @@ const serializeValue = function (v) {
 }
 
 const encodeUriQuery = function (val, pctEncodeSpaces) {
-  return encodeURIComponent(val).replace(/%40/gi, '@').replace(/%3A/gi, ':').replace(/%24/g, '$').replace(/%2C/gi, ',').replace(/%3B/gi, ';').replace(/%20/g, pctEncodeSpaces ? '%20' : '+')
+  return encodeURIComponent(val)
+    .replace(/%40/gi, '@')
+    .replace(/%3A/gi, ':')
+    .replace(/%24/g, '$')
+    .replace(/%2C/gi, ',')
+    .replace(/%3B/gi, ';')
+    .replace(/%20/g, pctEncodeSpaces ? '%20' : '+')
 }
 
 var isUndefined = function (value) {
