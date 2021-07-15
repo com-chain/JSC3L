@@ -9,11 +9,11 @@
   "author": "dubathf",
   "license": "ISC",
   "devDependencies": {
+    "browser-sync": "^2.26.14",
     "browserify": "^17.0.0",
     "gulp": "^4.0.2",
     "gulp-notify": "^3.2.0",
     "gulp-rename": "github:hparra/gulp-rename#4020fb2991d0000bf46067f3002bff92b31de8b3",
-    "browser-sync": "^2.26.14",
     "gulp-sass": "^4.1.0"
   },
   "dependencies": {
