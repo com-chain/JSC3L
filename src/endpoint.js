@@ -7,19 +7,7 @@ import { getEndpointAddress } from './jsc3l_customization'
  *
  */
 class PostSerializedHttp extends Http {
-  static get (url, data) {
-    return super.get(url, data, PostSerializedHttp.config)
-  }
-
-  static post (url, data) {
-    return super.post(url, postSerializer(data), PostSerializedHttp.config)
-  }
-
-  static config = {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-    }
-  }
+  static post (url, data) { return super.post(url, postSerializer(data)) }
 }
 
 /**
@@ -27,13 +15,10 @@ class PostSerializedHttp extends Http {
  *
  */
 export class Endpoint extends PostSerializedHttp {
-  static get (url, ...args) {
-    url = (url.includes('://')) ? url : getEndpointAddress() + url
-    return super.get(url, ...args)
-  }
-
-  static post (url, ...args) {
-    url = (url.includes('://')) ? url : getEndpointAddress() + url
-    return super.post(url, ...args)
+  static request (method, url, data) {
+    return super.request(
+      method,
+      url.includes('://') ? url : getEndpointAddress() + url,
+      data)
   }
 }

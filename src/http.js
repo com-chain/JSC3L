@@ -1,75 +1,41 @@
-function isHttpSuccess (status) { return status >= 200 && status < 300 }
-
 export class Http {
-  // TODO: second arg ``config`` doesn't seem to be used
-  static get (url) {
+  static request (method, url, data) {
     return new Promise(function (resolve, reject) {
       const xhttp = new XMLHttpRequest()
       xhttp.onreadystatechange = function () {
-        if (this.readyState === 4) {
-          let jsonObj = {}
-          let error = true
-          try {
-            jsonObj = JSON.parse(this.response)
-            error = false
-          } catch (err) {}
+        if (this.readyState !== 4) return
 
-          const respData = {
-            data: jsonObj,
-            status: this.status,
-            headers: '',
-            config: '',
-            statusText: this.statusText
-          }
-
-          if (isHttpSuccess(this.status) && !error) {
-            resolve(respData)
-          } else {
-            reject(respData)
-          }
+        let jsonObj = {}
+        let action
+        try {
+          jsonObj = JSON.parse(this.response)
+        } catch (err) {
+          console.log(`JsonParseError: ${err}`)
+          action = reject
         }
+
+        action ??= this.status.toString().slice(0, 1) !== 2 ? resolve : reject
+        action({
+          data: jsonObj,
+          status: this.status,
+          headers: '',
+          config: '',
+          statusText: this.statusText
+        })
       }
-      xhttp.open('GET', url, true)
-      xhttp.send()
+      xhttp.open(method, url, true)
+      if (method === 'POST') {
+        xhttp.setRequestHeader(
+          'Content-Type', 'application/x-www-form-urlencoded')
+        xhttp.send(data)
+      } else if (method === 'GET') {
+        xhttp.send()
+      } else {
+        throw new Error(`Unknown http method ${method}`)
+      }
     })
   }
 
-  // TODO: config doesn't seem to be used
-  static post (url, data, config) {
-    return new Promise(function (resolve, reject) {
-      const xhttp = new XMLHttpRequest()
-      xhttp.onreadystatechange = function () {
-        if (this.readyState === 4) {
-          let jsonObj = {}
-          let error = true
-          try {
-            jsonObj = JSON.parse(this.response)
-            error = false
-          } catch (err) {}
-
-          const respData = {
-            data: jsonObj,
-            status: this.status,
-            headers: '',
-            config: '',
-            statusText: this.statusText
-          }
-
-          if (isHttpSuccess(this.status) && !error) {
-            resolve(respData)
-          } else {
-            reject(respData)
-          }
-        }
-      }
-      xhttp.open('POST', url, true)
-
-      // TODO: this could be set through config and seemed to be
-      // intended that way
-      xhttp.setRequestHeader(
-        'Content-Type', 'application/x-www-form-urlencoded')
-
-      xhttp.send(data)
-    })
-  }
+  static get (url, data) { return this.request('GET', url, data) }
+  static post (url, data) { return this.request('POST', url, data) }
 }
