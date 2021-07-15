@@ -3,6 +3,7 @@ import ethUtil from 'ethereumjs-util'
 import { ec as EC } from 'elliptic'
 
 import ajaxReq from './ajaxReq'
+import Wallet from './myetherwallet'
 
 /// Code adapted from https://github.com/LimelabsTech/eth-ecies
 

@@ -1,53 +1,50 @@
 import ajaxReq from './ajaxReq'
-
+import Wallet from './myetherwallet'
 import jsc3l_customization from './jsc3l_customization'
+
 import * as jsc3l_message from './jsc3l_message'
 
-const jsc3l_wallet = function () {}
-
-jsc3l_wallet.scrypt = {
+const scrypt = {
   n: 1024
 }
-jsc3l_wallet.kdf = 'scrypt'
+const kdf = 'scrypt'
 
-jsc3l_wallet.createWallet = function (callback) {
+export function createWallet (callback) {
   const wallet = Wallet.generate(false)
-  jsc3l_message.ensureWalletMessageKey(wallet, '', function (complete_wall) {
-    callback(complete_wall)
+  jsc3l_message.ensureWalletMessageKey(wallet, '', function (completeWallet) {
+    callback(completeWallet)
   })
 }
 
-jsc3l_wallet.encryptWallet = function (wallet, password) {
+export function encryptWallet (wallet, password) {
   return wallet.toV3(password, {
-    kdf: jsc3l_wallet.kdf,
-    n: jsc3l_wallet.scrypt.n,
+    kdf: kdf,
+    n: scrypt.n,
     server_name: jsc3l_customization.getCurencyName(),
     message_key: wallet.message_key
   })
 }
 
-jsc3l_wallet.validateEnrollment = function (code_id, signature, callback) {
-  ajaxReq.validateEnrollmentLetter(code_id,
+export function validateEnrollment (codeId, signature, callback) {
+  ajaxReq.validateEnrollmentLetter(codeId,
     jsc3l_customization.getCurencyName(),
     signature,
     callback
   )
 }
 
-jsc3l_wallet.enrollAddress = function (wallet, code_id, token, callback) {
-  ajaxReq.enrollAddress(code_id,
+export function enrollAddress (wallet, codeId, token, callback) {
+  ajaxReq.enrollAddress(codeId,
     wallet.getAddressString(),
     jsc3l_customization.getCurencyName(),
     token,
     function (data) {
-      callback(data.result == 'OK')
+      callback(data.result === 'OK')
     })
 }
 
-jsc3l_wallet.requestUnlock = function (wallet, callback) {
+export function requestUnlock (wallet, callback) {
   ajaxReq.requestUnlock(wallet.getAddressString(),
     jsc3l_customization.getUnlockUrl(),
     callback)
 }
-
-module.exports = jsc3l_wallet

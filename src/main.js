@@ -5,7 +5,7 @@ import jsc3l_customization from './jsc3l_customization'
 import * as jsc3l_message from './jsc3l_message'
 import jsc3l_bcRead from './jsc3l_bcRead'
 import jsc3l_bcTransaction from './jsc3l_bcTransaction'
-import jsc3l_wallet from './jsc3l_wallet'
+import * as jsc3l_wallet from './jsc3l_wallet'
 import Wallet from './myetherwallet'
 
 export {
