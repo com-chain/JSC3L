@@ -1,9 +1,7 @@
 import ajaxReq from './ajaxReq'
-import blockies from './blockies'
 
 const jsc3l = function () {}
 
-jsc3l.blockies = blockies
 const Wallet = require('./myetherwallet')
 jsc3l.Wallet = Wallet
 const etherUnits = require('./etherUnits')

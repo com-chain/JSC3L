@@ -1,8 +1,9 @@
 import crypto from 'crypto'
 import uuid from 'uuid'
 import ethUtil from 'ethereumjs-util'
-
 import scrypt from 'scryptsy'
+
+import blockies from './blockies'
 
 const Wallet = function (priv) {
   this.privKey = priv.length == 32 ? priv : Buffer(priv, 'hex')

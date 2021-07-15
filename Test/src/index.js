@@ -1,7 +1,6 @@
 
 let jsc3l = require('@com-chain.org/jsc3l');
 
-window.blockies = jsc3l.blockies;
 window.Wallet = jsc3l.Wallet;
 window.uiFuncs = jsc3l.uiFuncs;
 window.etherUnits = jsc3l.etherUnits;
