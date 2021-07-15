@@ -152,7 +152,8 @@ const forEachSorted = function (obj, iterator, context) {
 }
 
 const postSerializer = function (params) {
-  if (!params) { return '' }
+  if (!params) return ''
+
   const parts = []
   serialize(params, '', true)
   return parts.join('&')
@@ -165,10 +166,13 @@ const postSerializer = function (params) {
       })
     } else if (isObject(toSerialize) && !isDate(toSerialize)) {
       forEachSorted(toSerialize, function (value, key) {
-        serialize(value, prefix + (topLevel ? '' : '[') + key + (topLevel ? '' : ']'))
+        serialize(value,
+          prefix + (topLevel ? '' : '[') + key + (topLevel ? '' : ']'))
       })
     } else {
-      parts.push(encodeUriQuery(prefix) + '=' + encodeUriQuery(serializeValue(toSerialize)))
+      parts.push(
+        encodeUriQuery(prefix) + '=' +
+          encodeUriQuery(serializeValue(toSerialize)))
     }
   }
 }
@@ -189,7 +193,11 @@ class URL {
 
 class AjaxReq {
   pendingPosts = []
-  config = { headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' } }
+  config = {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+    }
+  }
 
   post (data, callback) {
     this.pendingPosts.push({ data: data, callback: callback })
@@ -200,7 +208,8 @@ class AjaxReq {
   }
 
   enrollPost (data, callback) {
-    http.post(getEndpointAddress() + URL.ENROLL, postSerializer(data), this.config).then(function (data) {
+    http.post(getEndpointAddress() + URL.ENROLL,
+      postSerializer(data), this.config).then(function (data) {
       callback(data.data)
     })
   }
@@ -213,14 +222,16 @@ class AjaxReq {
     this.post({ txdata: addr }, callback)
   }
 
-  sendRawTx (rawTx, additional_data, callback) {
-    const post_data = { rawtx: rawTx }
-    if (additional_data && Object.keys(additional_data) && Object.keys(additional_data).length > 0) {
-      for (const item in additional_data) {
-        post_data[item] = additional_data[item]
+  sendRawTx (rawTx, additionalData, callback) {
+    const postData = { rawtx: rawTx }
+    if (additionalData &&
+        Object.keys(additionalData) &&
+        Object.keys(additionalData).length > 0) {
+      for (const item in additionalData) {
+        postData[item] = additionalData[item]
       }
     }
-    this.post(post_data, callback)
+    this.post(postData, callback)
   }
 
   getEstimatedGas (txobj, callback) {
@@ -231,8 +242,8 @@ class AjaxReq {
     this.post({ ethCall: txobj }, callback)
   }
 
-  getEthCallAt (txobj, block_nb, callback) {
-    this.post({ ethCallAt: txobj, blockNb: block_nb }, callback)
+  getEthCallAt (txobj, blockNb, callback) {
+    this.post({ ethCallAt: txobj, blockNb: blockNb }, callback)
   }
 
   queuePost () {
@@ -240,7 +251,8 @@ class AjaxReq {
     const callback = this.pendingPosts[0].callback
 
     try {
-      http.post(getEndpointAddress() + URL.SERVER, postSerializer(data), this.config).then(data => {
+      http.post(getEndpointAddress() + URL.SERVER,
+        postSerializer(data), this.config).then(data => {
         callback(data.data)
         this.pendingPosts.splice(0, 1)
         if (this.pendingPosts.length > 0) { this.queuePost() }
@@ -270,27 +282,34 @@ class AjaxReq {
   }
 
   getTransList (id, count, offset, callback) {
-    http.get(getEndpointAddress() + URL.TRANLIST + '?addr=' + id + '&count=' + count + '&offset=' + offset).then(function (data) {
-      callback(data.data)
-    })
+    http.get(getEndpointAddress() + URL.TRANLIST +
+             '?addr=' + id + '&count=' + count + '&offset=' + offset)
+      .then(function (data) {
+        callback(data.data)
+      })
   }
 
   getTransCheck (hash, callback) {
-    http.get(getEndpointAddress() + URL.TRANCHECK + '?hash=' + hash).then(function (data) {
-      callback(data.data)
-    })
+    http.get(getEndpointAddress() + URL.TRANCHECK + '?hash=' + hash)
+      .then(function (data) {
+        callback(data.data)
+      })
   }
 
-  getExportTransList (id, date_start, date_end, callback) {
-    http.get(getEndpointAddress() + URL.EXPORTTRAN + '?addr=' + id + '&start=' + date_start + '&end=' + date_end).then(function (data) {
-      callback(data.data)
-    })
+  getExportTransList (id, dateStart, dateEnd, callback) {
+    http.get(getEndpointAddress() + URL.EXPORTTRAN +
+             '?addr=' + id + '&start=' + dateStart + '&end=' + dateEnd)
+      .then(function (data) {
+        callback(data.data)
+      })
   }
 
-  getExportTransListWithId (id, date_start, date_end, callback) {
-    http.get(getEndpointAddress() + URL.EXPORTTRAN + '?addr=' + id + '&start=' + date_start + '&end=' + date_end).then(function (data) {
-      callback(data.data, id)
-    })
+  getExportTransListWithId (id, dateStart, dateEnd, callback) {
+    http.get(getEndpointAddress() + URL.EXPORTTRAN +
+             '?addr=' + id + '&start=' + dateStart + '&end=' + dateEnd)
+      .then(function (data) {
+        callback(data.data, id)
+      })
   }
 
   getCodesFromAddresses (addresses, currency, caller, signature, callback) {
@@ -300,9 +319,11 @@ class AjaxReq {
       signature: signature,
       addresses: addresses
     }
-    http.post(getEndpointAddress() + URL.GETCODE, postSerializer(data), this.config).then(function (data) {
-      callback(data.data)
-    })
+    http.post(getEndpointAddress() + URL.GETCODE, postSerializer(data),
+      this.config)
+      .then(function (data) {
+        callback(data.data)
+      })
   }
 
   getAddressesFromCode (code, currency, caller, signature, callback) {
@@ -312,70 +333,83 @@ class AjaxReq {
       signature: signature,
       code: code
     }
-    http.post(getEndpointAddress() + URL.GETADDRESS, postSerializer(data), this.config).then(function (data) {
-      callback(data.data)
-    })
+    http.post(getEndpointAddress() + URL.GETADDRESS,
+      postSerializer(data),
+      this.config)
+      .then(function (data) {
+        callback(data.data)
+      })
   }
 
-  getMessageKey (address, with_private, callback) {
-    let query_string = '?addr=' + encodeURIComponent(address)
-    if (with_private) {
-      query_string = query_string + '&private=1'
+  getMessageKey (address, withPrivate, callback) {
+    let queryString = '?addr=' + encodeURIComponent(address)
+    if (withPrivate) {
+      queryString = queryString + '&private=1'
     }
 
-    http.get(getEndpointAddress() + URL.KEYSTORE + query_string).then(function (data) {
-      callback(data.data)
-    })
+    http.get(getEndpointAddress() + URL.KEYSTORE + queryString)
+      .then(function (data) {
+        callback(data.data)
+      })
   }
 
-  publishMessageKey (data_str, sign, callback) {
+  publishMessageKey (dataStr, sign, callback) {
     const data = {}
-    data.data = data_str
+    data.data = dataStr
     data.sign = sign
-    http.post(getEndpointAddress() + URL.KEYSTORE, postSerializer(data), this.config).then(function (data) {
-      callback(data.data)
-    })
+    http.post(getEndpointAddress() + URL.KEYSTORE,
+      postSerializer(data), this.config)
+      .then(function (data) {
+        callback(data.data)
+      })
   }
 
   requestUnlock (address, url, callback) {
     const data = {}
     data.address = address
-    http.post(url, postSerializer(data), this.config).then(function (data) {
-      callback(data)
-    })
+    http.post(url, postSerializer(data), this.config)
+      .then(function (data) {
+        callback(data)
+      })
   }
 
-  getReqMessages (add_from, add_to, callback) {
-    const query_string = '?add_req=' + encodeURIComponent(add_from) + '&add_cli=' + encodeURIComponent(add_to)
+  getReqMessages (addFrom, addTo, callback) {
+    const queryString = '?add_req=' + encodeURIComponent(addFrom) +
+          '&add_cli=' + encodeURIComponent(addTo)
 
-    http.get(getEndpointAddress() + URL.requestMessages + query_string).then(function (data) {
+    http.get(getEndpointAddress() + URL.requestMessages +
+             queryString).then(function (data) {
       callback(data.data)
     })
   }
 
-  publishReqMessages (data_str, sign, callback) {
+  publishReqMessages (dataStr, sign, callback) {
     const data = {}
-    data.data = data_str
+    data.data = dataStr
     data.sign = sign
-    http.post(getEndpointAddress() + URL.requestMessages, postSerializer(data), this.config).then(function (data) {
-      callback(data.data)
-    })
+    http.post(getEndpointAddress() + URL.requestMessages,
+      postSerializer(data), this.config)
+      .then(function (data) {
+        callback(data.data)
+      })
   }
 
   currBlock (callback) {
-    http.get(getEndpointAddress() + URL.SERVER).then(function (data) {
-      callback(data.data)
-    })
+    http.get(getEndpointAddress() + URL.SERVER)
+      .then(function (data) {
+        callback(data.data)
+      })
   }
 
   getBlock (hash, callback) {
-    http.get(getEndpointAddress() + URL.SERVER + '?hash=' + hash).then(function (data) {
-      if (data.data && typeof data.data !== 'object') {
-        data.data = JSON.parse(data.data).transaction
-      }
+    http.get(getEndpointAddress() + URL.SERVER + '?hash=' + hash)
+      .then(function (data) {
+        if (data.data && typeof data.data !== 'object') {
+          data.data = JSON.parse(data.data).transaction
+        }
 
-      callback(data.data)
-    })
+        callback(data.data)
+      })
   }
 }
 
