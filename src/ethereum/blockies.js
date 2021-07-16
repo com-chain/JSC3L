@@ -16,7 +16,7 @@ function seedrand (seed) {
   }
 }
 
-const rand = function () {
+function rand () {
   // based on Java's String.hashCode(), expanded to 4 32bit values
   const t = randseed[0] ^ (randseed[0] << 11)
 
@@ -28,7 +28,7 @@ const rand = function () {
   return (randseed[3] >>> 0) / ((1 << 31) >>> 0)
 }
 
-const createColor = function () {
+function createColor () {
   // saturation is the whole color spectrum
   const h = Math.floor(rand() * 360)
   // saturation goes from 40 to 100, it avoids greyish colors
@@ -41,7 +41,7 @@ const createColor = function () {
   return color
 }
 
-const createImageData = function (size) {
+function createImageData (size) {
   const width = size // Only support square icons for now
   const height = size
 
@@ -68,7 +68,7 @@ const createImageData = function (size) {
   return data
 }
 
-const createCanvas = function (imageData, color, scale, bgcolor, spotcolor) {
+function createCanvas (imageData, color, scale, bgcolor, spotcolor) {
   const c = document.createElement('canvas')
   const width = Math.sqrt(imageData.length)
   c.width = c.height = width * scale

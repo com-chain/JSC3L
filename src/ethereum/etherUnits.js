@@ -27,7 +27,7 @@ const unitMap = {
   tether: '1000000000000000000000000000000'
 }
 
-export const getValueOfUnit = function (unit) {
+export function getValueOfUnit (unit) {
   unit = unit ? unit.toLowerCase() : 'ether'
   const unitValue = unitMap[unit]
   if (unitValue === undefined) {
@@ -38,28 +38,29 @@ export const getValueOfUnit = function (unit) {
   return new BigNumber(unitValue, 10)
 }
 
-export const fiatToWei = function (number, pricePerEther) {
-  const returnValue = new BigNumber(String(number))
+export function fiatToWei (number, pricePerEther) {
+  return new BigNumber(String(number))
     .div(pricePerEther)
     .times(this.getValueOfUnit('ether'))
     .round(0)
-  return returnValue.toString(10)
+    .toString(10)
 }
 
-export const toFiat = function (number, unit, multi) {
-  const returnValue = new BigNumber(this.toEther(number, unit))
-    .times(multi).round(5)
-  return returnValue.toString(10)
+export function toFiat (number, unit, multi) {
+  return new BigNumber(this.toEther(number, unit))
+    .times(multi)
+    .round(5)
+    .toString(10)
 }
 
-export const toEther = function (number, unit) {
-  const returnValue = new BigNumber(this.toWei(number, unit))
+export function toEther (number, unit) {
+  return new BigNumber(this.toWei(number, unit))
     .div(this.getValueOfUnit('ether'))
-  return returnValue.toString(10)
+    .toString(10)
 }
 
-export const toWei = function (number, unit) {
-  const returnValue = new BigNumber(String(number))
+export function toWei (number, unit) {
+  return new BigNumber(String(number))
     .times(this.getValueOfUnit(unit))
-  return returnValue.toString(10)
+    .toString(10)
 }

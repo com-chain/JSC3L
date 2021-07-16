@@ -1,13 +1,13 @@
 
-const isScope = function (obj) {
+function isScope (obj) {
   return obj && obj.$evalAsync && obj.$watch
 }
 
-const isWindow = function (obj) {
+function isWindow (obj) {
   return obj && obj.window === obj
 }
 
-const toJsonReplacer = function (key, value) {
+function toJsonReplacer (key, value) {
   let val = value
   if (typeof key === 'string' &&
       key.charAt(0) === '$' &&
@@ -23,11 +23,11 @@ const toJsonReplacer = function (key, value) {
   return val
 }
 
-const isNumber = function (arg) {
+function isNumber (arg) {
   return typeof arg === 'number'
 }
 
-const toJson = function (obj, pretty) {
+function toJson (obj, pretty) {
   if (isUndefined(obj)) { return undefined }
   if (!isNumber(pretty)) {
     pretty = pretty ? 2 : null
@@ -35,22 +35,22 @@ const toJson = function (obj, pretty) {
   return JSON.stringify(obj, toJsonReplacer, pretty)
 }
 
-const isDate = function (value) {
+function isDate (value) {
   return toString.call(value) === '[object Date]'
 }
 
-const isObject = function (value) {
+function isObject (value) {
   return value !== null && typeof value === 'object'
 }
 
-const serializeValue = function (v) {
+function serializeValue (v) {
   if (isObject(v)) {
     return isDate(v) ? v.toISOString() : toJson(v)
   }
   return v
 }
 
-export const encodeUriQuery = function (val, pctEncodeSpaces) {
+function encodeUriQuery (val, pctEncodeSpaces) {
   return encodeURIComponent(val)
     .replace(/%40/gi, '@')
     .replace(/%3A/gi, ':')
@@ -60,11 +60,11 @@ export const encodeUriQuery = function (val, pctEncodeSpaces) {
     .replace(/%20/g, pctEncodeSpaces ? '%20' : '+')
 }
 
-const isUndefined = function (value) {
+function isUndefined (value) {
   return typeof value === 'undefined'
 }
 
-const forEachSorted = function (obj, iterator, context) {
+function forEachSorted (obj, iterator, context) {
   const keys = Object.keys(obj).sort()
   for (let i = 0; i < keys.length; i++) {
     iterator.call(context, obj[keys[i]], keys[i])
@@ -72,7 +72,7 @@ const forEachSorted = function (obj, iterator, context) {
   return keys
 }
 
-export const postSerializer = function (params) {
+export function postSerializer (params) {
   if (!params) return ''
 
   const parts = []

@@ -6,7 +6,7 @@ import Wallet from './myetherwallet'
 
 const ec = new EC('secp256k1')
 
-const AES256CbcEncrypt = function (iv, key, plaintext) {
+function AES256CbcEncrypt (iv, key, plaintext) {
   const cipher = crypto.createCipheriv('aes-256-cbc', key, iv)
   const firstChunk = cipher.update(plaintext)
   const secondChunk = cipher.final()
@@ -14,7 +14,7 @@ const AES256CbcEncrypt = function (iv, key, plaintext) {
   return Buffer.concat([firstChunk, secondChunk])
 }
 
-const AES256CbcDecrypt = function (iv, key, ciphertext) {
+function AES256CbcDecrypt (iv, key, ciphertext) {
   const cipher = crypto.createDecipheriv('aes-256-cbc', key, iv)
   const firstChunk = cipher.update(ciphertext)
   const secondChunk = cipher.final()
@@ -22,7 +22,7 @@ const AES256CbcDecrypt = function (iv, key, ciphertext) {
   return Buffer.concat([firstChunk, secondChunk])
 }
 
-const BufferEqual = function (b1, b2) {
+function BufferEqual (b1, b2) {
   if (b1.length !== b2.length) {
     return false
   }
@@ -35,7 +35,7 @@ const BufferEqual = function (b1, b2) {
   return res === 0
 }
 
-export const Encrypt = function (publicKey, plaintext) {
+export function Encrypt (publicKey, plaintext) {
   /* DEBUG */
 
   const pubKeyTo = Buffer.from(publicKey)
@@ -68,7 +68,7 @@ export const Encrypt = function (publicKey, plaintext) {
   return serializedCiphertext.toString('hex')
 }
 
-export const Decrypt = function (privateKey, encrypted) {
+export function Decrypt (privateKey, encrypted) {
   const encryptedBuff = Buffer.from(encrypted, 'hex')
   const privateKeyBuff = Buffer.from(privateKey)
 

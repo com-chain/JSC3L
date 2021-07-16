@@ -4,11 +4,11 @@ import * as etherUnits from './etherUnits'
 
 import ajaxReq from '../rest/ajaxReq'
 
-const isNumeric = function (n) {
+function isNumeric (n) {
   return !isNaN(parseFloat(n)) && isFinite(n)
 }
 
-export function isTxDataValid (txData) {
+function isTxDataValid (txData) {
   if (txData.to !== '0xCONTRACT' &&
       !ethFuncs.validateEtherAddress(txData.to)) {
     throw new Error('ERROR_6')
