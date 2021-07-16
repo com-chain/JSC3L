@@ -185,4 +185,8 @@ async function getElementInList (contract, mapFunctionAddress,
     indMin)
 }
 
+jsc3l_bcRead.getTransList = async function (id, count, offset) {
+  return ajaxReq.getTransList(id, count, offset)
+}
+
 export default jsc3l_bcRead

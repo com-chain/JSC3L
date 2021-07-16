@@ -14,11 +14,9 @@ window.jsc3l = {
     getMessageKey: jsc3l.jsc3l_message.getMessageKey,
     cipherMessage: jsc3l.jsc3l_message.cipherMessage,
   },
-  ajaxReq: {
-    getTransList: jsc3l.ajaxReq.getTransList,
-  },
   bcRead: {
     getGlobalBalance: jsc3l.jsc3l_bcRead.getGlobalBalance,
+    getTransList: jsc3l.ajaxReq.getTransList,
   },
   bcTransaction: {
     TransfertNant: jsc3l.jsc3l_bcTransaction.TransfertNant,

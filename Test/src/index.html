@@ -120,7 +120,7 @@
              $("#blockie").style.backgroundImage = 'url(' + wallet.blockies() +')';
 
              log("Retrieval of transactions...");
-             let result = await jsc3l.ajaxReq.getTransList(wid, 10, 0);
+             let result = await jsc3l.bcRead.getTransList(wid, 10, 0);
 
              if (result.length > 0) {
                  $("#transactions").innerHTML = "Last transactions:<br/>";
