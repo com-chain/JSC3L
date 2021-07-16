@@ -57,7 +57,7 @@ export function getEndpointAddress () {
   }
 }
 
-export function getCurencyName () {
+export function getCurrencyName () {
   return getServerConfig('name')
 }
 
@@ -116,7 +116,7 @@ export function hasBnCheck () {
 export function getCssUrl () {
   try {
     return localStorage.getItem('ComChainRepo') + config.custoRepo +
-      getCurencyName() + '/css/etherwallet-master.min.css'
+      getCurrencyName() + '/css/etherwallet-master.min.css'
   } catch (e) {
     return confLocale.server.url_Css
   }

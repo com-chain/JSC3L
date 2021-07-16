@@ -83,7 +83,7 @@ export function SetOwnerAccount (wallet, accountAddress) {
 }
 
 /* Action in contract 2 */
-export function TransfertNant (wallet, toAddress, amount,
+export function TransferNant (wallet, toAddress, amount,
   additionalPostData) {
   const toAdd = padLeft(getNakedAddress(toAddress), 64)
   return internalGenTx(getContract2(),
@@ -93,7 +93,7 @@ export function TransfertNant (wallet, toAddress, amount,
     additionalPostData)
 }
 
-export function TransfertCM (wallet, toAddress, amount,
+export function TransferCM (wallet, toAddress, amount,
   additionalPostData) {
   const toAdd = padLeft(getNakedAddress(toAddress), 64)
   return internalGenTx(getContract2(),
@@ -103,7 +103,7 @@ export function TransfertCM (wallet, toAddress, amount,
     additionalPostData)
 }
 
-export function TransfertOnBehalfNant (wallet, fromAddress,
+export function TransferOnBehalfNant (wallet, fromAddress,
   toAddress, amount, additionalPostData) {
   additionalPostData.delegate = wallet.getAddressString()
   const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
@@ -115,7 +115,7 @@ export function TransfertOnBehalfNant (wallet, fromAddress,
     additionalPostData)
 }
 
-export function TransfertOnBehalfCM (wallet, fromAddress,
+export function TransferOnBehalfCM (wallet, fromAddress,
   toAddress, amount, additionalPostData) {
   additionalPostData.delegate = wallet.getAddressString()
   const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
@@ -127,7 +127,7 @@ export function TransfertOnBehalfCM (wallet, fromAddress,
     additionalPostData)
 }
 
-export function askTransfertFrom (wallet, accountAddress,
+export function askTransferFrom (wallet, accountAddress,
   fromAddress, amount) {
   const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
   // TODO: never used
@@ -139,7 +139,7 @@ export function askTransfertFrom (wallet, accountAddress,
     {})
 }
 
-export function askTransfertCMFrom (wallet, accountAddress,
+export function askTransferCMFrom (wallet, accountAddress,
   fromAddress, amount) {
   const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
   // TODO: never used

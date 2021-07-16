@@ -1,6 +1,6 @@
 import ajaxReq from './rest/ajaxReq'
 import Wallet from './ethereum/myetherwallet'
-import { getCurencyName, getUnlockUrl } from './customization'
+import { getCurrencyName, getUnlockUrl } from './customization'
 
 import * as message from './message'
 
@@ -18,21 +18,21 @@ export function encryptWallet (wallet, password) {
   return wallet.toV3(password, {
     kdf: kdf,
     n: scrypt.n,
-    server_name: getCurencyName(),
+    server_name: getCurrencyName(),
     message_key: wallet.message_key
   })
 }
 
 export function validateEnrollment (codeId, signature) {
   return ajaxReq.validateEnrollmentLetter(codeId,
-    getCurencyName(),
+    getCurrencyName(),
     signature)
 }
 
 export function enrollAddress (wallet, codeId, token) {
   return ajaxReq.enrollAddress(codeId,
     wallet.getAddressString(),
-    getCurencyName(),
+    getCurrencyName(),
     token)
 }
 
