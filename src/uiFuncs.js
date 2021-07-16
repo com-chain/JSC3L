@@ -11,15 +11,15 @@ const isNumeric = function (n) {
 export function isTxDataValid (txData) {
   if (txData.to !== '0xCONTRACT' &&
       !ethFuncs.validateEtherAddress(txData.to)) {
-    throw 'ERROR_6'
+    throw new Error('ERROR_6')
   } else if (!isNumeric(txData.value) ||
              parseFloat(txData.value) < 0) {
-    throw 'ERROR_8'
+    throw new Error('ERROR_8')
   } else if (!isNumeric(txData.gasLimit) ||
              parseFloat(txData.gasLimit) <= 0) {
-    throw 'ERROR_9'
+    throw new Error('ERROR_9')
   } else if (!ethFuncs.validateHexString(txData.data)) {
-    throw 'ERROR_10'
+    throw new Error('ERROR_10')
   }
   if (txData.to === '0xCONTRACT') txData.to = ''
 }

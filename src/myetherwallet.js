@@ -307,14 +307,14 @@ Wallet.walletRequirePass = function (ethjson) {
   try {
     jsonArr = JSON.parse(ethjson)
   } catch (err) {
-    throw 'This is not a valid wallet file. '
+    throw new Error('This is not a valid wallet file.')
   }
   if (jsonArr.encseed != null) return true
   else if (jsonArr.Crypto != null || jsonArr.crypto != null) return true
   else if (jsonArr.hash != null && jsonArr.locked) return true
   else if (jsonArr.hash != null && !jsonArr.locked) return false
   else if (jsonArr.publisher == 'MyEtherWallet' && !jsonArr.encrypted) return false
-  else { throw "Sorry! We don\'t recognize this type of wallet file. " }
+  else { throw new Error("Sorry! We don\'t recognize this type of wallet file.") }
 }
 Wallet.getWalletFromPrivKeyFile = function (strjson, password) {
   const jsonArr = JSON.parse(strjson)
@@ -322,7 +322,7 @@ Wallet.getWalletFromPrivKeyFile = function (strjson, password) {
   else if (jsonArr.Crypto != null || jsonArr.crypto != null) return Wallet.fromV3(strjson, password, true)
   else if (jsonArr.hash != null) return Wallet.fromMyEtherWallet(strjson, password)
   else if (jsonArr.publisher == 'MyEtherWallet') return Wallet.fromMyEtherWalletV2(strjson)
-  else { throw "Sorry! We don\'t recognize this type of wallet file. " }
+  else { throw new Error("Sorry! We don\'t recognize this type of wallet file.") }
 }
 
 /// Blockie
