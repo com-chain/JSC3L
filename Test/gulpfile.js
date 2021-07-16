@@ -7,7 +7,7 @@ var browserSync = require('browser-sync').create();
 const sass = require('gulp-sass');
 
 
-var output =  './output/';
+var output =  './build/';
 
 // Compile JS Files
 
