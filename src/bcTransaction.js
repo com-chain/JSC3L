@@ -2,13 +2,13 @@
 import { getNakedAddress, padLeft, encodeNumber } from './ethereum/ethFuncs'
 import { generateTx, sendTx } from './ethereum/uiFuncs'
 
-import customization from './customization'
+import { getContract1, getContract2 } from './customization'
 
 /* Action in Contract 1 */
 export function SetAccountParam (wallet, accountAddress, accStatus,
   accType, limitMinus, limitPlus) {
   const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(customization.getContract1(),
+  return internalGenTx(getContract1(),
     wallet,
     '0x848b2592',
     [accAdd,
@@ -23,7 +23,7 @@ export function PledgeAccount (wallet, accountAddress, amount,
   additionalPostData) {
   const amountCent = encodeNumber(parseInt(100 * amount, 10))
   const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(customization.getContract1(),
+  return internalGenTx(getContract1(),
     wallet,
     '0x6c343eef',
     [accAdd, amountCent],
@@ -32,7 +32,7 @@ export function PledgeAccount (wallet, accountAddress, amount,
 
 export function setAllowance (wallet, spenderAddress, amount) {
   const accAdd = padLeft(getNakedAddress(spenderAddress), 64)
-  return internalGenTx(customization.getContract1(),
+  return internalGenTx(getContract1(),
     wallet,
     '0xd4e12f2e',
     [accAdd, encodeNumber(parseInt(100 * amount, 10))],
@@ -41,7 +41,7 @@ export function setAllowance (wallet, spenderAddress, amount) {
 
 export function setDelegation (wallet, spenderAddress, limit) {
   const accAdd = padLeft(getNakedAddress(spenderAddress), 64)
-  return internalGenTx(customization.getContract1(),
+  return internalGenTx(getContract1(),
     wallet,
     '0x75741c79',
     [accAdd, encodeNumber(parseInt(100 * limit, 10))],
@@ -49,7 +49,7 @@ export function setDelegation (wallet, spenderAddress, limit) {
 }
 
 export function SetTaxAmount (wallet, amount) {
-  return internalGenTx(customization.getContract1(),
+  return internalGenTx(getContract1(),
     wallet,
     '0xf6f1897d',
     [encodeNumber(parseInt(amount, 10))],
@@ -57,7 +57,7 @@ export function SetTaxAmount (wallet, amount) {
 }
 
 export function SetTaxLegAmount (wallet, amount) {
-  return internalGenTx(customization.getContract1(),
+  return internalGenTx(getContract1(),
     wallet,
     '0xfafaf4c0',
     [encodeNumber(parseInt(amount, 10))],
@@ -66,7 +66,7 @@ export function SetTaxLegAmount (wallet, amount) {
 
 export function SetTaxAccount (wallet, accountAddress) {
   const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(customization.getContract1(),
+  return internalGenTx(getContract1(),
     wallet,
     '0xd0385b5e',
     [accAdd],
@@ -75,7 +75,7 @@ export function SetTaxAccount (wallet, accountAddress) {
 
 export function SetOwnerAccount (wallet, accountAddress) {
   const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(customization.getContract1(),
+  return internalGenTx(getContract1(),
     wallet,
     '0xf2fde38b',
     [accAdd],
@@ -86,7 +86,7 @@ export function SetOwnerAccount (wallet, accountAddress) {
 export function TransfertNant (wallet, toAddress, amount,
   additionalPostData) {
   const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(customization.getContract2(),
+  return internalGenTx(getContract2(),
     wallet,
     '0xa5f7c148',
     [toAdd, encodeNumber(parseInt(100 * amount, 10))],
@@ -96,7 +96,7 @@ export function TransfertNant (wallet, toAddress, amount,
 export function TransfertCM (wallet, toAddress, amount,
   additionalPostData) {
   const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(customization.getContract2(),
+  return internalGenTx(getContract2(),
     wallet,
     '0x60ca9c4c',
     [toAdd, encodeNumber(parseInt(100 * amount, 10))],
@@ -108,7 +108,7 @@ export function TransfertOnBehalfNant (wallet, fromAddress,
   additionalPostData.delegate = wallet.getAddressString()
   const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
   const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(customization.getContract2(),
+  return internalGenTx(getContract2(),
     wallet,
     '0x1b6b1ee5',
     [fromAdd, toAdd, encodeNumber(parseInt(100 * amount, 10))],
@@ -120,7 +120,7 @@ export function TransfertOnBehalfCM (wallet, fromAddress,
   additionalPostData.delegate = wallet.getAddressString()
   const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
   const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(customization.getContract2(),
+  return internalGenTx(getContract2(),
     wallet,
     '0x74c421fe',
     [fromAdd, toAdd, encodeNumber(parseInt(100 * amount, 10))],
@@ -132,7 +132,7 @@ export function askTransfertFrom (wallet, accountAddress,
   const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
   // TODO: never used
   const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(customization.getContract2(),
+  return internalGenTx(getContract2(),
     wallet,
     '0x58258353',
     [fromAdd, encodeNumber(parseInt(100 * amount, 10))],
@@ -144,7 +144,7 @@ export function askTransfertCMFrom (wallet, accountAddress,
   const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
   // TODO: never used
   const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(customization.getContract2(),
+  return internalGenTx(getContract2(),
     wallet,
     '0x2ef9ade2',
     [fromAdd, encodeNumber(parseInt(100 * amount, 10))],
@@ -154,7 +154,7 @@ export function askTransfertCMFrom (wallet, accountAddress,
 export function PayRequestNant (wallet, toAddress, amount,
   additionalData) {
   const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(customization.getContract2(),
+  return internalGenTx(getContract2(),
     wallet,
     '0x132019f4',
     [toAdd, encodeNumber(parseInt(100 * amount, 10))],
@@ -164,7 +164,7 @@ export function PayRequestNant (wallet, toAddress, amount,
 export function PayRequestCM (wallet, toAddress, amount,
   additionalData) {
   const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(customization.getContract2(),
+  return internalGenTx(getContract2(),
     wallet,
     '0x1415707c',
     [toAdd, encodeNumber(parseInt(100 * amount, 10))],
@@ -173,7 +173,7 @@ export function PayRequestCM (wallet, toAddress, amount,
 
 export function RejectRequest (wallet, toAddress) {
   const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(customization.getContract2(),
+  return internalGenTx(getContract2(),
     wallet,
     '0xaf98f757',
     [toAdd],
@@ -182,7 +182,7 @@ export function RejectRequest (wallet, toAddress) {
 
 export function DissmissAcceptedInfo (wallet, accountAddress) {
   const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(customization.getContract2(),
+  return internalGenTx(getContract2(),
     wallet,
     '0xccf93c7a',
     [accAdd],
@@ -191,7 +191,7 @@ export function DissmissAcceptedInfo (wallet, accountAddress) {
 
 export function DissmissRejectedInfo (wallet, accountAddress) {
   const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(customization.getContract2(),
+  return internalGenTx(getContract2(),
     wallet,
     '0x88759215',
     [accAdd],

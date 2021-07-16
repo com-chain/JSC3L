@@ -1,24 +1,24 @@
 import config from './config'
-import Wallet from './ethereum/myetherwallet'
 
 ///
-//
-// Pre-requisite: the variable conf_locale should store an object with at least the following infos:
-// conf_locale.server.lang
-// conf_locale.server.notes
-// conf_locale.server.url_Css
+// Pre-requisite: the variable confLocale should store an object with
+// at least the following infos:
+//   confLocale.server.lang
+//   confLocale.server.notes
+//   confLocale.server.url_Css
 ///
 
-const customization = function () {}
-
 ///
-// [High level] Get the configuration for a given currency, store it in the locale storage 'ComChainServerConf'
+// [High level] Get the configuration for a given currency, store it
+// in the locale storage 'ComChainServerConf'
 ///
-customization.getConfJSON = function (name) {
+export function getConfJSON (name) {
   // TODO: use http
   return new Promise(function (resolve, reject) {
     const xhr = new XMLHttpRequest()
-    xhr.open('GET', localStorage.getItem('ComChainRepo') + config.configRepo + '/' + name + '.json' + '?_=' + new Date().getTime(), true) //
+    xhr.open('GET', localStorage.getItem('ComChainRepo') +
+             config.configRepo + '/' + name + '.json' + '?_=' +
+             new Date().getTime(), true) //
     xhr.responseType = 'json'
     xhr.onreadystatechange = function (oEvent) {
       if (xhr.readyState !== 4) return
@@ -27,12 +27,10 @@ customization.getConfJSON = function (name) {
         return
       }
       try {
-        let to_push = xhr.response
-        if (typeof to_push === 'object') {
-          to_push = JSON.stringify(xhr.response)
-        }
-
-        localStorage.setItem('ComChainServerConf', to_push)
+        localStorage.setItem('ComChainServerConf',
+          (typeof xhr.response === 'object')
+            ? JSON.stringify(xhr.response)
+            : xhr.response)
         resolve(true)
       } catch (e) {
         resolve(false)
@@ -46,11 +44,12 @@ customization.getConfJSON = function (name) {
 // [High level] Get the individual configuration
 ///
 
-customization.isApp = function () {
-  return document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1
+export function isApp () {
+  return document.URL.indexOf('http://') === -1 &&
+    document.URL.indexOf('https://') === -1
 }
 
-customization.getEndpointAddress = function () {
+export function getEndpointAddress () {
   try {
     return localStorage.getItem('ComChainAPI')
   } catch (e) {
@@ -58,110 +57,102 @@ customization.getEndpointAddress = function () {
   }
 }
 
-customization.getCurencyName = function () {
+export function getCurencyName () {
   return getServerConfig('name')
 }
 
-customization.getContract1 = function () {
+export function getContract1 () {
   return getServerConfig('contract_1')
 }
 
-customization.getContract2 = function () {
+export function getContract2 () {
   return getServerConfig('contract_2')
 }
 
-customization.getContract3 = function () {
+export function getContract3 () {
   return getServerConfig('contract_3')
 }
 
-customization.getHelpUrl = function () {
+export function getHelpUrl () {
   return getServerConfig('url_help')
 }
 
-customization.getCondUrl = function () {
+export function getCondUrl () {
   return getServerConfig('url_cond')
 }
 
-customization.getUnlockUrl = function () {
+export function getUnlockUrl () {
   return getServerConfig('url_unlock')
 }
 
-customization.getHowToUrl = function () {
+export function getHowToUrl () {
   return getServerConfig('url_howto')
 }
 
-customization.getWalletAddress = function () {
+export function getWalletAddress () {
   return getServerConfig('address')
 }
 
-customization.getCreationMessage = function () {
+export function getCreationMessage () {
   return getServerConfig('creat_message')
 }
 
-customization.getLang = function () {
-  let lang = getServerConfig('lang')
-  if (lang == undefined || lang == '') {
-    lang = conf_locale.server.lang
-  }
-  return lang
+export function getLang () {
+  return getServerConfig('lang') || confLocale.server.lang
 }
 
-customization.getNoteValues = function () {
-  let notes = getServerConfig('notes')
-  if (notes == undefined || notes == '') {
-    notes = conf_locale.server.notes
-  }
-  return notes
+export function getNoteValues () {
+  return getServerConfig('notes') || confLocale.server.notes
 }
 
-customization.hasBn = function () {
-  const notes = customization.getNoteValues()
-  return notes != undefined && notes.length > 0
+export function hasBn () {
+  return !!getNoteValues()
 }
 
-customization.hasBnCheck = function () {
-  return customization.isApp() && customization.hasBn()
+export function hasBnCheck () {
+  return isApp() && hasBn()
 }
 
-customization.getCssUrl = function () {
+export function getCssUrl () {
   try {
-    return localStorage.getItem('ComChainRepo') + config.custoRepo + customization.getCurencyName() + '/css/etherwallet-master.min.css'
+    return localStorage.getItem('ComChainRepo') + config.custoRepo +
+      getCurencyName() + '/css/etherwallet-master.min.css'
   } catch (e) {
-    return conf_locale.server.url_Css
+    return confLocale.server.url_Css
   }
 }
 
-customization.getCurrencyLogoUrl = function (currency_name) {
-  if (currency_name) {
-    try {
-      return localStorage.getItem('ComChainRepo') + config.custoRepo + currency_name + '/images/lem.png'
-    } catch (e) {
-      return ''
-    }
+export function getCurrencyLogoUrl (currencyName) {
+  if (!currencyName) return ''
+  try {
+    return localStorage.getItem('ComChainRepo') + config.custoRepo +
+      currencyName + '/images/lem.png'
+  } catch (e) {
+    return ''
   }
 }
 
-customization.hasNant = function () {
+export function hasNant () {
   return getServerConfigSwitch('nant', false)
 }
 
-customization.hasCM = function () {
+export function hasCM () {
   return getServerConfigSwitch('CM', false)
 }
 
-customization.hasAutor = function () {
+export function hasAutor () {
   return getServerConfigSwitch('autor', false)
 }
 
-customization.hasDeleg = function () {
+export function hasDeleg () {
   return getServerConfigSwitch('deleg', false)
 }
 
-customization.hasPayRequest = function () {
+export function hasPayRequest () {
   return getServerConfigSwitch('payReq', false)
 }
 
-customization.passwordAutocomplete = function () {
+export function passwordAutocomplete () {
   let number = 10000
   try {
     const config = JSON.parse(localStorage.getItem('ComChainServerConf')).server
@@ -174,45 +165,45 @@ customization.passwordAutocomplete = function () {
   return number
 }
 
-/// /////////////////////////////////////////////////////////////////////////////
-customization.updateCss = function () {
+// /////////////////////////////////////////////////////////////////////////////
+
+export function updateCss () {
   // replace the CSS references into the DOM
-  const oldlink = document.getElementsByTagName('link').item(0)
   const newlink = document.createElement('link')
   newlink.setAttribute('rel', 'stylesheet')
   newlink.setAttribute('type', 'text/css')
-  newlink.setAttribute('href', customization.getCssUrl())
+  newlink.setAttribute('href', getCssUrl())
   document.getElementsByTagName('head').item(0).appendChild(newlink)
 }
 
-customization.getCurrencies = function () {
+export function getCurrencies () {
   return getServerConfig('currencies')
 }
 
-customization.configureCurrency = function () {
-  if (customization.getEndpointAddress() != '') {
-    customization.updateCss()
+export function configureCurrency () {
+  if (getEndpointAddress() !== '') {
+    updateCss()
   }
 }
 
-/// /////////////////////////////////////////////////////////////////////////////
+// /////////////////////////////////////////////////////////////////////////////
 
-var getServerConfig = function (config_name) {
+export function getServerConfig (configName) {
   try {
-    return JSON.parse(localStorage.getItem('ComChainServerConf')).server[config_name]
+    return JSON.parse(localStorage.getItem('ComChainServerConf'))
+      .server[configName]
   } catch (e) {
     return ''
   }
 }
 
-var getServerConfigSwitch = function (config_name, default_value) {
+export function getServerConfigSwitch (configName, defaultValue) {
   try {
-    return JSON.parse(localStorage.getItem('ComChainServerConf')).server[config_name].toString().toLowerCase() == 'true'
+    return JSON.parse(localStorage.getItem('ComChainServerConf'))
+      .server[configName].toString().toLowerCase() === 'true'
   } catch (e) {
-    return default_value
+    return defaultValue
   }
 }
 
-/// /////////////////////////////////////////////////////////////////////////////
-
-module.exports = customization
+// /////////////////////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 import ajaxReq from './rest/ajaxReq'
 import connection from './connection'
 import config from './config'
-import customization from './customization'
+import * as customization from './customization'
 import * as message from './message'
 import bcRead from './bcRead'
 import * as bcTransaction from './bcTransaction'
