@@ -24,55 +24,48 @@ export function isTxDataValid (txData) {
   if (txData.to === '0xCONTRACT') txData.to = ''
 }
 
-export function generateTx (txData, callback) {
+export async function generateTx (txData) {
   try {
     isTxDataValid(txData)
-    ajaxReq.getTransactionData(txData.from, function (data) {
-      if (data.error) throw data.msg
-      data = data.data
-      const rawTx = {
-        nonce: ethFuncs.sanitizeHex(data.nonce),
-        gasPrice: ethFuncs.sanitizeHex(
-          ethFuncs.addTinyMoreToGas(data.gasprice)),
-        gasLimit: ethFuncs.sanitizeHex(
-          ethFuncs.decimalToHex(txData.gasLimit)),
-        to: ethFuncs.sanitizeHex(txData.to),
-        value: ethFuncs.sanitizeHex(
-          ethFuncs.decimalToHex(etherUnits.toWei(txData.value, txData.unit))),
-        data: ethFuncs.sanitizeHex(txData.data)
-      }
-      const eTx = new Tx(rawTx)
+    let data = await ajaxReq.getTransactionData(txData.from)
 
-      eTx.sign(new Buffer(txData.key, 'hex'))
-      rawTx.rawTx = JSON.stringify(rawTx)
-      rawTx.signedTx = '0x' + eTx.serialize().toString('hex')
-      rawTx.isError = false
-      if (callback !== undefined) callback(rawTx)
-    })
+    // TODO: must test this
+    if (data.error) {
+      console.log(`Failed getTransactionData(${txData.from})`)
+      throw new Error(data.msg)
+    }
+    data = data.data
+    const rawTx = {
+      nonce: ethFuncs.sanitizeHex(data.nonce),
+      gasPrice: ethFuncs.sanitizeHex(
+        ethFuncs.addTinyMoreToGas(data.gasprice)),
+      gasLimit: ethFuncs.sanitizeHex(
+        ethFuncs.decimalToHex(txData.gasLimit)),
+      to: ethFuncs.sanitizeHex(txData.to),
+      value: ethFuncs.sanitizeHex(
+        ethFuncs.decimalToHex(etherUnits.toWei(txData.value, txData.unit))),
+      data: ethFuncs.sanitizeHex(txData.data)
+    }
+    const eTx = new Tx(rawTx)
+
+    eTx.sign(new Buffer(txData.key, 'hex'))
+    rawTx.rawTx = JSON.stringify(rawTx)
+    rawTx.signedTx = '0x' + eTx.serialize().toString('hex')
+    rawTx.isError = false
+    return rawTx
   } catch (e) {
-    if (callback !== undefined) {
-      callback({
-        isError: true,
-        error: e
-      })
+    return {
+      isError: true,
+      error: e
     }
   }
 }
 
-export function sendTx (signedTx, additionalData, callback) {
-  ajaxReq.sendRawTx(signedTx, additionalData, function (data) {
-    let resp = {}
-    if (data.error) {
-      resp = {
-        isError: true,
-        error: data.msg
-      }
-    } else {
-      resp = {
-        isError: false,
-        data: data.data
-      }
-    }
-    if (callback !== undefined) callback(resp)
-  })
+export async function sendTx (signedTx, additionalData) {
+  const data = await ajaxReq.sendRawTx(signedTx, additionalData)
+
+  return {
+    isError: !!data.error,
+    error: data.error ? data.data : data.msg
+  }
 }

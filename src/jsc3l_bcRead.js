@@ -18,8 +18,8 @@ const balanceFunction = {
 let key
 for (key in balanceFunction) {
   const address = balanceFunction[key]
-  jsc3l_bcRead[key] = function (walletAddress, callback) {
-    getAmount(address, walletAddress, callback)
+  jsc3l_bcRead[key] = async function (walletAddress) {
+    return getAmount(address, walletAddress)
   }
 }
 
@@ -35,22 +35,21 @@ const accountFunction = {
 
 for (key in accountFunction) {
   const address = accountFunction[key]
-  jsc3l_bcRead[key] = function (walletAddress, callback) {
-    getAccInfo(address, walletAddress, callback)
+  jsc3l_bcRead[key] = function (walletAddress) {
+    return getAccInfo(address, walletAddress)
   }
 }
 
 // Get Global infos: Tax destinary Account
-jsc3l_bcRead.getTaxAccount = function (callback) {
+jsc3l_bcRead.getTaxAccount = async function () {
   const taxAccountAddress = '0x4f2eabe0'
-  getGlobInfo(taxAccountAddress, callback)
+  return getGlobInfo(taxAccountAddress)
 }
 
 // Get Historical infos infos: Global balance
-jsc3l_bcRead.getHistoricalGlobalBalance = function (
-  walletAddress, blockNb, callback) {
+jsc3l_bcRead.getHistoricalGlobalBalance = async function (walletAddress, blockNb) {
   const globalBalance = '0x70a08231'
-  getAmountAt(globalBalance, walletAddress, blockNb, callback)
+  return getAmountAt(globalBalance, walletAddress, blockNb)
 }
 
 // Handle lists
@@ -69,22 +68,22 @@ const ListFunction = {
 
 for (key in ListFunction) {
   const configList = ListFunction[key]
-  jsc3l_bcRead[`get${key}List`] = function (
-    walletAddress, indMin, indMax, callback) {
-    getInfo(getContract2(), `0x${configList.count}`, walletAddress,
-      function (count) {
-        const list = []
-        const index = Math.min(count - 1, indMax)
-        getElementInList(getContract2(),
-        `0x${configList.map}`,
-        `0x${configList.amount}`,
-        walletAddress,
-        index,
-        list,
-        indMin,
-        callback)
-      })
-  }
+  jsc3l_bcRead[`get${key}List`] =
+    async function (walletAddress, indMin, indMax) {
+      const count = await getInfo(getContract2(),
+                                  `0x${configList.count}`,
+                                  walletAddress)
+      const list = []
+      const index = Math.min(count - 1, indMax)
+      return getElementInList(
+        getContract2(),
+      `0x${configList.map}`,
+      `0x${configList.amount}`,
+      walletAddress,
+      index,
+      list,
+      indMin)
+    }
 }
 
 // /////////////////////////////////////////////////////////////////////////////
@@ -101,85 +100,89 @@ function getNumber (data, ratio) {
   return a / ratio
 }
 
-function getAmount (address, walletAddress, callback) {
+async function getAmount (address, walletAddress) {
   const userInfo = getDataObj(getContract1(), address,
     [getNakedAddress(walletAddress)])
-  ajaxReq.getEthCall(userInfo, function (data) {
-    if (!data.error) {
-      callback(getNumber(data.data, 100.0).toString())
-    }
-  })
+  const data = await ajaxReq.getEthCall(userInfo)
+  // TODO: this should not work, data.data was already extracted
+  if (data.error) {
+    throw new Error(`Failed getEthCall(${userInfo})`)
+  }
+  return getNumber(data.data, 100.0).toString()
 }
 
-function getAccInfo (address, walletAddress, callback) {
-  getInfo(getContract1(), address, walletAddress, callback)
+async function getAccInfo (address, walletAddress) {
+  return getInfo(getContract1(), address, walletAddress)
 }
 
-function getGlobInfo (address, callback) {
+async function getGlobInfo (address) {
   const userInfo = getDataObj(getContract1(), address, [])
-  ajaxReq.getEthCall(userInfo, function (data) {
-    if (!data.error) {
-      callback(data.data)
-    }
-  })
+  const data = await ajaxReq.getEthCall(userInfo)
+  // TODO: this should not work, data.data was already extracted
+  if (data.error) {
+    throw new Error(`Failed getEthCall(${userInfo})`)
+  }
+  return data.data
 }
 
-function getAmountAt (address, walletAddress, blockNb, callback) {
+async function getAmountAt (address, walletAddress, blockNb) {
   const userInfo = getDataObj(getContract1(), address,
     [getNakedAddress(walletAddress)])
   const blockHex = '0x' + new BigNumber(blockNb).toString(16)
-  ajaxReq.getEthCallAt(userInfo, blockHex, function (data) {
-    if (!data.error && data.data) {
-      callback(getNumber(data.data, 100.0).toString())
-    } else {
-      callback('')
-    }
-  })
+  const data = await ajaxReq.getEthCallAt(userInfo, blockHex)
+  // TODO: this should not work, data.data was already extracted
+  if (!data.error && data.data) {
+    return getNumber(data.data, 100.0).toString()
+  } else {
+    return ''
+  }
 }
 
-function getInfo (contract, address, walletAddress, callback) {
+async function getInfo (contract, address, walletAddress) {
   const userInfo = getDataObj(contract, address,
     [getNakedAddress(walletAddress)])
-  ajaxReq.getEthCall(userInfo, function (data) {
-    if (!data.error) {
-      callback(getNumber(data.data, 1.0))
-    }
-  })
+  const data = await ajaxReq.getEthCall(userInfo)
+  // TODO: this should not work, data.data was already extracted
+  if (data.error) {
+    throw new Error(`Failed getEthCall(${userInfo})`)
+  }
+  return getNumber(data.data, 1.0)
 }
 
-function getAmountForElement (contract, functionAddress,
-  callerAddress, elementAddress, callback) {
+async function getAmountForElement (contract, functionAddress,
+  callerAddress, elementAddress) {
   const userInfo = getDataObj(contract, functionAddress,
     [getNakedAddress(callerAddress), getNakedAddress(elementAddress)])
-  ajaxReq.getEthCall(userInfo, function (data) {
-    if (!data.error) {
-      callback(getNumber(data.data, 100.0).toString())
-    }
-  })
+  const data = await ajaxReq.getEthCall(userInfo)
+  // TODO: this should not work, data.data was already extracted
+  if (data.error) {
+    throw new Error(`Failed getEthCall(${userInfo})`)
+  }
+  return getNumber(data.data, 100.0).toString()
 }
 
-function getElementInList (contract, mapFunctionAddress,
-  amountFunctionAddress, callerAddress, index, list, indMin, callback) {
-  if (index >= indMin) {
-    const userInfo = getDataObj(contract, mapFunctionAddress,
-      [getNakedAddress(callerAddress),
-        padLeft(new BigNumber(index).toString(16), 64)])
-    ajaxReq.getEthCall(userInfo, function (data) {
-      if (!data.error) {
-        getAmountForElement(contract, amountFunctionAddress,
-          callerAddress, data.data, function (amount) {
-            const cleanedAdd = '0x' + data.data.substring(data.data.length - 40)
-            const element = { address: cleanedAdd, amount: amount }
-            list.unshift(element)
-            getElementInList(contract, mapFunctionAddress,
-              amountFunctionAddress, callerAddress, index - 1, list,
-              indMin, callback)
-          })
-      }
-    })
-  } else {
-    callback(list)
+async function getElementInList (contract, mapFunctionAddress,
+  amountFunctionAddress, callerAddress, index, list, indMin) {
+  if (index < indMin) return list
+
+  const userInfo = getDataObj(contract, mapFunctionAddress,
+    [getNakedAddress(callerAddress),
+      padLeft(new BigNumber(index).toString(16), 64)])
+  const data = await ajaxReq.getEthCall(userInfo)
+
+  // TODO: this should not work, data.data was already extracted
+  if (data.error) {
+    throw new Error(`Failed getEthCall(${userInfo})`)
   }
+  const amount = await getAmountForElement(contract, amountFunctionAddress,
+    callerAddress, data.data)
+
+  const cleanedAdd = '0x' + amount.data.substring(data.data.length - 40)
+  const element = { address: cleanedAdd, amount: amount }
+  list.unshift(element)
+  return getElementInList(contract, mapFunctionAddress,
+    amountFunctionAddress, callerAddress, index - 1, list,
+    indMin)
 }
 
 export default jsc3l_bcRead

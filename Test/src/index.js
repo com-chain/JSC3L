@@ -1,101 +1,34 @@
 
 let jsc3l = require('@com-chain.org/jsc3l');
 
-
-// callback to async
-
 window.jsc3l = {
   connection: {
-    ensureComChainRepo: () => {
-      return new Promise((resolve, reject) => {
-        jsc3l.jsc3l_connection.ensureComChainRepo(r => {
-          if (r) {
-            resolve(r);
-          } else {
-            reject(new Error('No repository available'));
-          }
-        });
-      });
-    },
-    acquireEndPoint: () => {
-      return new Promise((resolve, reject) => {
-        jsc3l.jsc3l_connection.acquireEndPoint(r => {
-          if (r) {
-            resolve(r);
-          } else {
-            reject(new Error('No ComChain endpoint'));
-          }
-        });
-      });
-    },
+    ensureComChainRepo: jsc3l.jsc3l_connection.ensureComChainRepo,
+    acquireEndPoint: jsc3l.jsc3l_connection.acquireEndPoint,
   },
   customization: {
-    getConfJSON: name_currency => {
-      return new Promise((resolve, reject) => {
-        jsc3l.jsc3l_customization.getConfJSON(name_currency, r => {
-          if (r) {
-            resolve(r);
-          } else {
-            reject(new Error('Error while currency configuration!'));
-          }
-        });
-      });
-    },
+    getConfJSON: jsc3l.jsc3l_customization.getConfJSON
   },
   message: {
-    ensureWalletMessageKey: (wallet, message) => {
-      return new Promise((resolve, reject) => {
-        jsc3l.jsc3l_message.ensureWalletMessageKey(wallet, message, w => {
-          resolve(w);
-        });
-      });
-    },
-    getMessageKey: (address_dest, with_private) => {
-      return new Promise((resolve, reject) => {
-        jsc3l.jsc3l_message.getMessageKey(address_dest, with_private, remote_key => {
-          resolve(remote_key);
-        });
-      });
-    },
+    ensureWalletMessageKey: jsc3l.jsc3l_message.ensureWalletMessageKey,
+    getMessageKey: jsc3l.jsc3l_message.getMessageKey,
     cipherMessage: jsc3l.jsc3l_message.cipherMessage,
   },
   ajaxReq: {
-    getTransList: (id, count, offset) => {
-      return new Promise((resolve, reject) => {
-        jsc3l.ajaxReq.getTransList(id, count, offset, r => {
-          resolve(r);
-        });
-      });
-    },
+    getTransList: jsc3l.ajaxReq.getTransList,
   },
   bcRead: {
-    getGlobalBalance: wallet_address => {
-      return new Promise((resolve, reject) => {
-        jsc3l.jsc3l_bcRead.getGlobalBalance(wallet_address, r => {
-          resolve(r);
-        });
-      });
-    },
+    getGlobalBalance: jsc3l.jsc3l_bcRead.getGlobalBalance,
   },
   bcTransaction: {
-    TransfertNant: (wallet, to_address, amount, additional_post_data) => {
-      return new Promise((resolve, reject) => {
-        jsc3l.jsc3l_bcTransaction.TransfertNant(wallet, to_address, amount, additional_post_data, r => {
-          if (r.isError) {
-	        reject(new Error(r.error));
-          } else {
-            resolve(r);
-          }
-        });
-      });
-    },
+    TransfertNant: jsc3l.jsc3l_bcTransaction.TransfertNant,
   },
   Wallet: jsc3l.Wallet,
-
 };
 
 
 window.fetchUrl = url => {
+  // TODO: use http
   return new Promise((resolve, reject) => {
     var xobj = new XMLHttpRequest();
     xobj.overrideMimeType("application/json");

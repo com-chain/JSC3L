@@ -15,171 +15,132 @@ class URL {
 class AjaxReq {
   pendingPosts = []
 
-  post (data, callback) {
-    this.pendingPosts.push({ data: data, callback: callback })
-
-    if (this.pendingPosts.length === 1) {
-      this.queuePost()
-    }
+  post (data) {
+    const self = this
+    return new Promise(function (resolve, reject) {
+      self.pendingPosts.push({ data, resolve, reject })
+      if (self.pendingPosts.length === 1) self.queuePost()
+    })
   }
 
-  enrollPost (data, callback) {
-    Endpoint.post(URL.ENROLL, { data: JSON.stringify(data) })
-      .then(function (data) {
-        callback(data.data)
-      })
+  async enrollPost (data) {
+    const res = await Endpoint.post(URL.ENROLL, { data: JSON.stringify(data) })
+    return res.data
   }
 
-  getBalance (addr, callback) {
-    this.post({ balance: addr }, callback)
+  getBalance (addr) { return this.post({ balance: addr }) }
+  getTransactionData (addr) { return this.post({ txdata: addr }) }
+  sendRawTx (rawtx, additionalData) {
+    return this.post(Object.assign({}, { rawtx }, additionalData ?? {}))
   }
 
-  getTransactionData (addr, callback) {
-    this.post({ txdata: addr }, callback)
-  }
+  getEstimatedGas (txobj) { return this.post({ estimatedGas: txobj }) }
+  getEthCall (txobj) { return this.post({ ethCall: txobj }) }
 
-  sendRawTx (rawtx, additionalData, callback) {
-    this.post(Object.assign({}, { rawtx }, additionalData ?? {}), callback)
-  }
-
-  getEstimatedGas (txobj, callback) {
-    this.post({ estimatedGas: txobj }, callback)
-  }
-
-  getEthCall (txobj, callback) {
-    this.post({ ethCall: txobj }, callback)
-  }
-
-  getEthCallAt (txobj, blockNb, callback) {
-    this.post({ ethCallAt: txobj, blockNb: blockNb }, callback)
+  getEthCallAt (txobj, blockNb) {
+    return this.post({ ethCallAt: txobj, blockNb })
   }
 
   queuePost () {
-    const data = this.pendingPosts[0].data
-    const callback = this.pendingPosts[0].callback
+    const { data, resolve, reject } = this.pendingPosts[0]
 
     try {
-      Endpoint.post(URL.SERVER, data, this.config).then(data => {
-        callback(data.data)
+      Endpoint.post(URL.SERVER, data).then(data => {
+        resolve(data.data)
       })
     } catch (err) {
       console.log(err)
+      reject(err)
     }
     this.pendingPosts.splice(0, 1)
     if (this.pendingPosts.length > 0) { this.queuePost() }
   }
 
-  validateEnrollmentLetter (id, currency, signature, callback) {
-    this.enrollPost({ id, currency, signature }, callback)
+  validateEnrollmentLetter (id, currency, signature) {
+    return this.enrollPost({ id, currency, signature })
   }
 
-  enrollAddress (id, address, currency, token, callback) {
-    this.enrollPost({ id, addresse: address, token, currency }, callback)
+  enrollAddress (id, address, currency, token) {
+    return this.enrollPost({ id, addresse: address, token, currency })
   }
 
-  getTransList (id, count, offset, callback) {
-    Endpoint.get(URL.TRANLIST, { addr: id, count, offset })
-      .then(function (data) {
-        callback(data.data)
-      })
+  async getTransList (id, count, offset) {
+    const res = await Endpoint.get(URL.TRANLIST, { addr: id, count, offset })
+    return res.data
   }
 
-  getTransCheck (hash, callback) {
-    Endpoint.get(URL.TRANCHECK, { hash })
-      .then(function (data) {
-        callback(data.data)
-      })
+  async getTransCheck (hash) {
+    const res = await Endpoint.get(URL.TRANCHECK, { hash })
+    return res.data
   }
 
-  getExportTransList (id, start, end, callback) {
-    Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
-      .then(function (data) {
-        callback(data.data)
-      })
+  async getExportTransList (id, start, end) {
+    const res = await Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
+    return res.data
   }
 
-  getExportTransListWithId (id, start, end, callback) {
-    Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
-      .then(function (data) {
-        callback(data.data, id)
-      })
+  async getExportTransListWithId (id, start, end) {
+    const res = await Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
+    return res.data
   }
 
-  getCodesFromAddresses (addresses, currency, caller, signature, callback) {
-    Endpoint.post(URL.GETCODE, {
+  async getCodesFromAddresses (addresses, currency, caller, signature) {
+    const res = await Endpoint.post(URL.GETCODE, {
       server: currency,
       caller,
       signature,
       addresses
-    }).then(function (data) {
-      callback(data.data)
     })
+    return res.data
   }
 
-  getAddressesFromCode (code, currency, caller, signature, callback) {
-    Endpoint.post(URL.GETADDRESS, {
+  async getAddressesFromCode (code, currency, caller, signature) {
+    const res = await Endpoint.post(URL.GETADDRESS, {
       server: currency,
       caller,
       signature,
       code
-    }).then(function (data) {
-      callback(data.data)
     })
+    return res.data
   }
 
-  getMessageKey (addr, withPrivate, callback) {
+  async getMessageKey (addr, withPrivate) {
     const data = { addr }
     if (withPrivate) data.private = '1'
-    Endpoint.get(URL.KEYSTORE, data)
-      .then(function (data) {
-        callback(data.data)
-      })
+    const res = await Endpoint.get(URL.KEYSTORE, data)
+    return res.data
   }
 
-  publishMessageKey (data, sign, callback) {
-    Endpoint.post(URL.KEYSTORE, { data, sign })
-      .then(function (data) {
-        callback(data.data)
-      })
+  async publishMessageKey (data, sign) {
+    const res = await Endpoint.post(URL.KEYSTORE, { data, sign })
+    return res.data
   }
 
-  requestUnlock (address, url, callback) {
-    Endpoint.post(url, { address })
-      .then(function (data) {
-        callback(data)
-      })
+  async requestUnlock (address, url) {
+    return await Endpoint.post(url, { address })
   }
 
-  getReqMessages (addFrom, addTo, callback) {
-    Endpoint.get(URL.requestMessages, { add_req: addFrom, add_cli: addTo })
-      .then(function (data) {
-        callback(data.data)
-      })
+  async getReqMessages (addFrom, addTo) {
+    const res = await Endpoint.get(URL.requestMessages, { add_req: addFrom, add_cli: addTo })
+    return res.data
   }
 
-  publishReqMessages (data, sign, callback) {
-    Endpoint.post(URL.requestMessages, { data, sign })
-      .then(function (data) {
-        callback(data.data)
-      })
+  async publishReqMessages (data, sign) {
+    const res = await Endpoint.post(URL.requestMessages, { data, sign })
+    return res.data
   }
 
-  currBlock (callback) {
-    Endpoint.get(URL.SERVER)
-      .then(function (data) {
-        callback(data.data)
-      })
+  async currBlock () {
+    const res = await Endpoint.get(URL.SERVER)
+    return res.data
   }
 
-  getBlock (hash, callback) {
-    Endpoint.get(URL.SERVER, { hash })
-      .then(function (data) {
-        if (data.data && typeof data.data !== 'object') {
-          data.data = JSON.parse(data.data).transaction
-        }
-
-        callback(data.data)
-      })
+  async getBlock (hash) {
+    const res = await Endpoint.get(URL.SERVER, { hash })
+    if (res.data && typeof res.data !== 'object') {
+      res.data = JSON.parse(res.data).transaction
+    }
+    return res.data
   }
 }
 

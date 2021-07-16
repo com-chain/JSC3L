@@ -14,30 +14,32 @@ const jsc3l_customization = function () {}
 ///
 // [High level] Get the configuration for a given currency, store it in the locale storage 'ComChainServerConf'
 ///
-jsc3l_customization.getConfJSON = function (name, callback) {
-  const xhr = new XMLHttpRequest()
-  xhr.open('GET', localStorage.getItem('ComChainRepo') + jsc3l_config.configRepo + '/' + name + '.json' + '?_=' + new Date().getTime(), true) //
-  xhr.responseType = 'json'
-  xhr.onreadystatechange = function (oEvent) {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        try {
-          let to_push = xhr.response
-          if (typeof to_push === 'object') {
-            to_push = JSON.stringify(xhr.response)
-          }
-
-          localStorage.setItem('ComChainServerConf', to_push)
-          callback(true)
-        } catch (e) {
-          callback(false)
+jsc3l_customization.getConfJSON = function (name) {
+  // TODO: use http
+  return new Promise(function (resolve, reject) {
+    const xhr = new XMLHttpRequest()
+    xhr.open('GET', localStorage.getItem('ComChainRepo') + jsc3l_config.configRepo + '/' + name + '.json' + '?_=' + new Date().getTime(), true) //
+    xhr.responseType = 'json'
+    xhr.onreadystatechange = function (oEvent) {
+      if (xhr.readyState !== 4) return
+      if (xhr.status !== 200) {
+        resolve(false)
+        return
+      }
+      try {
+        let to_push = xhr.response
+        if (typeof to_push === 'object') {
+          to_push = JSON.stringify(xhr.response)
         }
-      } else {
-        callback(false)
+
+        localStorage.setItem('ComChainServerConf', to_push)
+        resolve(true)
+      } catch (e) {
+        resolve(false)
       }
     }
-  }
-  xhr.send()
+    xhr.send()
+  })
 }
 
 ///

@@ -9,11 +9,9 @@ const scrypt = {
 }
 const kdf = 'scrypt'
 
-export function createWallet (callback) {
+export async function createWallet () {
   const wallet = Wallet.generate(false)
-  jsc3l_message.ensureWalletMessageKey(wallet, '', function (completeWallet) {
-    callback(completeWallet)
-  })
+  return jsc3l_message.ensureWalletMessageKey(wallet, '')
 }
 
 export function encryptWallet (wallet, password) {
@@ -25,26 +23,20 @@ export function encryptWallet (wallet, password) {
   })
 }
 
-export function validateEnrollment (codeId, signature, callback) {
-  ajaxReq.validateEnrollmentLetter(codeId,
+export function validateEnrollment (codeId, signature) {
+  return ajaxReq.validateEnrollmentLetter(codeId,
     jsc3l_customization.getCurencyName(),
-    signature,
-    callback
-  )
+    signature)
 }
 
-export function enrollAddress (wallet, codeId, token, callback) {
-  ajaxReq.enrollAddress(codeId,
+export function enrollAddress (wallet, codeId, token) {
+  return ajaxReq.enrollAddress(codeId,
     wallet.getAddressString(),
     jsc3l_customization.getCurencyName(),
-    token,
-    function (data) {
-      callback(data.result === 'OK')
-    })
+    token)
 }
 
-export function requestUnlock (wallet, callback) {
-  ajaxReq.requestUnlock(wallet.getAddressString(),
-    jsc3l_customization.getUnlockUrl(),
-    callback)
+export function requestUnlock (wallet) {
+  return ajaxReq.requestUnlock(wallet.getAddressString(),
+    jsc3l_customization.getUnlockUrl())
 }

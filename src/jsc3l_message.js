@@ -113,7 +113,7 @@ function newMessageKey (wallet) {
   return { pub: m_pub, priv: Encrypt(wallet.getPublicKey(), m_priv) }
 }
 
-function publishMessageKey (wallet, callback) {
+function publishMessageKey (wallet) {
   const data_obj = {
     address: wallet.getAddressString(),
     public_message_key: wallet.message_key.pub,
@@ -126,42 +126,41 @@ function publishMessageKey (wallet, callback) {
 	    const signature = ethUtil.ecsign(msgHash, wallet.getPrivateKey())
   const sign = ethUtil.bufferToHex(Buffer.concat([signature.r, signature.s, ethUtil.toBuffer(signature.v)]))
 
-  ajaxReq.publishMessageKey(data_str, sign, function (data) { callback(data) })
+  return ajaxReq.publishMessageKey(data_str, sign)
 }
 
 /// ///////////////////////////////////////////////////////////
-export function getMessageKey (address, with_private, callback) {
-  ajaxReq.getMessageKey(address, with_private, callback)
+export function getMessageKey (address, with_private) {
+  return ajaxReq.getMessageKey(address, with_private)
 }
 
-export function ensureWalletMessageKey (wallet, message, callback) {
-  getMessageKey(wallet.getAddressString(), true, function (remote_key) {
-    if (remote_key.public_message_key !== undefined) {
-      if (message != '') {
-        if (wallet.message_key === undefined || wallet.message_key.pub === undefined || wallet.message_key.pub != remote_key.public_message_key) {
-          alert(message)
-        }
-
-        // Remote but no matching local
+export async function ensureWalletMessageKey (wallet, message) {
+  let remote_key = await getMessageKey(wallet.getAddressString(), true)
+  if (remote_key.public_message_key !== undefined) {
+    if (message != '') {
+      if (wallet.message_key === undefined || wallet.message_key.pub === undefined || wallet.message_key.pub != remote_key.public_message_key) {
+        alert(message)
       }
 
-      remote_key = { pub: remote_key.public_message_key, priv: remote_key.private_message_key }
-    } else {
-      if (wallet.message_key === undefined || wallet.message_key.pub === undefined || wallet.message_key.priv === undefined) {
-        if (message != '') {
-          alert(message)
-        }
-        wallet.message_key = newMessageKey(wallet)
-      }
-
-      // No remote: publish the local key
-      remote_key = wallet.message_key
-      publishMessageKey(wallet, function (data) {})
+      // Remote but no matching local
     }
 
-    wallet.message_key = remote_key
-    callback(wallet)
-  })
+    remote_key = { pub: remote_key.public_message_key, priv: remote_key.private_message_key }
+  } else {
+    if (wallet.message_key === undefined || wallet.message_key.pub === undefined || wallet.message_key.priv === undefined) {
+      if (message != '') {
+        alert(message)
+      }
+      wallet.message_key = newMessageKey(wallet)
+    }
+
+    // No remote: publish the local key
+    remote_key = wallet.message_key
+    publishMessageKey(wallet, function (data) {})
+  }
+
+  wallet.message_key = remote_key
+  return wallet
 }
 
 export function messageKeysFromWallet (wallet) {
@@ -194,60 +193,59 @@ export function decipherMessage (private_key, ciphered) {
   return Decrypt(key, ciphered)
 }
 
-export function publishReqMessages (wallet, add_to, message, callback) {
-  getMessageKey(wallet.getAddressString(), false, function (from_key) {
-    const from_msg_key = from_key.public_message_key
-    getMessageKey(add_to, false, function (to_key) {
-      const to_msg_key = to_key.public_message_key
+export async function publishReqMessages (wallet, add_to, message) {
+  const from_key = await getMessageKey(wallet.getAddressString(), false)
 
-      let message_from = ''
-      if (from_msg_key !== undefined) {
-        message_from = cipherMessage(from_msg_key, message)
-      }
+  const from_msg_key = from_key.public_message_key
+  const to_key = await getMessageKey(add_to, false)
 
-      let message_to = ''
-      if (to_msg_key !== undefined) {
-        message_to = cipherMessage(to_msg_key, message)
-      }
+  const to_msg_key = to_key.public_message_key
 
-      const data_obj = {
-        add_req: wallet.getAddressString(),
-        add_cli: add_to,
-        ref_req: message_from,
-        ref_cli: message_to
-      }
+  let message_from = ''
+  if (from_msg_key !== undefined) {
+    message_from = cipherMessage(from_msg_key, message)
+  }
 
-      const data_str = JSON.stringify(data_obj)
-      const msg = ethUtil.toBuffer(data_str)
-      const msgHash = ethUtil.hashPersonalMessage(msg)
-      const signature = ethUtil.ecsign(msgHash, wallet.getPrivateKey())
-      const sign = ethUtil.bufferToHex(Buffer.concat([signature.r, signature.s, ethUtil.toBuffer(signature.v)]))
-      ajaxReq.publishReqMessages(data_str, sign, function (data) { callback(data) })
-    })
-  })
+  let message_to = ''
+  if (to_msg_key !== undefined) {
+    message_to = cipherMessage(to_msg_key, message)
+  }
+
+  const data_obj = {
+    add_req: wallet.getAddressString(),
+    add_cli: add_to,
+    ref_req: message_from,
+    ref_cli: message_to
+  }
+
+  const data_str = JSON.stringify(data_obj)
+  const msg = ethUtil.toBuffer(data_str)
+  const msgHash = ethUtil.hashPersonalMessage(msg)
+  const signature = ethUtil.ecsign(msgHash, wallet.getPrivateKey())
+  const sign = ethUtil.bufferToHex(Buffer.concat([signature.r, signature.s, ethUtil.toBuffer(signature.v)]))
+  return ajaxReq.publishReqMessages(data_str, sign)
 }
 
-export function getReqMessage (wallet, other_add, my_message_key, ISentThisMessage, callback) {
+export async function getReqMessage (wallet, other_add, my_message_key, ISentThisMessage) {
   const add_from = ISentThisMessage ? wallet.getAddressString() : other_add
   const add_to = !ISentThisMessage ? wallet.getAddressString() : other_add
-  ajaxReq.getReqMessages(add_from, add_to, function (data) {
-    let message = ''
-    if (data !== undefined) {
-      let crypted = ''
-      if (ISentThisMessage && data.ref_from !== undefined) {
-        crypted = data.ref_from
-      } else if (!ISentThisMessage && data.ref_to !== undefined) {
-        crypted = data.ref_to
-      }
+  const data = await ajaxReq.getReqMessages(add_from, add_to)
+  let message = ''
+  if (data !== undefined) {
+    let crypted = ''
+    if (ISentThisMessage && data.ref_from !== undefined) {
+      crypted = data.ref_from
+    } else if (!ISentThisMessage && data.ref_to !== undefined) {
+      crypted = data.ref_to
+    }
 
-      if (crypted != '') {
-        try {
-          message = decipherMessage(my_message_key, crypted)
-        } catch (e) {
-          message = ''
-        }
+    if (crypted != '') {
+      try {
+        message = decipherMessage(my_message_key, crypted)
+      } catch (e) {
+        message = ''
       }
     }
-    callback(message)
-  })
+  }
+  return message
 }
