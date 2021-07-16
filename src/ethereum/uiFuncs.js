@@ -1,8 +1,8 @@
 import Tx from 'ethereumjs-tx'
-
-import ajaxReq from './ajaxReq'
 import * as ethFuncs from './ethFuncs'
 import * as etherUnits from './etherUnits'
+
+import ajaxReq from '../rest/ajaxReq'
 
 const isNumeric = function (n) {
   return !isNaN(parseFloat(n)) && isFinite(n)

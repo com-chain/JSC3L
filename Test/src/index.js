@@ -1,29 +1,7 @@
 
 let jsc3l = require('@com-chain.org/jsc3l');
 
-window.jsc3l = {
-  connection: {
-    ensureComChainRepo: jsc3l.jsc3l_connection.ensureComChainRepo,
-    acquireEndPoint: jsc3l.jsc3l_connection.acquireEndPoint,
-  },
-  customization: {
-    getConfJSON: jsc3l.jsc3l_customization.getConfJSON
-  },
-  message: {
-    ensureWalletMessageKey: jsc3l.jsc3l_message.ensureWalletMessageKey,
-    getMessageKey: jsc3l.jsc3l_message.getMessageKey,
-    cipherMessage: jsc3l.jsc3l_message.cipherMessage,
-  },
-  bcRead: {
-    getGlobalBalance: jsc3l.jsc3l_bcRead.getGlobalBalance,
-    getTransList: jsc3l.ajaxReq.getTransList,
-  },
-  bcTransaction: {
-    TransfertNant: jsc3l.jsc3l_bcTransaction.TransfertNant,
-  },
-  Wallet: jsc3l.Wallet,
-};
-
+window.jsc3l = jsc3l
 
 window.fetchUrl = url => {
   // TODO: use http
@@ -42,17 +20,17 @@ window.fetchUrl = url => {
 
 
 window.getTransactionMemo = (wallet, transaction) => {
-  let key = jsc3l.jsc3l_message.messageKeysFromCrypted(wallet, wallet.message_key.priv).clear_priv;
+  let key = jsc3l.message.messageKeysFromCrypted(wallet, wallet.message_key.priv).clear_priv;
   let wallet_address = wallet.getAddressString().toLowerCase();
 
   if (transaction.addr_to.toLowerCase() == wallet_address &&
       transaction.message_to) {
-    return jsc3l.jsc3l_message.decipherMessage(key, transaction.message_to);
+    return jsc3l.message.decipherMessage(key, transaction.message_to);
   }
 
   if (transaction.addr_from.toLowerCase() == wallet_address &&
       transaction.message_from) {
-    return jsc3l.jsc3l_message.decipherMessage(key, transaction.message_from);
+    return jsc3l.message.decipherMessage(key, transaction.message_from);
   }
 
   return "";

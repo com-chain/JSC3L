@@ -80,7 +80,9 @@ gulp.task('server', function() {
 
 
 gulp.task('watch', function () {
-  gulp.watch(['src/index.js', '../build/*.js'], gulp.series('browserify', 'reload'));
+  gulp.watch(['src/index.js',
+              '../build/*.js',
+              '../build/**/*.js'], gulp.series('browserify', 'reload'));
   gulp.watch('src/index.html', gulp.series('copy-html', 'reload'));
   gulp.watch('src/wallet.json', gulp.series('copy-wallet', 'reload'));
   gulp.watch('src/style.sass', gulp.series('sass', 'reload'));

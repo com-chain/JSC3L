@@ -1,6 +1,6 @@
 import { Http } from './http'
 import { postSerializer } from './serializer'
-import { getEndpointAddress } from './jsc3l_customization'
+import { getEndpointAddress } from '../customization'
 
 /**
  * Serialize data, adds default config and transfer to code http module

@@ -1,7 +1,7 @@
 import sha3 from 'sha3'
 import BigNumber from 'bignumber.js'
-import * as etherUnits from './etherUnits'
 import ethUtil from 'ethereumjs-util'
+import * as etherUnits from './etherUnits'
 
 function isChecksumAddress (address) {
   return address === ethUtil.toChecksumAddress(address)

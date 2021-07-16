@@ -1,10 +1,10 @@
 import BigNumber from 'bignumber.js'
 
-import ajaxReq from './ajaxReq'
-import { getNakedAddress, padLeft, getDataObj } from './ethFuncs'
-import { getContract1, getContract2 } from './jsc3l_customization'
+import ajaxReq from './rest/ajaxReq'
+import { getNakedAddress, padLeft, getDataObj } from './ethereum/ethFuncs'
+import { getContract1, getContract2 } from './customization'
 
-const jsc3l_bcRead = {}
+const bcRead = {}
 
 // Function to read amount of coin
 const balanceFunction = {
@@ -18,7 +18,7 @@ const balanceFunction = {
 let key
 for (key in balanceFunction) {
   const address = balanceFunction[key]
-  jsc3l_bcRead[key] = async function (walletAddress) {
+  bcRead[key] = async function (walletAddress) {
     return getAmount(address, walletAddress)
   }
 }
@@ -35,19 +35,19 @@ const accountFunction = {
 
 for (key in accountFunction) {
   const address = accountFunction[key]
-  jsc3l_bcRead[key] = function (walletAddress) {
+  bcRead[key] = function (walletAddress) {
     return getAccInfo(address, walletAddress)
   }
 }
 
 // Get Global infos: Tax destinary Account
-jsc3l_bcRead.getTaxAccount = async function () {
+bcRead.getTaxAccount = async function () {
   const taxAccountAddress = '0x4f2eabe0'
   return getGlobInfo(taxAccountAddress)
 }
 
 // Get Historical infos infos: Global balance
-jsc3l_bcRead.getHistoricalGlobalBalance = async function (walletAddress, blockNb) {
+bcRead.getHistoricalGlobalBalance = async function (walletAddress, blockNb) {
   const globalBalance = '0x70a08231'
   return getAmountAt(globalBalance, walletAddress, blockNb)
 }
@@ -68,7 +68,7 @@ const ListFunction = {
 
 for (key in ListFunction) {
   const configList = ListFunction[key]
-  jsc3l_bcRead[`get${key}List`] =
+  bcRead[`get${key}List`] =
     async function (walletAddress, indMin, indMax) {
       const count = await getInfo(getContract2(),
                                   `0x${configList.count}`,
@@ -185,8 +185,8 @@ async function getElementInList (contract, mapFunctionAddress,
     indMin)
 }
 
-jsc3l_bcRead.getTransList = async function (id, count, offset) {
+bcRead.getTransList = async function (id, count, offset) {
   return ajaxReq.getTransList(id, count, offset)
 }
 
-export default jsc3l_bcRead
+export default bcRead

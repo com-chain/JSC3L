@@ -1,5 +1,5 @@
-import jsc3l_config from './jsc3l_config'
-import Wallet from './myetherwallet'
+import config from './config'
+import Wallet from './ethereum/myetherwallet'
 
 ///
 //
@@ -9,16 +9,16 @@ import Wallet from './myetherwallet'
 // conf_locale.server.url_Css
 ///
 
-const jsc3l_customization = function () {}
+const customization = function () {}
 
 ///
 // [High level] Get the configuration for a given currency, store it in the locale storage 'ComChainServerConf'
 ///
-jsc3l_customization.getConfJSON = function (name) {
+customization.getConfJSON = function (name) {
   // TODO: use http
   return new Promise(function (resolve, reject) {
     const xhr = new XMLHttpRequest()
-    xhr.open('GET', localStorage.getItem('ComChainRepo') + jsc3l_config.configRepo + '/' + name + '.json' + '?_=' + new Date().getTime(), true) //
+    xhr.open('GET', localStorage.getItem('ComChainRepo') + config.configRepo + '/' + name + '.json' + '?_=' + new Date().getTime(), true) //
     xhr.responseType = 'json'
     xhr.onreadystatechange = function (oEvent) {
       if (xhr.readyState !== 4) return
@@ -46,11 +46,11 @@ jsc3l_customization.getConfJSON = function (name) {
 // [High level] Get the individual configuration
 ///
 
-jsc3l_customization.isApp = function () {
+customization.isApp = function () {
   return document.URL.indexOf('http://') === -1 && document.URL.indexOf('https://') === -1
 }
 
-jsc3l_customization.getEndpointAddress = function () {
+customization.getEndpointAddress = function () {
   try {
     return localStorage.getItem('ComChainAPI')
   } catch (e) {
@@ -58,47 +58,47 @@ jsc3l_customization.getEndpointAddress = function () {
   }
 }
 
-jsc3l_customization.getCurencyName = function () {
+customization.getCurencyName = function () {
   return getServerConfig('name')
 }
 
-jsc3l_customization.getContract1 = function () {
+customization.getContract1 = function () {
   return getServerConfig('contract_1')
 }
 
-jsc3l_customization.getContract2 = function () {
+customization.getContract2 = function () {
   return getServerConfig('contract_2')
 }
 
-jsc3l_customization.getContract3 = function () {
+customization.getContract3 = function () {
   return getServerConfig('contract_3')
 }
 
-jsc3l_customization.getHelpUrl = function () {
+customization.getHelpUrl = function () {
   return getServerConfig('url_help')
 }
 
-jsc3l_customization.getCondUrl = function () {
+customization.getCondUrl = function () {
   return getServerConfig('url_cond')
 }
 
-jsc3l_customization.getUnlockUrl = function () {
+customization.getUnlockUrl = function () {
   return getServerConfig('url_unlock')
 }
 
-jsc3l_customization.getHowToUrl = function () {
+customization.getHowToUrl = function () {
   return getServerConfig('url_howto')
 }
 
-jsc3l_customization.getWalletAddress = function () {
+customization.getWalletAddress = function () {
   return getServerConfig('address')
 }
 
-jsc3l_customization.getCreationMessage = function () {
+customization.getCreationMessage = function () {
   return getServerConfig('creat_message')
 }
 
-jsc3l_customization.getLang = function () {
+customization.getLang = function () {
   let lang = getServerConfig('lang')
   if (lang == undefined || lang == '') {
     lang = conf_locale.server.lang
@@ -106,7 +106,7 @@ jsc3l_customization.getLang = function () {
   return lang
 }
 
-jsc3l_customization.getNoteValues = function () {
+customization.getNoteValues = function () {
   let notes = getServerConfig('notes')
   if (notes == undefined || notes == '') {
     notes = conf_locale.server.notes
@@ -114,54 +114,54 @@ jsc3l_customization.getNoteValues = function () {
   return notes
 }
 
-jsc3l_customization.hasBn = function () {
-  const notes = jsc3l_customization.getNoteValues()
+customization.hasBn = function () {
+  const notes = customization.getNoteValues()
   return notes != undefined && notes.length > 0
 }
 
-jsc3l_customization.hasBnCheck = function () {
-  return jsc3l_customization.isApp() && jsc3l_customization.hasBn()
+customization.hasBnCheck = function () {
+  return customization.isApp() && customization.hasBn()
 }
 
-jsc3l_customization.getCssUrl = function () {
+customization.getCssUrl = function () {
   try {
-    return localStorage.getItem('ComChainRepo') + jsc3l_config.custoRepo + jsc3l_customization.getCurencyName() + '/css/etherwallet-master.min.css'
+    return localStorage.getItem('ComChainRepo') + config.custoRepo + customization.getCurencyName() + '/css/etherwallet-master.min.css'
   } catch (e) {
     return conf_locale.server.url_Css
   }
 }
 
-jsc3l_customization.getCurrencyLogoUrl = function (currency_name) {
+customization.getCurrencyLogoUrl = function (currency_name) {
   if (currency_name) {
     try {
-      return localStorage.getItem('ComChainRepo') + jsc3l_config.custoRepo + currency_name + '/images/lem.png'
+      return localStorage.getItem('ComChainRepo') + config.custoRepo + currency_name + '/images/lem.png'
     } catch (e) {
       return ''
     }
   }
 }
 
-jsc3l_customization.hasNant = function () {
+customization.hasNant = function () {
   return getServerConfigSwitch('nant', false)
 }
 
-jsc3l_customization.hasCM = function () {
+customization.hasCM = function () {
   return getServerConfigSwitch('CM', false)
 }
 
-jsc3l_customization.hasAutor = function () {
+customization.hasAutor = function () {
   return getServerConfigSwitch('autor', false)
 }
 
-jsc3l_customization.hasDeleg = function () {
+customization.hasDeleg = function () {
   return getServerConfigSwitch('deleg', false)
 }
 
-jsc3l_customization.hasPayRequest = function () {
+customization.hasPayRequest = function () {
   return getServerConfigSwitch('payReq', false)
 }
 
-jsc3l_customization.passwordAutocomplete = function () {
+customization.passwordAutocomplete = function () {
   let number = 10000
   try {
     const config = JSON.parse(localStorage.getItem('ComChainServerConf')).server
@@ -175,23 +175,23 @@ jsc3l_customization.passwordAutocomplete = function () {
 }
 
 /// /////////////////////////////////////////////////////////////////////////////
-jsc3l_customization.updateCss = function () {
+customization.updateCss = function () {
   // replace the CSS references into the DOM
   const oldlink = document.getElementsByTagName('link').item(0)
   const newlink = document.createElement('link')
   newlink.setAttribute('rel', 'stylesheet')
   newlink.setAttribute('type', 'text/css')
-  newlink.setAttribute('href', jsc3l_customization.getCssUrl())
+  newlink.setAttribute('href', customization.getCssUrl())
   document.getElementsByTagName('head').item(0).appendChild(newlink)
 }
 
-jsc3l_customization.getCurrencies = function () {
+customization.getCurrencies = function () {
   return getServerConfig('currencies')
 }
 
-jsc3l_customization.configureCurrency = function () {
-  if (jsc3l_customization.getEndpointAddress() != '') {
-    jsc3l_customization.updateCss()
+customization.configureCurrency = function () {
+  if (customization.getEndpointAddress() != '') {
+    customization.updateCss()
   }
 }
 
@@ -215,4 +215,4 @@ var getServerConfigSwitch = function (config_name, default_value) {
 
 /// /////////////////////////////////////////////////////////////////////////////
 
-module.exports = jsc3l_customization
+module.exports = customization

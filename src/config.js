@@ -1,8 +1,8 @@
 
 
-const jsc3l_config = function () {}
+const config = function () {}
 
-jsc3l_config.confEndPointsOur = [
+config.confEndPointsOur = [
   'https://node-001.cchosting.org',
   'https://node-002.cchosting.org',
   'https://node-003.cchosting.org',
@@ -11,7 +11,7 @@ jsc3l_config.confEndPointsOur = [
   'https://api.monnaie-leman.org'
 ]
 
-jsc3l_config.confEndPointsOther = [
+config.confEndPointsOther = [
   'https://ipfs.io',
   'https://ipfs.infura.io',
   'https://ipfs.jes.xxx',
@@ -22,14 +22,14 @@ jsc3l_config.confEndPointsOther = [
 ]
 
 // IPNS of the list of available ComChain currency configs
-jsc3l_config.configRepo = '/ipns/QmaAAZor2uLKnrzGCwyXTSwogJqmPjJgvpYgpmtz5XcSmR/configs'
+config.configRepo = '/ipns/QmaAAZor2uLKnrzGCwyXTSwogJqmPjJgvpYgpmtz5XcSmR/configs'
 
 // IPNS of the list of available ComChain end-points
-jsc3l_config.nodesRepo = '/ipns/QmcRWARTpuEf9E87cdA4FfjBkv7rKTJyfvsLFTzXsGATbL'
+config.nodesRepo = '/ipns/QmcRWARTpuEf9E87cdA4FfjBkv7rKTJyfvsLFTzXsGATbL'
 
 // IPNS of the configuration for the different currencies
-jsc3l_config.custoRepo = '/ipns/QmaAAZor2uLKnrzGCwyXTSwogJqmPjJgvpYgpmtz5XcSmR/resources/'
+config.custoRepo = '/ipns/QmaAAZor2uLKnrzGCwyXTSwogJqmPjJgvpYgpmtz5XcSmR/resources/'
 
-jsc3l_config.ping = jsc3l_config.configRepo + '/ping.json'
+config.ping = config.configRepo + '/ping.json'
 
-module.exports = jsc3l_config
+module.exports = config

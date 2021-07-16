@@ -2,8 +2,8 @@ import crypto from 'crypto'
 import ethUtil from 'ethereumjs-util'
 import { ec as EC } from 'elliptic'
 
-import ajaxReq from './ajaxReq'
-import Wallet from './myetherwallet'
+import ajaxReq from './rest/ajaxReq'
+import Wallet from './ethereum/myetherwallet'
 
 /// Code adapted from https://github.com/LimelabsTech/eth-ecies
 

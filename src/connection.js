@@ -1,12 +1,12 @@
-import jsc3l_config from './jsc3l_config'
+import config from './config'
 
-const jsc3l_connection = function () {}
+const connection = function () {}
 
 ///
 // [High level] Look for an available IPFS/IPNS node and store it in the localstorage under 'ComChainRepo'
 ///
 
-jsc3l_connection.ensureComChainRepo = async function () {
+connection.ensureComChainRepo = async function () {
   // 1. Check if a list of end-point is stored locally (avoid a IPNS slow call)
   let storedEndPoints = []
   try {
@@ -18,29 +18,29 @@ jsc3l_connection.ensureComChainRepo = async function () {
   if (await checkRepo(storedEndPoints)) return true
 
   // 2. No locally stored nodes available, try the hard-coded Com-Chain list
-  if (await checkRepo(jsc3l_config.confEndPointsOur)) return true
+  if (await checkRepo(config.confEndPointsOur)) return true
 
   // 3. As a backup try standard ipfs servers
-  return checkRepo(jsc3l_config.confEndPointsOther)
+  return checkRepo(config.confEndPointsOther)
 }
 
 ///
 // [High level] Get the list of end-points and randomly select a up and running one
 ///
-jsc3l_connection.acquireEndPoint = async function () {
-  if (!await jsc3l_connection.getCCEndPointList()) return false
+connection.acquireEndPoint = async function () {
+  if (!await connection.getCCEndPointList()) return false
   const endpoint_list = JSON.parse(localStorage.getItem('ComChainApiNodes'))
-  return jsc3l_connection.selectEndPoint(endpoint_list)
+  return connection.selectEndPoint(endpoint_list)
 }
 
 ///
 // [Lower level] Get from the IPFS/IPNS node stored it in the localstorage under 'ComChainRepo' the list of ComChain end-points
 ///
-jsc3l_connection.getCCEndPointList = function () {
+connection.getCCEndPointList = function () {
   // TODO: use http object
   return new Promise(function (resolve, reject) {
     const xhr = new XMLHttpRequest()
-    xhr.open('GET', localStorage.getItem('ComChainRepo') + jsc3l_config.nodesRepo + '?_=' + new Date().getTime(), true)
+    xhr.open('GET', localStorage.getItem('ComChainRepo') + config.nodesRepo + '?_=' + new Date().getTime(), true)
     xhr.responseType = 'json'
     xhr.onreadystatechange = function (oEvent) {
       if (xhr.readyState !== 4) return
@@ -68,7 +68,7 @@ jsc3l_connection.getCCEndPointList = function () {
 ///
 // [Lower level] Select a ComChain end-point with up and running APIs
 ///
-jsc3l_connection.selectEndPoint = async function (nodes) {
+connection.selectEndPoint = async function (nodes) {
   if (nodes.length === 0) {
     localStorage.removeItem('ComChainApiNodes')
     return false
@@ -78,20 +78,20 @@ jsc3l_connection.selectEndPoint = async function (nodes) {
   const node = nodes[id]
 
   // check the node is up and running
-  const success = await jsc3l_connection.testNode(node)
+  const success = await connection.testNode(node)
   if (success) {
     // store the node
     localStorage.setItem('ComChainAPI', node)
     return true
   }
   nodes.splice(id, 1)
-  return jsc3l_connection.selectEndPoint(nodes)
+  return connection.selectEndPoint(nodes)
 }
 
 ///
 // [Lower level] Test if a end-point has up and running APIs
 ///
-jsc3l_connection.testNode = async function (api_address) {
+connection.testNode = async function (api_address) {
   const result = await testDbApi(api_address)
   if (!result) return false
 
@@ -109,7 +109,7 @@ var checkRepo = async function (repoList) {
 
   return new Promise(function (resolve, reject) {
     const xhr = new XMLHttpRequest()
-    xhr.open('GET', repo + jsc3l_config.ping, true)
+    xhr.open('GET', repo + config.ping, true)
     xhr.responseType = 'json'
     xhr.timeout = 3000
     xhr.onreadystatechange = function (oEvent) {
@@ -180,4 +180,4 @@ var testDbApi = function (api_address) {
 
 /// /////////////////////////////////////////////////////////////////////////////
 
-module.exports = jsc3l_connection
+module.exports = connection
