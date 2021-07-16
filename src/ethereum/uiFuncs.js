@@ -48,7 +48,7 @@ export async function generateTx (txData) {
     }
     const eTx = new Tx(rawTx)
 
-    eTx.sign(new Buffer(txData.key, 'hex'))
+    eTx.sign(Buffer.from(txData.key, 'hex'))
     rawTx.rawTx = JSON.stringify(rawTx)
     rawTx.signedTx = '0x' + eTx.serialize().toString('hex')
     rawTx.isError = false

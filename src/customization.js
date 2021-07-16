@@ -1,4 +1,4 @@
-import config from './config'
+import { custoRepo, configRepo } from './config'
 
 ///
 // Pre-requisite: the variable confLocale should store an object with
@@ -17,7 +17,7 @@ export function getConfJSON (name) {
   return new Promise(function (resolve, reject) {
     const xhr = new XMLHttpRequest()
     xhr.open('GET', localStorage.getItem('ComChainRepo') +
-             config.configRepo + '/' + name + '.json' + '?_=' +
+             configRepo + '/' + name + '.json' + '?_=' +
              new Date().getTime(), true) //
     xhr.responseType = 'json'
     xhr.onreadystatechange = function (oEvent) {
@@ -115,7 +115,7 @@ export function hasBnCheck () {
 
 export function getCssUrl () {
   try {
-    return localStorage.getItem('ComChainRepo') + config.custoRepo +
+    return localStorage.getItem('ComChainRepo') + custoRepo +
       getCurrencyName() + '/css/etherwallet-master.min.css'
   } catch (e) {
     return confLocale.server.url_Css
@@ -125,7 +125,7 @@ export function getCssUrl () {
 export function getCurrencyLogoUrl (currencyName) {
   if (!currencyName) return ''
   try {
-    return localStorage.getItem('ComChainRepo') + config.custoRepo +
+    return localStorage.getItem('ComChainRepo') + custoRepo +
       currencyName + '/images/lem.png'
   } catch (e) {
     return ''

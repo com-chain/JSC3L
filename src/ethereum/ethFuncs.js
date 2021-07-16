@@ -1,4 +1,3 @@
-import sha3 from 'sha3'
 import BigNumber from 'bignumber.js'
 import ethUtil from 'ethereumjs-util'
 import * as etherUnits from './etherUnits'

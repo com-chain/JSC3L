@@ -112,8 +112,9 @@ class AjaxReq {
   }
 
   getReqMessages (addFrom, addTo) {
-    return DataEndpoint.get(URL.requestMessages,
-                            { add_req: addFrom, add_cli: addTo })
+    return DataEndpoint.get(
+      URL.requestMessages,
+      { add_req: addFrom, add_cli: addTo })
   }
 
   publishReqMessages (data, sign) {
@@ -123,7 +124,7 @@ class AjaxReq {
   currBlock () { return DataEndpoint.get(URL.SERVER) }
 
   async getBlock (hash) {
-    const res = await DataEndpoint.get(URL.SERVER, { hash })
+    let res = await DataEndpoint.get(URL.SERVER, { hash })
     if (res && typeof res !== 'object') {
       res = JSON.parse(res).transaction
     }

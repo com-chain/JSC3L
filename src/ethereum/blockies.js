@@ -82,7 +82,7 @@ function createCanvas (imageData, color, scale, bgcolor, spotcolor) {
     const row = Math.floor(i / width)
     const col = i % width
     // if data is 2, choose spot color, if 1 choose foreground
-    cc.fillStyle = (imageData[i] == 1) ? color : spotcolor
+    cc.fillStyle = (imageData[i] === 1) ? color : spotcolor
 
     // if data is 0, leave the background
     if (imageData[i]) {

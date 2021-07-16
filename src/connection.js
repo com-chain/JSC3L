@@ -1,12 +1,11 @@
-import config from './config'
-
-const connection = function () {}
+import * as config from './config'
 
 ///
-// [High level] Look for an available IPFS/IPNS node and store it in the localstorage under 'ComChainRepo'
+// [High level] Look for an available IPFS/IPNS node and store it in
+// the localstorage under 'ComChainRepo'
 ///
 
-connection.ensureComChainRepo = async function () {
+export async function ensureComChainRepo () {
   // 1. Check if a list of end-point is stored locally (avoid a IPNS slow call)
   let storedEndPoints = []
   try {
@@ -25,22 +24,25 @@ connection.ensureComChainRepo = async function () {
 }
 
 ///
-// [High level] Get the list of end-points and randomly select a up and running one
+// [High level] Get the list of end-points and randomly select a up
+// and running one
 ///
-connection.acquireEndPoint = async function () {
-  if (!await connection.getCCEndPointList()) return false
-  const endpoint_list = JSON.parse(localStorage.getItem('ComChainApiNodes'))
-  return connection.selectEndPoint(endpoint_list)
+export async function acquireEndPoint () {
+  if (!await getCCEndPointList()) return false
+  const endpointList = JSON.parse(localStorage.getItem('ComChainApiNodes'))
+  return selectEndPoint(endpointList)
 }
 
 ///
-// [Lower level] Get from the IPFS/IPNS node stored it in the localstorage under 'ComChainRepo' the list of ComChain end-points
+// [Lower level] Get from the IPFS/IPNS node stored it in the
+// localstorage under 'ComChainRepo' the list of ComChain end-points
 ///
-connection.getCCEndPointList = function () {
+function getCCEndPointList () {
   // TODO: use http object
   return new Promise(function (resolve, reject) {
     const xhr = new XMLHttpRequest()
-    xhr.open('GET', localStorage.getItem('ComChainRepo') + config.nodesRepo + '?_=' + new Date().getTime(), true)
+    xhr.open('GET', localStorage.getItem('ComChainRepo') +
+             config.nodesRepo + '?_=' + new Date().getTime(), true)
     xhr.responseType = 'json'
     xhr.onreadystatechange = function (oEvent) {
       if (xhr.readyState !== 4) return
@@ -50,12 +52,12 @@ connection.getCCEndPointList = function () {
       }
 
       try {
-        let to_push = xhr.response
-        if (typeof to_push === 'object') {
-          to_push = JSON.stringify(xhr.response)
-        }
-
-        localStorage.setItem('ComChainApiNodes', to_push)
+        localStorage.setItem(
+          'ComChainApiNodes',
+          (typeof xhr.response === 'object')
+            ? JSON.stringify(xhr.response)
+            : xhr.response
+        )
         resolve(true)
       } catch (e) {
         resolve(false)
@@ -68,7 +70,7 @@ connection.getCCEndPointList = function () {
 ///
 // [Lower level] Select a ComChain end-point with up and running APIs
 ///
-connection.selectEndPoint = async function (nodes) {
+async function selectEndPoint (nodes) {
   if (nodes.length === 0) {
     localStorage.removeItem('ComChainApiNodes')
     return false
@@ -78,29 +80,29 @@ connection.selectEndPoint = async function (nodes) {
   const node = nodes[id]
 
   // check the node is up and running
-  const success = await connection.testNode(node)
+  const success = await testNode(node)
   if (success) {
     // store the node
     localStorage.setItem('ComChainAPI', node)
     return true
   }
   nodes.splice(id, 1)
-  return connection.selectEndPoint(nodes)
+  return selectEndPoint(nodes)
 }
 
 ///
 // [Lower level] Test if a end-point has up and running APIs
 ///
-connection.testNode = async function (api_address) {
-  const result = await testDbApi(api_address)
+async function testNode (apiAddress) {
+  const result = await testDbApi(apiAddress)
   if (!result) return false
 
-  return testApi(api_address)
+  return testApi(apiAddress)
 }
 
-/// /////////////////////////////////////////////////////////////////////////////
-var checkRepo = async function (repoList) {
-  if (!repoList || repoList.length == 0) {
+// /////////////////////////////////////////////////////////////////////////////
+async function checkRepo (repoList) {
+  if (!repoList || repoList.length === 0) {
     return false
   }
   // TODO: use http
@@ -127,11 +129,11 @@ var checkRepo = async function (repoList) {
   })
 }
 
-var testApi = function (api_address) {
+function testApi (apiAddress) {
   // TODO: use http
   return new Promise(function (resolve, reject) {
     const xhr = new XMLHttpRequest()
-    xhr.open('GET', api_address + '/api.php', true)
+    xhr.open('GET', apiAddress + '/api.php', true)
     xhr.responseType = 'json'
     xhr.timeout = 5000
     xhr.onreadystatechange = function (oEvent) {
@@ -146,7 +148,7 @@ var testApi = function (api_address) {
         if (typeof answer === 'object') {
           answer = JSON.stringify(xhr.response)
         }
-        resolve(answer && answer != 'null' && !answer.error)
+        resolve(answer && answer !== 'null' && !answer.error)
       } catch (e) {
         resolve(false)
       }
@@ -155,11 +157,11 @@ var testApi = function (api_address) {
   })
 }
 
-var testDbApi = function (api_address) {
+function testDbApi (apiAddress) {
   // TODO: use http
   return new Promise(function (resolve, reject) {
     const xhr = new XMLHttpRequest()
-    xhr.open('GET', api_address + '/dbcheck.php', true)
+    xhr.open('GET', apiAddress + '/dbcheck.php', true)
     xhr.timeout = 5000
     xhr.onreadystatechange = function (oEvent) {
       if (xhr.readyState !== 4) return
@@ -177,7 +179,3 @@ var testDbApi = function (api_address) {
     xhr.send()
   })
 }
-
-/// /////////////////////////////////////////////////////////////////////////////
-
-module.exports = connection

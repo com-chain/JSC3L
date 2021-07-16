@@ -94,7 +94,7 @@ function getNumber (data, ratio) {
   let a = parseInt(shortData, 16)
 
   if (a > (34359738368 * 4096)) {
-    a = a - 68719476736 * 4096
+    a -= 68719476736 * 4096
   }
 
   return a / ratio
