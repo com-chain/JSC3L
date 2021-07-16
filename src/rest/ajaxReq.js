@@ -1,4 +1,4 @@
-import { Endpoint } from './endpoint'
+import { DataEndpoint, Endpoint } from './endpoint'
 
 class URL {
   static SERVER = 'api.php';
@@ -23,9 +23,8 @@ class AjaxReq {
     })
   }
 
-  async enrollPost (data) {
-    const res = await Endpoint.post(URL.ENROLL, { data: JSON.stringify(data) })
-    return res.data
+  enrollPost (data) {
+    return DataEndpoint.post(URL.ENROLL, { data: JSON.stringify(data) })
   }
 
   getBalance (addr) { return this.post({ balance: addr }) }
@@ -45,7 +44,7 @@ class AjaxReq {
     const { data, resolve, reject } = this.pendingPosts[0]
 
     try {
-      Endpoint.post(URL.SERVER, data).then(data => {
+      DataEndpoint.post(URL.SERVER, data).then(data => {
         resolve(data.data)
       })
     } catch (err) {
@@ -64,83 +63,71 @@ class AjaxReq {
     return this.enrollPost({ id, addresse: address, token, currency })
   }
 
-  async getTransList (id, count, offset) {
-    const res = await Endpoint.get(URL.TRANLIST, { addr: id, count, offset })
-    return res.data
+  getTransList (id, count, offset) {
+    return DataEndpoint.get(URL.TRANLIST, { addr: id, count, offset })
   }
 
-  async getTransCheck (hash) {
-    const res = await Endpoint.get(URL.TRANCHECK, { hash })
-    return res.data
+  getTransCheck (hash) {
+    return DataEndpoint.get(URL.TRANCHECK, { hash })
   }
 
-  async getExportTransList (id, start, end) {
-    const res = await Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
-    return res.data
+  getExportTransList (id, start, end) {
+    return DataEndpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
   }
 
-  async getExportTransListWithId (id, start, end) {
-    const res = await Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
-    return res.data
+  getExportTransListWithId (id, start, end) {
+    return DataEndpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
   }
 
-  async getCodesFromAddresses (addresses, currency, caller, signature) {
-    const res = await Endpoint.post(URL.GETCODE, {
+  getCodesFromAddresses (addresses, currency, caller, signature) {
+    return DataEndpoint.post(URL.GETCODE, {
       server: currency,
       caller,
       signature,
       addresses
     })
-    return res.data
   }
 
-  async getAddressesFromCode (code, currency, caller, signature) {
-    const res = await Endpoint.post(URL.GETADDRESS, {
+  getAddressesFromCode (code, currency, caller, signature) {
+    return DataEndpoint.post(URL.GETADDRESS, {
       server: currency,
       caller,
       signature,
       code
     })
-    return res.data
   }
 
-  async getMessageKey (addr, withPrivate) {
+  getMessageKey (addr, withPrivate) {
     const data = { addr }
     if (withPrivate) data.private = '1'
-    const res = await Endpoint.get(URL.KEYSTORE, data)
-    return res.data
+    return DataEndpoint.get(URL.KEYSTORE, data)
   }
 
-  async publishMessageKey (data, sign) {
-    const res = await Endpoint.post(URL.KEYSTORE, { data, sign })
-    return res.data
+  publishMessageKey (data, sign) {
+    return DataEndpoint.post(URL.KEYSTORE, { data, sign })
   }
 
-  async requestUnlock (address, url) {
-    return await Endpoint.post(url, { address })
+  requestUnlock (address, url) {
+    return Endpoint.post(url, { address })
   }
 
-  async getReqMessages (addFrom, addTo) {
-    const res = await Endpoint.get(URL.requestMessages, { add_req: addFrom, add_cli: addTo })
-    return res.data
+  getReqMessages (addFrom, addTo) {
+    return DataEndpoint.get(URL.requestMessages,
+                            { add_req: addFrom, add_cli: addTo })
   }
 
-  async publishReqMessages (data, sign) {
-    const res = await Endpoint.post(URL.requestMessages, { data, sign })
-    return res.data
+  publishReqMessages (data, sign) {
+    return DataEndpoint.post(URL.requestMessages, { data, sign })
   }
 
-  async currBlock () {
-    const res = await Endpoint.get(URL.SERVER)
-    return res.data
-  }
+  currBlock () { return DataEndpoint.get(URL.SERVER) }
 
   async getBlock (hash) {
-    const res = await Endpoint.get(URL.SERVER, { hash })
-    if (res.data && typeof res.data !== 'object') {
-      res.data = JSON.parse(res.data).transaction
+    const res = await DataEndpoint.get(URL.SERVER, { hash })
+    if (res && typeof res !== 'object') {
+      res = JSON.parse(res).transaction
     }
-    return res.data
+    return res
   }
 }
 

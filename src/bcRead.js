@@ -104,25 +104,16 @@ async function getAmount (address, walletAddress) {
   const userInfo = getDataObj(getContract1(), address,
     [getNakedAddress(walletAddress)])
   const data = await ajaxReq.getEthCall(userInfo)
-  // TODO: this should not work, data.data was already extracted
-  if (data.error) {
-    throw new Error(`Failed getEthCall(${userInfo})`)
-  }
-  return getNumber(data.data, 100.0).toString()
+  return getNumber(data, 100.0).toString()
 }
 
 async function getAccInfo (address, walletAddress) {
   return getInfo(getContract1(), address, walletAddress)
 }
 
-async function getGlobInfo (address) {
+function getGlobInfo (address) {
   const userInfo = getDataObj(getContract1(), address, [])
-  const data = await ajaxReq.getEthCall(userInfo)
-  // TODO: this should not work, data.data was already extracted
-  if (data.error) {
-    throw new Error(`Failed getEthCall(${userInfo})`)
-  }
-  return data.data
+  return ajaxReq.getEthCall(userInfo)
 }
 
 async function getAmountAt (address, walletAddress, blockNb) {
@@ -130,23 +121,14 @@ async function getAmountAt (address, walletAddress, blockNb) {
     [getNakedAddress(walletAddress)])
   const blockHex = '0x' + new BigNumber(blockNb).toString(16)
   const data = await ajaxReq.getEthCallAt(userInfo, blockHex)
-  // TODO: this should not work, data.data was already extracted
-  if (!data.error && data.data) {
-    return getNumber(data.data, 100.0).toString()
-  } else {
-    return ''
-  }
+  return getNumber(data, 100.0).toString()
 }
 
 async function getInfo (contract, address, walletAddress) {
   const userInfo = getDataObj(contract, address,
     [getNakedAddress(walletAddress)])
   const data = await ajaxReq.getEthCall(userInfo)
-  // TODO: this should not work, data.data was already extracted
-  if (data.error) {
-    throw new Error(`Failed getEthCall(${userInfo})`)
-  }
-  return getNumber(data.data, 1.0)
+  return getNumber(data, 1.0)
 }
 
 async function getAmountForElement (contract, functionAddress,
@@ -154,11 +136,7 @@ async function getAmountForElement (contract, functionAddress,
   const userInfo = getDataObj(contract, functionAddress,
     [getNakedAddress(callerAddress), getNakedAddress(elementAddress)])
   const data = await ajaxReq.getEthCall(userInfo)
-  // TODO: this should not work, data.data was already extracted
-  if (data.error) {
-    throw new Error(`Failed getEthCall(${userInfo})`)
-  }
-  return getNumber(data.data, 100.0).toString()
+  return getNumber(data, 100.0).toString()
 }
 
 async function getElementInList (contract, mapFunctionAddress,
@@ -170,14 +148,10 @@ async function getElementInList (contract, mapFunctionAddress,
       padLeft(new BigNumber(index).toString(16), 64)])
   const data = await ajaxReq.getEthCall(userInfo)
 
-  // TODO: this should not work, data.data was already extracted
-  if (data.error) {
-    throw new Error(`Failed getEthCall(${userInfo})`)
-  }
   const amount = await getAmountForElement(contract, amountFunctionAddress,
-    callerAddress, data.data)
+    callerAddress, data)
 
-  const cleanedAdd = '0x' + amount.data.substring(data.data.length - 40)
+  const cleanedAdd = '0x' + amount.substring(data.length - 40)
   const element = { address: cleanedAdd, amount: amount }
   list.unshift(element)
   return getElementInList(contract, mapFunctionAddress,
