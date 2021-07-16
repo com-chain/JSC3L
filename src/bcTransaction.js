@@ -127,11 +127,8 @@ export function TransferOnBehalfCM (wallet, fromAddress,
     additionalPostData)
 }
 
-export function askTransferFrom (wallet, accountAddress,
-  fromAddress, amount) {
+export function askTransferFrom (wallet, fromAddress, amount) {
   const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
-  // TODO: never used
-  const accAdd = padLeft(getNakedAddress(accountAddress), 64)
   return internalGenTx(getContract2(),
     wallet,
     '0x58258353',
@@ -139,11 +136,8 @@ export function askTransferFrom (wallet, accountAddress,
     {})
 }
 
-export function askTransferCMFrom (wallet, accountAddress,
-  fromAddress, amount) {
+export function askTransferCMFrom (wallet, fromAddress, amount) {
   const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
-  // TODO: never used
-  const accAdd = padLeft(getNakedAddress(accountAddress), 64)
   return internalGenTx(getContract2(),
     wallet,
     '0x2ef9ade2',

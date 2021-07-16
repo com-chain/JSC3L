@@ -45,30 +45,8 @@ export function decimalToHex (dec) {
   return new BigNumber(dec).toString(16)
 }
 
-// TODO: unused
-function hexToDecimal (hex) {
-  return new BigNumber(this.sanitizeHex(hex)).toString()
-}
-
-// TODO: unused
-function contractOutToArray (hex) {
-  hex = hex.replace('0x', '').match(/.{64}/g)
-  for (let i = 0; i < hex.length; i++) {
-    hex[i] = hex[i].replace(/^0+/, '')
-    hex[i] = hex[i] === '' ? '0' : hex[i]
-  }
-  return hex
-}
-
 export function getNakedAddress (address) {
   return address.toLowerCase().replace('0x', '')
-}
-
-// TODO: unused
-function getDeteministicContractAddress (address, nonce) {
-  address = address.substring(0, 2) === '0x' ? address : '0x' + address
-  return '0x' + sha3(ethUtil.rlp.encode([address, nonce]))
-    .slice(12).toString('hex')
 }
 
 export function padLeft (n, width, z) {
