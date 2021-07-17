@@ -85,6 +85,8 @@ async function testNode (apiAddress) {
   return testApi(apiAddress)
 }
 
+export const getCurrentBlock = testApi
+
 // /////////////////////////////////////////////////////////////////////////////
 
 async function checkRepo (repoList) {
@@ -108,7 +110,7 @@ async function testApi (apiAddress) {
   try {
     const answer = await Http.get(apiAddress + '/api.php', null,
       { timeout: 5000 })
-    return answer && answer !== 'null' && !answer.error
+    return answer !== 'null' && !answer.error && answer
   } catch (err) {
     console.log(`API Check: HTTP request to ${apiAddress} failed`, err)
     return false
