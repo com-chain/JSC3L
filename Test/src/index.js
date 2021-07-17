@@ -1,7 +1,5 @@
 
-let jsc3l = require('@com-chain.org/jsc3l');
-
-window.jsc3l = jsc3l
+window.jsc3l = require('@com-chain.org/jsc3l');
 
 window.fetchUrl = url => {
   // TODO: use http
