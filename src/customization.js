@@ -1,4 +1,5 @@
 import { custoRepo, configRepo } from './config'
+import { Http } from './rest/http'
 
 ///
 // Pre-requisite: the variable confLocale should store an object with
@@ -12,32 +13,16 @@ import { custoRepo, configRepo } from './config'
 // [High level] Get the configuration for a given currency, store it
 // in the locale storage 'ComChainServerConf'
 ///
-export function getConfJSON (name) {
-  // TODO: use http
-  return new Promise(function (resolve, reject) {
-    const xhr = new XMLHttpRequest()
-    xhr.open('GET', localStorage.getItem('ComChainRepo') +
-             configRepo + '/' + name + '.json' + '?_=' +
-             new Date().getTime(), true) //
-    xhr.responseType = 'json'
-    xhr.onreadystatechange = function (oEvent) {
-      if (xhr.readyState !== 4) return
-      if (xhr.status !== 200) {
-        resolve(false)
-        return
-      }
-      try {
-        localStorage.setItem('ComChainServerConf',
-          (typeof xhr.response === 'object')
-            ? JSON.stringify(xhr.response)
-            : xhr.response)
-        resolve(true)
-      } catch (e) {
-        resolve(false)
-      }
-    }
-    xhr.send()
-  })
+export async function getConfJSON (name) {
+  try {
+    const conf = await Http.get(localStorage.getItem('ComChainRepo') +
+             `${configRepo}/${name}.json`,
+    { _: new Date().getTime() })
+    localStorage.setItem('ComChainServerConf', JSON.stringify(conf))
+    return conf
+  } catch (err) {
+    return false
+  }
 }
 
 ///

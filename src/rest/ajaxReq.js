@@ -1,4 +1,4 @@
-import { DataEndpoint, Endpoint } from './endpoint'
+import { Endpoint } from './endpoint'
 
 class URL {
   static SERVER = 'api.php';
@@ -24,7 +24,7 @@ class AjaxReq {
   }
 
   enrollPost (data) {
-    return DataEndpoint.post(URL.ENROLL, { data: JSON.stringify(data) })
+    return Endpoint.post(URL.ENROLL, { data: JSON.stringify(data) })
   }
 
   getBalance (addr) { return this.post({ balance: addr }) }
@@ -44,7 +44,7 @@ class AjaxReq {
     const { data, resolve, reject } = this.pendingPosts[0]
 
     try {
-      DataEndpoint.post(URL.SERVER, data).then(data => {
+      Endpoint.post(URL.SERVER, data).then(data => {
         resolve(data.data)
       })
     } catch (err) {
@@ -64,23 +64,23 @@ class AjaxReq {
   }
 
   getTransList (id, count, offset) {
-    return DataEndpoint.get(URL.TRANLIST, { addr: id, count, offset })
+    return Endpoint.get(URL.TRANLIST, { addr: id, count, offset })
   }
 
   getTransCheck (hash) {
-    return DataEndpoint.get(URL.TRANCHECK, { hash })
+    return Endpoint.get(URL.TRANCHECK, { hash })
   }
 
   getExportTransList (id, start, end) {
-    return DataEndpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
+    return Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
   }
 
   getExportTransListWithId (id, start, end) {
-    return DataEndpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
+    return Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
   }
 
   getCodesFromAddresses (addresses, currency, caller, signature) {
-    return DataEndpoint.post(URL.GETCODE, {
+    return Endpoint.post(URL.GETCODE, {
       server: currency,
       caller,
       signature,
@@ -89,7 +89,7 @@ class AjaxReq {
   }
 
   getAddressesFromCode (code, currency, caller, signature) {
-    return DataEndpoint.post(URL.GETADDRESS, {
+    return Endpoint.post(URL.GETADDRESS, {
       server: currency,
       caller,
       signature,
@@ -100,11 +100,11 @@ class AjaxReq {
   getMessageKey (addr, withPrivate) {
     const data = { addr }
     if (withPrivate) data.private = '1'
-    return DataEndpoint.get(URL.KEYSTORE, data)
+    return Endpoint.get(URL.KEYSTORE, data)
   }
 
   publishMessageKey (data, sign) {
-    return DataEndpoint.post(URL.KEYSTORE, { data, sign })
+    return Endpoint.post(URL.KEYSTORE, { data, sign })
   }
 
   requestUnlock (address, url) {
@@ -112,19 +112,19 @@ class AjaxReq {
   }
 
   getReqMessages (addFrom, addTo) {
-    return DataEndpoint.get(
+    return Endpoint.get(
       URL.requestMessages,
       { add_req: addFrom, add_cli: addTo })
   }
 
   publishReqMessages (data, sign) {
-    return DataEndpoint.post(URL.requestMessages, { data, sign })
+    return Endpoint.post(URL.requestMessages, { data, sign })
   }
 
-  currBlock () { return DataEndpoint.get(URL.SERVER) }
+  currBlock () { return Endpoint.get(URL.SERVER) }
 
   async getBlock (hash) {
-    let res = await DataEndpoint.get(URL.SERVER, { hash })
+    let res = await Endpoint.get(URL.SERVER, { hash })
     if (res && typeof res !== 'object') {
       res = JSON.parse(res).transaction
     }

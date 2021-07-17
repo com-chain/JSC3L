@@ -75,18 +75,43 @@
      async function onLoad() {
          try {
              log("Retrieve repository...");
-             await jsc3l.connection.ensureComChainRepo();
+
+             let repo = await jsc3l.connection.ensureComChainRepo()
+             if (!repo) {
+                 log("  .. Failed ! No repository available.")
+                 return
+             } else {
+                 log(`  .. Done. (Using ${repo})`)
+             };
 
              log("Acquire ComChain endpoint...");
-             await jsc3l.connection.acquireEndPoint();
+             let endpoint = await jsc3l.connection.acquireEndPoint();
+             if (!endpoint) {
+                 log("  .. Failed ! No endpoint available.")
+                 return
+             } else {
+                 log(`  .. Done. (Using ${endpoint})`)
+             }
 
-             log("Retrieving account...");
+             log("Retrieving local wallet data...");
              json_wallet = await fetchUrl('wallet.json');
+             if (!json_wallet) {
+                 log("  .. Failed !")
+                 return
+             } else {
+                 log(`  .. Done.`)
+             }
 
              let name_currency = JSON.parse(json_wallet).server.name;
 
-             log("Currency customization...");
-             await jsc3l.customization.getConfJSON(name_currency);
+             log(`Fetching currency configuration for ${name_currency}...`);
+             let conf = await jsc3l.customization.getConfJSON(name_currency);
+             if (!conf) {
+                 log("  .. Failed !")
+                 return
+             } else {
+                 log(`  .. Done.`)
+             }
 
              $("#password").show();
              log("Waiting for wallet password...");

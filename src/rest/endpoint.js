@@ -7,7 +7,9 @@ import { getEndpointAddress } from '../customization'
  *
  */
 class PostSerializedHttp extends Http {
-  static post (url, data) { return super.post(url, postSerializer(data)) }
+  static post (url, data, opts) {
+    return super.post(url, postSerializer(data), opts)
+  }
 }
 
 /**
@@ -15,22 +17,8 @@ class PostSerializedHttp extends Http {
  * querystring when method is GET.
  */
 export class Endpoint extends PostSerializedHttp {
-  static request (method, url, data) {
+  static request (method, url, ...args) {
     url = url.includes('://') ? url : getEndpointAddress() + url
-    if (method === 'GET' && data && Object.keys(data).length > 0) {
-      url += '?' + (new URLSearchParams(data)).toString()
-    }
-
-    return super.request(method, url, method === 'GET' ? null : data)
-  }
-}
-
-/**
- * Returns directly data object
- *
- */
-export class DataEndpoint extends Endpoint {
-  static async request (method, url, data) {
-    return (await super.request(method, url, data)).data
+    return super.request(method, url, ...args)
   }
 }
