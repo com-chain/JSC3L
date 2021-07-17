@@ -40,16 +40,19 @@ for (key in accountFunction) {
   }
 }
 
+// Get Global status of the contract
+bcRead.getTaxAccount = async function () {
+  return getGlobInfo('0x8b3c7c69')
+}
+
 // Get Global infos: Tax destinary Account
 bcRead.getTaxAccount = async function () {
-  const taxAccountAddress = '0x4f2eabe0'
-  return getGlobInfo(taxAccountAddress)
+  return getGlobInfo('0x4f2eabe0')
 }
 
 // Get Historical infos infos: Global balance
 bcRead.getHistoricalGlobalBalance = async function (walletAddress, blockNb) {
-  const globalBalance = '0x70a08231'
-  return getAmountAt(globalBalance, walletAddress, blockNb)
+  return getAmountAt('0x70a08231', walletAddress, blockNb)
 }
 
 // Handle lists

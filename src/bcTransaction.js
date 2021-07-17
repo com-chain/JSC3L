@@ -82,6 +82,17 @@ export function SetOwnerAccount (wallet, accountAddress) {
     {})
 }
 
+// if set to 0 block all the transferts
+export function SetContractStatus (wallet, status) {
+  let value = parseInt(status, 10)
+  if (value !== 0) value = 1
+  return internalGenTx(getContract1(),
+    wallet,
+    '0x88b8084f',
+    [encodeNumber(value)],
+    {})
+}
+
 /* Action in contract 2 */
 export function TransferNant (wallet, toAddress, amount,
   additionalPostData) {
