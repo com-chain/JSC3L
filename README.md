@@ -9,6 +9,11 @@ This lib was extracted from Biletujo project.
 An toy example is provided to show JSC3L usage. It was
 tested working on node versions 8+.
 
+    ## Compile jsc3l package
+    npm install
+    npm run build
+
+    ## Run tests
     cd Test
     npm install
     npx gulp serve
