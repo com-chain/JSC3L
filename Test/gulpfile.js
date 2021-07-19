@@ -7,7 +7,7 @@ var browserSync = require('browser-sync').create();
 const sass = require('gulp-sass');
 
 
-var output =  './output/';
+var output =  './build/';
 
 // Compile JS Files
 
@@ -15,19 +15,14 @@ var mainjs = "./src/index.js";
 
 
 function browserified() {
-    return through2.obj(function(file, enc, next) {
-        browserify(file.path, {
-                debug: false
-            })
-            .bundle(function(err, res) {
-                if (err) {
-                    return next(err);
-                }
-
-                file.contents = res;
-                next(null, file);
-            });
+  return through2.obj(function(file, enc, next) {
+    browserify(file.path, { debug: false, })
+      .bundle(function(err, res) {
+      if (err) return next(err);
+      file.contents = res;
+      next(null, file);
     });
+  });
 }
 
 
@@ -85,7 +80,9 @@ gulp.task('server', function() {
 
 
 gulp.task('watch', function () {
-  gulp.watch('src/index.js', gulp.series('browserify', 'reload'));
+  gulp.watch(['src/index.js',
+              '../build/*.js',
+              '../build/**/*.js'], gulp.series('browserify', 'reload'));
   gulp.watch('src/index.html', gulp.series('copy-html', 'reload'));
   gulp.watch('src/wallet.json', gulp.series('copy-wallet', 'reload'));
   gulp.watch('src/style.sass', gulp.series('sass', 'reload'));

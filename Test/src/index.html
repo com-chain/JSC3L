@@ -75,18 +75,43 @@
      async function onLoad() {
          try {
              log("Retrieve repository...");
-             await jsc3l.connection.ensureComChainRepo();
+
+             let repo = await jsc3l.connection.ensureComChainRepo()
+             if (!repo) {
+                 log("  .. Failed ! No repository available.")
+                 return
+             } else {
+                 log(`  .. Done. (Using ${repo})`)
+             };
 
              log("Acquire ComChain endpoint...");
-             await jsc3l.connection.acquireEndPoint();
+             let endpoint = await jsc3l.connection.acquireEndPoint();
+             if (!endpoint) {
+                 log("  .. Failed ! No endpoint available.")
+                 return
+             } else {
+                 log(`  .. Done. (Using ${endpoint})`)
+             }
 
-             log("Retrieving account...");
+             log("Retrieving local wallet data...");
              json_wallet = await fetchUrl('wallet.json');
+             if (!json_wallet) {
+                 log("  .. Failed !")
+                 return
+             } else {
+                 log(`  .. Done.`)
+             }
 
              let name_currency = JSON.parse(json_wallet).server.name;
 
-             log("Currency customization...");
-             await jsc3l.customization.getConfJSON(name_currency);
+             log(`Fetching currency configuration for ${name_currency}...`);
+             let conf = await jsc3l.customization.getConfJSON(name_currency);
+             if (!conf) {
+                 log("  .. Failed !")
+                 return
+             } else {
+                 log(`  .. Done.`)
+             }
 
              $("#password").show();
              log("Waiting for wallet password...");
@@ -103,7 +128,7 @@
              let password = $("#psw").value;
 
              log("Unlocking wallet file...");
-             wallet = Wallet.getWalletFromPrivKeyFile(json_wallet, password);
+             wallet = jsc3l.Wallet.getWalletFromPrivKeyFile(json_wallet, password);
 
              log("Retrieval of the message key...");
              wallet = await jsc3l.message.ensureWalletMessageKey(wallet, '');
@@ -120,7 +145,7 @@
              $("#blockie").style.backgroundImage = 'url(' + wallet.blockies() +')';
 
              log("Retrieval of transactions...");
-             let result = await jsc3l.ajaxReq.getTransList(wid, 10, 0);
+             let result = await jsc3l.bcRead.getTransList(wid, 10, 0);
 
              if (result.length > 0) {
                  $("#transactions").innerHTML = "Last transactions:<br/>";
@@ -142,7 +167,7 @@
              log("Displaying payment bloc...");
              $("#addressTo").value = address_dest;
 
-             $("#blockieTo").style.backgroundImage = `url(${Wallet.blockies(address_dest)})`;
+             $("#blockieTo").style.backgroundImage = `url(${jsc3l.Wallet.blockies(address_dest)})`;
 
              log("Retrieval of the message key...");
              let { public_message_key } = await jsc3l.message.getMessageKey(address_dest, false);
@@ -170,18 +195,18 @@
              // Cipher message if any
              if (memo) {
                  if ($("#key_message").value) {
-                     data['memo_to'] = jsc3l_message().cipherMessage(
+                     data['memo_to'] = jsc3l.message.cipherMessage(
                          $("#key_message").value, memo);
                  }
 
                  if (wallet.message_key.pub) {
-                     data['memo_from'] = jsc3l_message().cipherMessage(
+                     data['memo_from'] = jsc3l.message.cipherMessage(
                          wallet.message_key.pub, memo);
                  }
              }
 
              log("Sending transaction order...");
-             await jsc3l.bcTransaction.TransfertNant(wallet, $("#addressTo").value, 0.01, data);
+             await jsc3l.bcTransaction.TransferNant(wallet, $("#addressTo").value, 0.01, data);
 
              log("Order sent...");
              alert("The order was sent");
