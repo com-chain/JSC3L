@@ -41,7 +41,7 @@ for (key in accountFunction) {
 }
 
 // Get Global status of the contract
-bcRead.getTaxAccount = async function () {
+bcRead.getContractStatus = async function () {
   return getGlobInfo('0x8b3c7c69')
 }
 
