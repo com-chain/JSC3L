@@ -8,6 +8,7 @@ import * as bcTransaction from './bcTransaction'
 import * as wallet from './wallet'
 import { Wallet } from './ethereum/myetherwallet'
 import * as ethFuncs from './ethereum/ethFuncs'
+import ethUtil from 'ethereumjs-util'
 
 export {
   ajaxReq,
@@ -19,5 +20,6 @@ export {
   bcTransaction,
   wallet,
   Wallet,
-  ethFuncs
+  ethFuncs,
+  ethUtil
 }
