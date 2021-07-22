@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import uuid from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import ethUtil from 'ethereumjs-util'
 import scrypt from 'scryptsy'
 
@@ -77,7 +77,7 @@ export class Wallet {
 
     const obj = {
       version: 3,
-      id: uuid.v4({
+      id: uuidv4({
         random: opts.uuid || crypto.randomBytes(16)
       }),
       address: this.getAddress().toString('hex'),
