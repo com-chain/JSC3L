@@ -34,7 +34,6 @@ export async function generateTx (txData) {
       console.log(`Failed getTransactionData(${txData.from})`)
       throw new Error(data.msg)
     }
-    data = data.data
     const rawTx = {
       nonce: ethFuncs.sanitizeHex(data.nonce),
       gasPrice: ethFuncs.sanitizeHex(
