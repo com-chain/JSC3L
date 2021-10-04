@@ -103,9 +103,8 @@ export class Wallet {
   }
 
   cipher (password, data) {
-    const crypto = JSON.parse(
-      localStorage.getItem('ComChainWallet').toLowerCase()).crypto
-    const kdfparams = crypto.kdfparams
+    const kdfparams = JSON.parse(
+      localStorage.getItem('ComChainWallet').toLowerCase()).crypto.kdfparams
     const iv = crypto.randomBytes(16)
     const derivedKey = scrypt(Buffer.from(password),
       Buffer.from(kdfparams.salt, 'hex'),
