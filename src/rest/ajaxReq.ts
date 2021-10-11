@@ -98,7 +98,7 @@ class AjaxReq {
   }
 
   getMessageKey (addr, withPrivate) {
-    const data = { addr }
+    const data: {[k: string]: any} = { addr }
     if (withPrivate) data.private = '1'
     return Endpoint.get(URL.KEYSTORE, data)
   }

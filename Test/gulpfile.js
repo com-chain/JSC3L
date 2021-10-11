@@ -3,7 +3,9 @@ var notify = require('gulp-notify');
 var browserify = require('browserify');
 var through2 = require('through2');
 var rename = require('gulp-rename');
+var babelify = require('babelify');
 var browserSync = require('browser-sync').create();
+var realpathify = require('realpathify');
 const sass = require('gulp-sass');
 
 
@@ -17,6 +19,18 @@ var mainjs = "./src/index.js";
 function browserified() {
   return through2.obj(function(file, enc, next) {
     browserify(file.path, { debug: false, })
+      .plugin(realpathify)
+      .transform("babelify", {
+	    presets: ['@babel/preset-env'],
+        plugins: [
+          ["@babel/plugin-transform-runtime", {
+            "regenerator": true
+          }]
+        ],
+	    sourceMaps: true,
+	    // global: true,
+        // ignore: [/\/node_modules\/(?!@com-chain\.org\/jsc3l\/)/]
+	})
       .bundle(function(err, res) {
       if (err) return next(err);
       file.contents = res;

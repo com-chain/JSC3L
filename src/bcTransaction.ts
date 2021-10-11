@@ -14,14 +14,14 @@ export function SetAccountParam (wallet, accountAddress, accStatus,
     [accAdd,
       encodeNumber(accStatus),
       encodeNumber(accType),
-      encodeNumber(parseInt(100 * limitPlus, 10)),
-      encodeNumber(parseInt(100 * limitMinus, 10))],
+      encodeNumber(Math.round(100 * parseFloat(limitPlus))),
+      encodeNumber(Math.round(100 * parseFloat(limitMinus)))],
     {})
 }
 
 export function PledgeAccount (wallet, accountAddress, amount,
   additionalPostData) {
-  const amountCent = encodeNumber(parseInt(100 * amount, 10))
+  const amountCent = encodeNumber(Math.round(100 * parseFloat(amount)))
   const accAdd = padLeft(getNakedAddress(accountAddress), 64)
   return internalGenTx(getContract1(),
     wallet,
@@ -35,7 +35,7 @@ export function setAllowance (wallet, spenderAddress, amount) {
   return internalGenTx(getContract1(),
     wallet,
     '0xd4e12f2e',
-    [accAdd, encodeNumber(parseInt(100 * amount, 10))],
+    [accAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
     {})
 }
 
@@ -44,7 +44,7 @@ export function setDelegation (wallet, spenderAddress, limit) {
   return internalGenTx(getContract1(),
     wallet,
     '0x75741c79',
-    [accAdd, encodeNumber(parseInt(100 * limit, 10))],
+    [accAdd, encodeNumber(Math.round(100 * parseFloat(limit)))],
     {})
 }
 
@@ -100,7 +100,7 @@ export function TransferNant (wallet, toAddress, amount,
   return internalGenTx(getContract2(),
     wallet,
     '0xa5f7c148',
-    [toAdd, encodeNumber(parseInt(100 * amount, 10))],
+    [toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
     additionalPostData)
 }
 
@@ -110,7 +110,7 @@ export function TransferCM (wallet, toAddress, amount,
   return internalGenTx(getContract2(),
     wallet,
     '0x60ca9c4c',
-    [toAdd, encodeNumber(parseInt(100 * amount, 10))],
+    [toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
     additionalPostData)
 }
 
@@ -122,7 +122,7 @@ export function TransferOnBehalfNant (wallet, fromAddress,
   return internalGenTx(getContract2(),
     wallet,
     '0x1b6b1ee5',
-    [fromAdd, toAdd, encodeNumber(parseInt(100 * amount, 10))],
+    [fromAdd, toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
     additionalPostData)
 }
 
@@ -134,7 +134,7 @@ export function TransferOnBehalfCM (wallet, fromAddress,
   return internalGenTx(getContract2(),
     wallet,
     '0x74c421fe',
-    [fromAdd, toAdd, encodeNumber(parseInt(100 * amount, 10))],
+    [fromAdd, toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
     additionalPostData)
 }
 
@@ -143,7 +143,7 @@ export function askTransferFrom (wallet, fromAddress, amount) {
   return internalGenTx(getContract2(),
     wallet,
     '0x58258353',
-    [fromAdd, encodeNumber(parseInt(100 * amount, 10))],
+    [fromAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
     {})
 }
 
@@ -152,7 +152,7 @@ export function askTransferCMFrom (wallet, fromAddress, amount) {
   return internalGenTx(getContract2(),
     wallet,
     '0x2ef9ade2',
-    [fromAdd, encodeNumber(parseInt(100 * amount, 10))],
+    [fromAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
     {})
 }
 
@@ -162,7 +162,7 @@ export function PayRequestNant (wallet, toAddress, amount,
   return internalGenTx(getContract2(),
     wallet,
     '0x132019f4',
-    [toAdd, encodeNumber(parseInt(100 * amount, 10))],
+    [toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
     additionalData)
 }
 
@@ -172,7 +172,7 @@ export function PayRequestCM (wallet, toAddress, amount,
   return internalGenTx(getContract2(),
     wallet,
     '0x1415707c',
-    [toAdd, encodeNumber(parseInt(100 * amount, 10))],
+    [toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
     additionalData)
 }
 
@@ -246,7 +246,7 @@ export function getSplitting (nantVal, cmVal, cmMinusLim, amount) {
 
 export async function internalGenTx (contract, wallet, fuctAddress,
   values, additionalPostData) {
-  const tx = {
+  const tx: {[k: string]: any} = {
     gasLimit: 500000,
     data: '',
     to: contract,

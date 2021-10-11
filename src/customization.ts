@@ -1,5 +1,10 @@
 import { custoRepo, configRepo } from './config'
 import { Http } from './rest/http'
+import { getCssUrl as webGetCssUrl } from './web'
+
+declare var confLocale: any
+
+export var getCssUrl = webGetCssUrl;
 
 ///
 // Pre-requisite: the variable confLocale should store an object with
@@ -98,15 +103,6 @@ export function hasBnCheck () {
   return isApp() && hasBn()
 }
 
-export function getCssUrl () {
-  try {
-    return localStorage.getItem('ComChainRepo') + custoRepo +
-      getCurrencyName() + '/css/etherwallet-master.min.css'
-  } catch (e) {
-    return confLocale.server.url_Css
-  }
-}
-
 export function getCurrencyLogoUrl (currencyName) {
   if (!currencyName) return ''
   try {
@@ -192,3 +188,4 @@ export function getServerConfigSwitch (configName, defaultValue) {
 }
 
 // /////////////////////////////////////////////////////////////////////////////
+

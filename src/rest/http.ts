@@ -50,20 +50,32 @@ function httpRequest (method, url, data, opts) {
   })
 }
 
+
+interface IJsonHasData {
+    data: any;
+}
+
+function isJsonHasData(elt): elt is IJsonHasData {
+   return (elt as IJsonHasData).data !== undefined;
+}
+
 /**
  * Support passing data to querystring when method is GET.
  */
 export class Http {
-  static async request (method, url, data, opts) {
+  static async request (...[method, url, data, opts]: any[]) {
     if (method === 'GET' && data && Object.keys(data).length > 0) {
       url += '?' + (new URLSearchParams(data)).toString()
     }
 
     const xhr = await httpRequest(
-      method, url, method === 'GET' ? null : data, opts)
+        method, url, method === 'GET' ? null : data, opts)
+    if (!isJsonHasData(xhr)) {
+      throw new Error(`Missing 'data' in JSON response from ${method} call on ${url}.`)
+    }
     return xhr.data
   }
 
-  static get (...args) { return this.request('GET', ...args) }
-  static post (...args) { return this.request('POST', ...args) }
+  static get (...args: any[]) { return this.request('GET', ...args) }
+  static post (...args: any[]) { return this.request('POST', ...args) }
 }

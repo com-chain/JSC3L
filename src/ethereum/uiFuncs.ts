@@ -27,14 +27,14 @@ function isTxDataValid (txData) {
 export async function generateTx (txData) {
   try {
     isTxDataValid(txData)
-    let data = await ajaxReq.getTransactionData(txData.from)
+    let data: {[k: string]: any} = await ajaxReq.getTransactionData(txData.from)
 
     // TODO: must test this
     if (data.error) {
       console.log(`Failed getTransactionData(${txData.from})`)
       throw new Error(data.msg)
     }
-    const rawTx = {
+    const rawTx: {[k: string]: any} = {
       nonce: ethFuncs.sanitizeHex(data.nonce),
       gasPrice: ethFuncs.sanitizeHex(
         ethFuncs.addTinyMoreToGas(data.gasprice)),
@@ -61,7 +61,7 @@ export async function generateTx (txData) {
 }
 
 export async function sendTx (signedTx, additionalData) {
-  const data = await ajaxReq.sendRawTx(signedTx, additionalData)
+  const data: {[k: string]: any} = await ajaxReq.sendRawTx(signedTx, additionalData)
 
   return {
     isError: !!data.error,

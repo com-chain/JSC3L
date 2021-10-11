@@ -7,7 +7,7 @@ import { getEndpointAddress } from '../customization'
  *
  */
 class PostSerializedHttp extends Http {
-  static post (url, data, opts) {
+  static post (...[url, data, opts]: any[]) {
     return super.post(url, postSerializer(data), opts)
   }
 }
@@ -17,7 +17,7 @@ class PostSerializedHttp extends Http {
  * querystring when method is GET.
  */
 export class Endpoint extends PostSerializedHttp {
-  static request (method, url, ...args) {
+  static request (method, url, ...args: any[]) {
     url = url.includes('://') ? url : getEndpointAddress() + url
     return super.request(method, url, ...args)
   }

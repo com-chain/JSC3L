@@ -5,7 +5,7 @@ import scrypt from 'scryptsy'
 
 import blockies from './blockies'
 
-export class Wallet {
+export default class Wallet {
   privKey
 
   constructor (priv) {
@@ -45,7 +45,7 @@ export class Wallet {
     const iv = opts.iv || crypto.randomBytes(16)
     let derivedKey
     const kdf = opts.kdf || 'scrypt'
-    const kdfparams = {
+    const kdfparams: {[k: string]: any} = {
       dklen: opts.dklen || 32,
       salt: salt.toString('hex')
     }
@@ -72,10 +72,10 @@ export class Wallet {
     }
     const ciphertext = Buffer.concat(
       [cipher.update(this.privKey), cipher.final()])
-    const mac = ethUtil.keccak(Buffer.concat(
-      [derivedKey.slice(16, 32), Buffer.from(ciphertext, 'hex')]))
+    const mac = ethUtil.keccak(
+      Buffer.concat([derivedKey.slice(16, 32), ciphertext]))
 
-    const obj = {
+    const obj: {[k: string]: any} = {
       version: 3,
       id: uuidv4({
         random: opts.uuid || crypto.randomBytes(16)
@@ -115,7 +115,7 @@ export class Wallet {
 
     const ciphertext = Buffer.concat([cipher.update(data), cipher.final()])
     const mac = ethUtil.keccak(
-      Buffer.concat([derivedKey.slice(16, 32), Buffer.from(ciphertext, 'hex')]))
+      Buffer.concat([derivedKey.slice(16, 32), ciphertext]))
     return {
       crypto: {
         ciphertext: ciphertext.toString('hex'),
@@ -150,7 +150,7 @@ export class Wallet {
     const decipher = crypto.createDecipheriv(
       json.crypto.cipher, derivedKey.slice(0, 16),
       Buffer.from(json.crypto.cipherparams.iv, 'hex'))
-    const seed = Wallet.decipherBuffer(decipher, ciphertext, 'hex')
+    const seed = Wallet.decipherBuffer(decipher, ciphertext)
     return seed
   }
 
@@ -273,7 +273,7 @@ export class Wallet {
     const decipher = crypto.createDecipheriv(
       json.crypto.cipher, derivedKey.slice(0, 16),
       Buffer.from(json.crypto.cipherparams.iv, 'hex'))
-    const seed = Wallet.decipherBuffer(decipher, ciphertext, 'hex')
+    const seed = Wallet.decipherBuffer(decipher, ciphertext)
     return new Wallet(seed)
   }
 

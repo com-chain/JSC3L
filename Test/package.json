@@ -9,12 +9,16 @@
   "author": "dubathf",
   "license": "ISC",
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
+    "babelify": "^10.0.0",
     "browser-sync": "^2.26.14",
     "browserify": "^17.0.0",
     "gulp": "^4.0.2",
     "gulp-notify": "^3.2.0",
     "gulp-rename": "github:hparra/gulp-rename#4020fb2991d0000bf46067f3002bff92b31de8b3",
-    "gulp-sass": "^4.1.0"
+    "gulp-sass": "^4.1.0",
+    "realpathify": "^1.0.1"
   },
   "dependencies": {
     "@com-chain.org/jsc3l": "file:.."

@@ -27,7 +27,7 @@ function isNumber (arg) {
   return typeof arg === 'number'
 }
 
-function toJson (obj, pretty) {
+function toJson (obj, pretty?) {
   if (isUndefined(obj)) { return undefined }
   if (!isNumber(pretty)) {
     pretty = pretty ? 2 : null
@@ -50,7 +50,7 @@ function serializeValue (v) {
   return v
 }
 
-function encodeUriQuery (val, pctEncodeSpaces) {
+function encodeUriQuery (val, pctEncodeSpaces?) {
   return encodeURIComponent(val)
     .replace(/%40/gi, '@')
     .replace(/%3A/gi, ':')
@@ -64,7 +64,7 @@ function isUndefined (value) {
   return typeof value === 'undefined'
 }
 
-function forEachSorted (obj, iterator, context) {
+function forEachSorted (obj, iterator, context?) {
   const keys = Object.keys(obj).sort()
   for (let i = 0; i < keys.length; i++) {
     iterator.call(context, obj[keys[i]], keys[i])
@@ -79,7 +79,7 @@ export function postSerializer (params) {
   serialize(params, '', true)
   return parts.join('&')
 
-  function serialize (toSerialize, prefix, topLevel) {
+  function serialize (toSerialize, prefix, topLevel?) {
     if (toSerialize === null || isUndefined(toSerialize)) { return }
     if (Array.isArray(toSerialize)) {
       toSerialize.forEach(function (value, index) {

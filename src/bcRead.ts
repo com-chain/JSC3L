@@ -4,7 +4,7 @@ import ajaxReq from './rest/ajaxReq'
 import { getNakedAddress, padLeft, getDataObj } from './ethereum/ethFuncs'
 import { getContract1, getContract2 } from './customization'
 
-const bcRead = {}
+const bcRead: {[k: string]: any} = {}
 
 // Function to read amount of coin
 const balanceFunction = {
@@ -149,7 +149,7 @@ async function getElementInList (contract, mapFunctionAddress,
   const userInfo = getDataObj(contract, mapFunctionAddress,
     [getNakedAddress(callerAddress),
       padLeft(new BigNumber(index).toString(16), 64)])
-  const data = await ajaxReq.getEthCall(userInfo)
+  const data: {[k: string]: any} = await ajaxReq.getEthCall(userInfo)
 
   const amount = await getAmountForElement(contract, amountFunctionAddress,
     callerAddress, data)
