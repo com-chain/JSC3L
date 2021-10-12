@@ -75,8 +75,8 @@
      async function onLoad() {
          try {
              log("Retrieve repository...");
-
-             let repo = await jsc3l.connection.ensureComChainRepo()
+             var storedEndPoints = JSON.parse(localStorage.getItem('ComChainApiNodes'));
+             let repo = await jsc3l.connection.lookupAvailableComChainRepo(storedEndPoints);
              if (!repo) {
                  log("  .. Failed ! No repository available.")
                  return
@@ -85,11 +85,14 @@
              };
 
              log("Acquire ComChain endpoint...");
-             let endpoint = await jsc3l.connection.acquireEndPoint();
-             if (!endpoint) {
+             let apiNodes_endpoint = await jsc3l.connection.acquireEndPoint(repo);
+             if (!apiNodes_endpoint) {
                  log("  .. Failed ! No endpoint available.")
                  return
              } else {
+                 var { apiNodes, endpoint } = apiNodes_endpoint;
+                 // Used hunder the hood by jsc3l
+                 localStorage.setItem('ComChainAPI', endpoint)
                  log(`  .. Done. (Using ${endpoint})`)
              }
 

@@ -2,18 +2,12 @@ import * as config from './config'
 import { Http } from './rest/http'
 
 ///
-// [High level] Look for an available IPFS/IPNS node and store it in
-// the localstorage under 'ComChainRepo'
+// [High level] Look for an available IPFS/IPNS node and return it
 ///
 
-export async function ensureComChainRepo () {
+export async function lookupAvailableComChainRepo (storedEndPointsSuggestion?) {
   // 1. Check if a list of end-point is stored locally (avoid a IPNS slow call)
-  let storedEndPoints = []
-  try {
-    storedEndPoints = JSON.parse(localStorage.getItem('ComChainApiNodes'))
-  } catch (e) {
-    storedEndPoints = []
-  }
+  let storedEndPoints = storedEndPointsSuggestion || []
 
   const endPointLists = [
     storedEndPoints, // 1. try locally stored end-points if any
@@ -23,10 +17,7 @@ export async function ensureComChainRepo () {
 
   for (let i = 0; i < endPointLists.length; i++) {
     const repo = await checkRepo(endPointLists[i])
-    if (repo) {
-      localStorage.setItem('ComChainRepo', repo)
-      return repo
-    }
+    if (repo) return repo
   }
   return false
 }
@@ -35,24 +26,15 @@ export async function ensureComChainRepo () {
 // [High level] Get the list of end-points and randomly select a up
 // and running one
 ///
-export async function acquireEndPoint () {
-  const repo = localStorage.getItem('ComChainRepo')
+export async function acquireEndPoint (repo) {
   const apiNodes = await getCCEndPointList(repo)
   if (!apiNodes) return false
-  localStorage.setItem('ComChainApiNodes', JSON.stringify(apiNodes))
   const endpoint = await selectEndPoint(apiNodes)
-  if (!endpoint) {
-    localStorage.removeItem('ComChainApiNodes')
-    return false
-  }
-  // store the node
-  localStorage.setItem('ComChainAPI', endpoint)
-  return endpoint
+  return { apiNodes, endpoint }
 }
 
 ///
-// [Lower level] Get from the IPFS/IPNS node stored it in the
-// localstorage under 'ComChainRepo' the list of ComChain end-points
+// [Lower level] Get the list of ComChain end-points from given repo
 ///
 function getCCEndPointList (repo) {
   return Http.get(repo + config.nodesRepo, { _: new Date().getTime() })
