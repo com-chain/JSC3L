@@ -102,9 +102,13 @@ export default class Wallet {
     return obj
   }
 
-  cipher (password, data) {
-    const kdfparams = JSON.parse(
-      localStorage.getItem('ComChainWallet').toLowerCase()).crypto.kdfparams
+
+  cipher (password, data, kdfparams) {
+    if (!kdfparams) {
+      throw new Error(
+        'Wallet.cipher(..) requires a 3rd parameter kdfparams.'
+      )
+    }
     const iv = crypto.randomBytes(16)
     const derivedKey = scrypt(Buffer.from(password),
       Buffer.from(kdfparams.salt, 'hex'),
