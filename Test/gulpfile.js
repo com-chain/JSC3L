@@ -28,8 +28,6 @@ function browserified() {
           }]
         ],
 	    sourceMaps: true,
-	    // global: true,
-        // ignore: [/\/node_modules\/(?!@com-chain\.org\/jsc3l\/)/]
 	})
       .bundle(function(err, res) {
       if (err) return next(err);
