@@ -1,7 +1,6 @@
 
 import ajaxReq from './rest/ajaxReq'
 import * as cipher from './ethereum/cipher'
-import { signMessage } from './ethereum/sign'
 
 /// ///////////////////////////////////////////////////////////
 
@@ -14,7 +13,7 @@ function publishMessageKey (wallet) {
     private_message_key: wallet.message_key.priv
   })
 
-  return ajaxReq.publishMessageKey(dataStr, signMessage(wallet, dataStr))
+  return ajaxReq.publishMessageKey(dataStr, wallet.signMessage(dataStr))
 }
 
 /// ///////////////////////////////////////////////////////////
@@ -96,7 +95,7 @@ export async function publishReqMessages (wallet, addTo, message) {
     ref_req: messageFrom,
     ref_cli: messageTo
   })
-  return ajaxReq.publishReqMessages(dataStr, signMessage(wallet, dataStr))
+  return ajaxReq.publishReqMessages(dataStr, wallet.signMessage(dataStr))
 }
 
 export async function getReqMessage (wallet, otherAdd,

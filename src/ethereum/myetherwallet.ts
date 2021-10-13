@@ -362,6 +362,13 @@ export default class Wallet {
     }
   }
 
+  signMessage (msg) {
+    const msgHash = ethUtil.hashPersonalMessage(ethUtil.toBuffer(msg))
+    const signature = ethUtil.ecsign(msgHash, this.privKey)
+    return ethUtil.bufferToHex(
+      Buffer.concat([signature.r, signature.s, ethUtil.toBuffer(signature.v)]))
+  }
+
   /// Blockie
 
   blockies () {
