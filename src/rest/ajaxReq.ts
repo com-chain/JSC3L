@@ -29,8 +29,14 @@ class AjaxReq {
 
   getBalance (addr) { return this.post({ balance: addr }) }
   getTransactionData (addr) { return this.post({ txdata: addr }) }
-  sendRawTx (rawtx, additionalData) {
-    return this.post(Object.assign({}, { rawtx }, additionalData ?? {}))
+  async sendTx (rawTx, additionalData) {
+    const data: {[k: string]: any} =
+      await this.post(Object.assign({}, { rawtx: rawTx }, additionalData ?? {}))
+
+    return {
+      isError: !!data.error,
+      error: data.error ? data.data : data.msg
+    }
   }
 
   getEstimatedGas (txobj) { return this.post({ estimatedGas: txobj }) }

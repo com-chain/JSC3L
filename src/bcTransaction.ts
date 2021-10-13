@@ -1,6 +1,7 @@
 
 import { getNakedAddress, padLeft, encodeNumber } from './ethereum/ethFuncs'
-import { generateTx, sendTx } from './ethereum/uiFuncs'
+import { generateTx } from './ethereum/uiFuncs'
+import ajaxReq from './rest/ajaxReq'
 
 import { getContract1, getContract2 } from './customization'
 
@@ -265,7 +266,13 @@ export async function internalGenTx (contract, wallet, fuctAddress,
   tx.data = fuctAddress + concatenatedVariable
   tx.from = wallet.getAddressString()
   tx.key = wallet.getPrivateKeyString()
-  const rawTx = await generateTx(tx)
+  const data: {[k: string]: any} = await ajaxReq.getTransactionData(tx.from)
+  // TODO: must test this
+  if (data.error) {
+    console.log(`Failed getTransactionData(${tx.from})`)
+    throw new Error(data.msg)
+  }
+  const rawTx = generateTx(tx, data)
   if (rawTx.isError) return rawTx
-  return sendTx(rawTx.signedTx, additionalPostData)
+  return ajaxReq.sendTx(rawTx.signedTx, additionalPostData)
 }

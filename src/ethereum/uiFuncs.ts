@@ -2,7 +2,6 @@ import Tx from 'ethereumjs-tx'
 import * as ethFuncs from './ethFuncs'
 import * as etherUnits from './etherUnits'
 
-import ajaxReq from '../rest/ajaxReq'
 
 function isNumeric (n) {
   return !isNaN(parseFloat(n)) && isFinite(n)
@@ -24,16 +23,10 @@ function isTxDataValid (txData) {
   if (txData.to === '0xCONTRACT') txData.to = ''
 }
 
-export async function generateTx (txData) {
+export function generateTx (txData, data) {
   try {
     isTxDataValid(txData)
-    let data: {[k: string]: any} = await ajaxReq.getTransactionData(txData.from)
 
-    // TODO: must test this
-    if (data.error) {
-      console.log(`Failed getTransactionData(${txData.from})`)
-      throw new Error(data.msg)
-    }
     const rawTx: {[k: string]: any} = {
       nonce: ethFuncs.sanitizeHex(data.nonce),
       gasPrice: ethFuncs.sanitizeHex(
@@ -60,11 +53,3 @@ export async function generateTx (txData) {
   }
 }
 
-export async function sendTx (signedTx, additionalData) {
-  const data: {[k: string]: any} = await ajaxReq.sendRawTx(signedTx, additionalData)
-
-  return {
-    isError: !!data.error,
-    error: data.error ? data.data : data.msg
-  }
-}
