@@ -131,7 +131,7 @@
              let password = $("#psw").value;
 
              log("Unlocking wallet file...");
-             wallet = jsc3l.Wallet.getWalletFromPrivKeyFile(json_wallet, password);
+             wallet = jsc3l.wallet.getWalletFromPrivKeyFile(json_wallet, password);
 
              log("Retrieval of the message key...");
              wallet = await jsc3l.message.ensureWalletMessageKey(wallet, '');

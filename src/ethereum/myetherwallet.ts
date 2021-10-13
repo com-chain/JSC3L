@@ -362,21 +362,6 @@ export default class Wallet {
     }
   }
 
-  static getWalletFromPrivKeyFile (jsonStr, password) {
-    const jsonArr = JSON.parse(jsonStr)
-    if (jsonArr.encseed != null) return Wallet.fromEthSale(jsonStr, password)
-    else if (jsonArr.Crypto != null ||
-             jsonArr.crypto != null) {
-      return Wallet.fromV3(jsonStr, password, true)
-    } else if (jsonArr.hash != null) {
-      return Wallet.fromMyEtherWallet(jsonStr, password)
-    } else if (jsonArr.publisher === 'MyEtherWallet') {
-      return Wallet.fromMyEtherWalletV2(jsonStr)
-    } else {
-      throw new Error("Sorry! We don't recognize this type of wallet file.")
-    }
-  }
-
   /// Blockie
 
   blockies () {

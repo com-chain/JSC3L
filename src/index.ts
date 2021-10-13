@@ -6,7 +6,6 @@ import * as message from './message'
 import bcRead from './bcRead'
 import * as bcTransaction from './bcTransaction'
 import * as wallet from './wallet'
-import Wallet from './ethereum/myetherwallet'
 import * as ethFuncs from './ethereum/ethFuncs'
 import ethUtil from 'ethereumjs-util'
 
@@ -19,7 +18,6 @@ export {
   bcRead,
   bcTransaction,
   wallet,
-  Wallet,
   ethFuncs,
   ethUtil
 }
