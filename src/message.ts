@@ -168,3 +168,14 @@ export function getTxMemoCipheredData (fromMsgKey, toMsgKey, msgFrom, msgTo) {
       { memo_to: cipherMessage(toMsgKey, msgTo) },
   }
 }
+
+
+//
+// qr code
+//
+
+export function makeSignedQRWithPubKey (wallet, objContent, pubKey) {
+  objContent.message_key = cipherMessage(
+    pubKey, messageKeysFromWallet(wallet).clear_priv)
+  return wallet.makeSignedQR(objContent)
+}

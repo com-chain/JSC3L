@@ -368,6 +368,62 @@ export default class Wallet {
       Buffer.concat([signature.r, signature.s, ethUtil.toBuffer(signature.v)]))
   }
 
+  //
+  // QR Codes
+  //
+
+  makeSignedQR(obj) {
+
+    debugger;
+
+    var {server, destinary, begin, end, viewbalance, viewoldtran, pub_key} = obj
+    var formatDate = (date) => `${begin.getFullYear()}/${begin.getMonth()}/${begin.getDate()}`
+    var objContent = Object.assign(obj, {
+      address: this.getAddressString(),
+      begin: formatDate(begin),
+      end: formatDate(end)
+    })
+
+    var hash = ethUtil.sha3(JSON.stringify(objContent))
+    var signature = ethUtil.ecsign(hash, this.privKey)
+    return {
+      signature,
+      qrContent: JSON.stringify({
+        data: objContent,
+        signature: {
+          v: signature.v,
+          r: '0x' + signature.r.toString('hex'),
+          s: '0x' + signature.s.toString('hex')
+        }
+      })
+    }
+  }
+
+  checkSignedQRFromString(qrString, intendedRecipientAddress) {
+    try {
+      var { data, signature } = JSON.parse(qrString);
+    } catch (e) {
+      return "InvalidFormat"
+    }
+    return this.checkSignedQR(data, signature, intendedRecipientAddress)
+  }
+
+  checkSignedQR(data, signature, intendedRecipientAddress) {
+    try {
+      var hash = ethUtil.sha3(JSON.stringify(data));
+      var publicSignKey = ethUtil.ecrecover(hash, signature.v, signature.r, signature.s);
+      var receiverAddress = ethUtil.bufferToHex(ethUtil.publicToAddress(publicSignKey));
+    } catch (e) {
+      return "InvalidFormat"
+    }
+
+    if (receiverAddress !== data.address) { return 'InvalidSignature' }
+    if (data.destinary !== intendedRecipientAddress) { return 'NotForYou' }
+    if ((new Date(data.end)).getTime() < (new Date()).getTime()) {
+      return 'Expired'
+    }
+    return { signature, data }
+  }
 
 
 }
