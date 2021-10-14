@@ -149,3 +149,11 @@ export function getTransactionMemo (transaction, watchedAddress, messageKey) {
 }
 
 
+export function getTxMemoCipheredData (fromMsgKey, toMsgKey, msgFrom, msgTo) {
+  return {
+    ...(fromMsgKey && msgFrom) &&
+      { memo_from: cipherMessage(fromMsgKey, msgFrom) },
+    ...(toMsgKey && msgTo) &&
+      { memo_to: cipherMessage(toMsgKey, msgTo) },
+  }
+}
