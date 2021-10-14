@@ -120,3 +120,22 @@ export async function getReqMessage (wallet, otherAdd,
     return ''
   }
 }
+
+
+export function getTransactionMemo (wallet, transaction) {
+  const key = messageKeysFromCrypted(wallet, wallet.message_key.priv).clear_priv
+  const walletAddress = wallet.getAddressString().toLowerCase()
+  const { addr_to, message_to, addr_from, message_from } = transaction
+
+  if (addr_to.toLowerCase() === walletAddress && message_to) {
+    return decipherMessage(key, message_to)
+  }
+
+  if (addr_from.toLowerCase() === walletAddress && message_from) {
+    return decipherMessage(key, message_from)
+  }
+
+  return ""
+};
+
+
