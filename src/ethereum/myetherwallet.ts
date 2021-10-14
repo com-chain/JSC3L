@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid'
 import ethUtil from 'ethereumjs-util'
 import scrypt from 'scryptsy'
 
-import blockies from './blockies'
 
 export default class Wallet {
   privKey
@@ -369,21 +368,6 @@ export default class Wallet {
       Buffer.concat([signature.r, signature.s, ethUtil.toBuffer(signature.v)]))
   }
 
-  /// Blockie
 
-  blockies () {
-    return blockies.create({
-      seed: this.getAddressString().toLowerCase(),
-      size: 8,
-      scale: 16
-    }).toDataURL()
-  }
 
-  static blockies (address) {
-    return blockies.create({
-      seed: address.toLowerCase(),
-      size: 8,
-      scale: 16
-    }).toDataURL()
-  }
 }

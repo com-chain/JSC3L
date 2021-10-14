@@ -145,7 +145,7 @@
              $("#balance").show();
 
              $("#address").value = wid;
-             $("#blockie").style.backgroundImage = 'url(' + wallet.blockies() +')';
+             $("#blockie").style.backgroundImage = `url(${jsc3l.createIcon(wallet)})`;
 
              log("Retrieval of transactions...");
              let result = await jsc3l.bcRead.getTransList(wid, 10, 0);
@@ -170,7 +170,7 @@
              log("Displaying payment bloc...");
              $("#addressTo").value = address_dest;
 
-             $("#blockieTo").style.backgroundImage = `url(${jsc3l.Wallet.blockies(address_dest)})`;
+             $("#blockieTo").style.backgroundImage = `url(${jsc3l.createIcon(address_dest)})`;
 
              log("Retrieval of the message key...");
              let { public_message_key } = await jsc3l.message.getMessageKey(address_dest, false);

@@ -93,22 +93,21 @@ function createCanvas (imageData, color, scale, bgcolor, spotcolor) {
   return c
 }
 
-export default {
-  create: function (opts) {
-    opts = opts || {}
-    const size = opts.size || 8
-    const scale = opts.scale || 4
-    const seed = opts.seed || Math.floor((Math.random() *
-                                        Math.pow(10, 16))).toString(16)
+export default function (opts) {
+  opts = opts || {}
+  const size = opts.size || 8
+  const scale = opts.scale || 4
+  const seed = opts.seed || Math.floor((Math.random() *
+    Math.pow(10, 16))).toString(16)
 
-    seedrand(seed)
+  seedrand(seed)
 
-    const color = opts.color || createColor()
-    const bgcolor = opts.bgcolor || createColor()
-    const spotcolor = opts.spotcolor || createColor()
-    const imageData = createImageData(size)
-    const canvas = createCanvas(imageData, color, scale, bgcolor, spotcolor)
+  const color = opts.color || createColor()
+  const bgcolor = opts.bgcolor || createColor()
+  const spotcolor = opts.spotcolor || createColor()
+  const imageData = createImageData(size)
+  const canvas = createCanvas(imageData, color, scale, bgcolor, spotcolor)
 
-    return canvas
-  }
+  return canvas
 }
+
