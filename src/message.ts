@@ -1,6 +1,8 @@
 
 import ajaxReq from './rest/ajaxReq'
 import * as cipher from './ethereum/cipher'
+import Wallet from './ethereum/myetherwallet'
+
 
 /// ///////////////////////////////////////////////////////////
 
@@ -42,7 +44,7 @@ export async function ensureWalletMessageKey (wallet, message) {
         walletMessageKey?.priv === undefined) {
       // TODO: need to remove alerts
       if (message !== '') alert(message)
-      wallet.message_key = cipher.newMessageKey(wallet)
+      wallet.message_key = newMessageKey(wallet)
     }
 
     // No remote: publish the local key
@@ -120,6 +122,15 @@ export async function getReqMessage (wallet, otherAdd,
     return ''
   }
 }
+
+
+function newMessageKey (wallet) {
+  const newKey = Wallet.generate(false)
+  const mPub = newKey.getPublicKeyString()
+  const mPriv = newKey.getPrivateKeyString()
+  return { pub: mPub, priv: cipher.Encrypt(wallet.getPublicKey(), mPriv) }
+}
+
 
 //
 // Memo

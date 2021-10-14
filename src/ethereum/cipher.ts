@@ -1,6 +1,5 @@
 import crypto from 'crypto'
 import { ec as EC } from 'elliptic'
-import Wallet from './myetherwallet'
 
 /// Code adapted from https://github.com/LimelabsTech/eth-ecies
 
@@ -99,9 +98,3 @@ export function Decrypt (privateKey, encrypted) {
   return plaintext.toString()
 }
 
-export function newMessageKey (wallet) {
-  const newKey = Wallet.generate(false)
-  const mPub = newKey.getPublicKeyString()
-  const mPriv = newKey.getPrivateKeyString()
-  return { pub: mPub, priv: Encrypt(wallet.getPublicKey(), mPriv) }
-}
