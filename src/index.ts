@@ -6,7 +6,6 @@ import bcRead from './bcRead'
 import * as bcTransaction from './bcTransaction'
 import * as wallet from './wallet'
 import * as ethFuncs from './ethereum/ethFuncs'
-import ethUtil from 'ethereumjs-util'
 import blockies from './blockies'
 
 import Wallet from './ethereum/myetherwallet'
@@ -33,6 +32,5 @@ export {
   bcTransaction,
   wallet,
   ethFuncs,
-  ethUtil
   createIcon
 }
