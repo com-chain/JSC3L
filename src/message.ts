@@ -76,7 +76,7 @@ export function cipherMessage (publicKey, message) {
   return cipher.Encrypt(key, msgBuff)
 }
 
-export function decipherMessage (privateKey, ciphered) {
+function decipherMessage (privateKey, ciphered) {
   const key = Buffer.from(shortenAddress(privateKey), 'hex')
   return cipher.Decrypt(key, ciphered)
 }
@@ -121,21 +121,31 @@ export async function getReqMessage (wallet, otherAdd,
   }
 }
 
+//
+// Memo
+//
 
-export function getTransactionMemo (wallet, transaction) {
+
+export function getMyTransactionMemo (wallet, transaction) {
   const key = messageKeysFromCrypted(wallet, wallet.message_key.priv).clear_priv
-  const walletAddress = wallet.getAddressString().toLowerCase()
+  const watchedAddress = wallet.getAddressString().toLowerCase()
   const { addr_to, message_to, addr_from, message_from } = transaction
 
-  if (addr_to.toLowerCase() === walletAddress && message_to) {
-    return decipherMessage(key, message_to)
+  return getTransactionMemo(transaction, watchedAddress, key)
+}
+
+export function getTransactionMemo (transaction, watchedAddress, messageKey) {
+  const { addr_to, message_to, addr_from, message_from } = transaction
+
+  if (addr_to.toLowerCase() === watchedAddress && message_to) {
+    return decipherMessage(messageKey, message_to)
   }
 
-  if (addr_from.toLowerCase() === walletAddress && message_from) {
-    return decipherMessage(key, message_from)
+  if (addr_from.toLowerCase() === watchedAddress && message_from) {
+    return decipherMessage(messageKey, message_from)
   }
 
-  return ""
-};
+  return ''
+}
 
 
