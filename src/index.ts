@@ -1,6 +1,5 @@
 import ajaxReq from './rest/ajaxReq'
 import * as connection from './connection'
-import * as config from './config'
 import * as customization from './customization'
 import * as message from './message'
 import bcRead from './bcRead'
@@ -28,7 +27,6 @@ function createIcon (address: string | Wallet) {
 export {
   ajaxReq,
   connection,
-  config,
   customization,
   message,
   bcRead,
