@@ -56,20 +56,12 @@ export async function ensureWalletMessageKey (wallet, message) {
   return wallet
 }
 
-export function messageKeysFromWallet (wallet) {
-  return messageKeysFromCrypted(wallet, wallet.message_key.priv)
-}
 
 function shortenAddress (address) {
   if (address.toLowerCase().substring(0, 2) === '0x') {
     address = address.substr(2)
   }
   return address
-}
-
-export function messageKeysFromCrypted (wallet, ciphered) {
-  const priv = cipher.Decrypt(wallet.getPrivateKey(), ciphered)
-  return { clear_priv: shortenAddress(priv) }
 }
 
 export function cipherMessage (publicKey, message) {
@@ -123,6 +115,15 @@ export async function getReqMessage (wallet, otherAdd,
   }
 }
 
+function messageKeysFromWallet (wallet) {
+  return messageKeysFromCrypted(wallet, wallet.message_key.priv)
+}
+
+
+export function messageKeysFromCrypted (wallet, cipheredKey) {
+  return shortenAddress(cipher.Decrypt(wallet.getPrivateKey(), cipheredKey))
+}
+
 
 function newMessageKey (wallet) {
   const newKey = Wallet.generate(false)
@@ -138,7 +139,7 @@ function newMessageKey (wallet) {
 
 
 export function getMyTransactionMemo (wallet, transaction) {
-  const key = messageKeysFromCrypted(wallet, wallet.message_key.priv).clear_priv
+  const key = messageKeysFromWallet(wallet)
   const watchedAddress = wallet.getAddressString().toLowerCase()
   const { addr_to, message_to, addr_from, message_from } = transaction
 
@@ -175,7 +176,6 @@ export function getTxMemoCipheredData (fromMsgKey, toMsgKey, msgFrom, msgTo) {
 //
 
 export function makeSignedQRWithPubKey (wallet, objContent, pubKey) {
-  objContent.message_key = cipherMessage(
-    pubKey, messageKeysFromWallet(wallet).clear_priv)
+  objContent.message_key = cipherMessage(pubKey, messageKeysFromWallet(wallet))
   return wallet.makeSignedQR(objContent)
 }
