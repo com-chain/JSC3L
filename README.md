@@ -1,21 +1,45 @@
 # JSC3L
+
 JavaScript Com-Chain Communication Library
 
-# History
+## History
+
 This lib was extracted from Biletujo project.
 
-# Demo
+## Usage
 
-An toy example is provided to show JSC3L usage. It was
-tested working on node versions 8+.
+This module provides a `Jsc3lAbstract` class that needs to be
+subclassed to be used. This allows to inject different implementation
+of core elements that may vary depending on where you are using the
+JSC3L. There are only 2 elements to provide :
 
-    ## Compile jsc3l package
-    npm install
-    npm run build
+- httpRequest: a mean to make an http request
 
-    ## Run tests
-    cd Test
-    npm install
-    npx gulp serve
+- persistentStorage: a storage that will persist between runs
 
-A browser window should pop-up with the running demo.
+These should follow precise behaviors and interfaces. You can find a
+nice implementation for node and browsers in npm package
+`jsc3l-browser`. Actually, you should only depend on this last package
+if you are developping on a browser platform.
+
+## Demo
+
+An toy example is provided to show JSC3L usage in npm package `jsc3l-browser-test`.
+You should have a glance at it.
+
+## Developpers
+
+Package is using `npm` to track dependendies, so you can install them
+with:
+
+   ```shell
+   npm install
+   ```
+
+As this package is written in `typescript`. You can compile to
+javascript and compile on file change with:
+
+   ```shell
+   ## Compile and watch
+   npx tsc -w
+   ```
