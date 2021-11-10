@@ -4,28 +4,83 @@ import ethUtil from 'ethereumjs-util'
 import scrypt from 'scryptsy'
 
 
+function decipherBuffer (decipher, data) {
+  return Buffer.concat([decipher.update(data), decipher.final()])
+}
+
+
+function decodeCryptojsSalt (input) {
+  const ciphertext = Buffer.from(input, 'base64')
+  if (ciphertext.slice(0, 8).toString() === 'Salted__') {
+    return {
+      salt: ciphertext.slice(8, 16),
+      ciphertext: ciphertext.slice(16)
+    }
+  } else {
+    return {
+      ciphertext: ciphertext
+    }
+  }
+}
+
+function evpKdf (data, salt, opts) {
+  // A single EVP iteration, returns `D_i`, where block equlas to `D_(i-1)`
+
+  function iter (block) {
+    let hash = crypto.createHash(opts.digest || 'md5')
+    hash.update(block)
+    hash.update(data)
+    hash.update(salt)
+    block = hash.digest()
+    for (let i = 1; i < (opts.count || 1); i++) {
+      hash = crypto.createHash(opts.digest || 'md5')
+      hash.update(block)
+      block = hash.digest()
+    }
+    return block
+  }
+  const keysize = opts.keysize || 16
+  const ivsize = opts.ivsize || 16
+  const ret = []
+  let i = 0
+  while (Buffer.concat(ret).length < (keysize + ivsize)) {
+    ret[i] = iter((i === 0) ? Buffer.alloc(0) : ret[i - 1])
+    i++
+  }
+  const tmp = Buffer.concat(ret)
+  return {
+    key: tmp.slice(0, keysize),
+    iv: tmp.slice(keysize, keysize + ivsize)
+  }
+}
+
+
+
 export default class Wallet {
   privKey
 
-  constructor (priv) {
+  constructor (priv?) {
+    if (!priv) {
+      priv = crypto.randomBytes(32)
+    }
     this.privKey = priv.length === 32 ? priv : Buffer.from(priv, 'hex')
   }
 
   static generate (icapDirect) {
     if (!icapDirect) {
-      return new Wallet(crypto.randomBytes(32))
+      return new this()
     }
 
     while (true) {
       const privKey = crypto.randomBytes(32)
       if (ethUtil.privateToAddress(privKey)[0] === 0) {
-        return new Wallet(privKey)
+        return new this(privKey)
       }
     }
   }
 
   static fromPrivateKey (priv) {
-    return new Wallet(priv)
+    return new this(priv)
   }
 
   getPrivateKey () { return this.privKey }
@@ -153,8 +208,7 @@ export default class Wallet {
     const decipher = crypto.createDecipheriv(
       json.crypto.cipher, derivedKey.slice(0, 16),
       Buffer.from(json.crypto.cipherparams.iv, 'hex'))
-    const seed = Wallet.decipherBuffer(decipher, ciphertext)
-    return seed
+    return decipherBuffer(decipher, ciphertext)
   }
 
   toJSON () {
@@ -185,16 +239,16 @@ export default class Wallet {
         throw new Error('Password must be at least 7 characters')
       }
       let cipher = json.encrypted ? json.private.slice(0, 128) : json.private
-      cipher = Wallet.decodeCryptojsSalt(cipher)
-      const evp = Wallet.evpKdf(Buffer.from(password), cipher.salt, {
+      cipher = decodeCryptojsSalt(cipher)
+      const evp = evpKdf(Buffer.from(password), cipher.salt, {
         keysize: 32,
         ivsize: 16
       })
       const decipher = crypto.createDecipheriv('aes-256-cbc', evp.key, evp.iv)
-      privKey = Wallet.decipherBuffer(decipher, Buffer.from(cipher.ciphertext))
+      privKey = decipherBuffer(decipher, Buffer.from(cipher.ciphertext))
       privKey = Buffer.from((privKey.toString()), 'hex')
     }
-    const wallet = new Wallet(privKey)
+    const wallet = new this(privKey)
     if (wallet.getAddressString() !== json.address) {
       throw new Error('Invalid private key or address')
     }
@@ -207,7 +261,7 @@ export default class Wallet {
       throw new Error('Invalid private key length')
     };
     const privKey = Buffer.from(json.privKey, 'hex')
-    return new Wallet(privKey)
+    return new this(privKey)
   }
 
   static fromEthSale (input, password) {
@@ -218,8 +272,8 @@ export default class Wallet {
       .slice(0, 16)
     const decipher = crypto.createDecipheriv(
       'aes-128-cbc', derivedKey, encseed.slice(0, 16))
-    const seed = Wallet.decipherBuffer(decipher, encseed.slice(16))
-    const wallet = new Wallet(ethUtil.keccak(seed))
+    const seed = decipherBuffer(decipher, encseed.slice(16))
+    const wallet = new this(ethUtil.keccak(seed))
     if (wallet.getAddress().toString('hex') !== json.ethaddr) {
       throw new Error('Decoded key mismatch - possibly wrong passphrase')
     }
@@ -228,16 +282,16 @@ export default class Wallet {
 
   static fromMyEtherWalletKey (input, password) {
     let cipher = input.slice(0, 128)
-    cipher = Wallet.decodeCryptojsSalt(cipher)
-    const evp = Wallet.evpKdf(Buffer.from(password), cipher.salt, {
+    cipher = decodeCryptojsSalt(cipher)
+    const evp = evpKdf(Buffer.from(password), cipher.salt, {
       keysize: 32,
       ivsize: 16
     })
     const decipher = crypto.createDecipheriv('aes-256-cbc', evp.key, evp.iv)
-    let privKey = Wallet.decipherBuffer(decipher,
+    let privKey = decipherBuffer(decipher,
       Buffer.from(cipher.ciphertext))
     privKey = Buffer.from((privKey.toString()), 'hex')
-    return new Wallet(privKey)
+    return new this(privKey)
   }
 
   static fromV3 (input, password, nonStrict) {
@@ -276,8 +330,8 @@ export default class Wallet {
     const decipher = crypto.createDecipheriv(
       json.crypto.cipher, derivedKey.slice(0, 16),
       Buffer.from(json.crypto.cipherparams.iv, 'hex'))
-    const seed = Wallet.decipherBuffer(decipher, ciphertext)
-    return new Wallet(seed)
+    const seed = decipherBuffer(decipher, ciphertext)
+    return new this(seed)
   }
 
   toV3String (password, opts) {
@@ -286,79 +340,7 @@ export default class Wallet {
 
   getV3Filename (timestamp) {
     const ts = timestamp ? new Date(timestamp) : new Date()
-    return [
-      'UTC--',
-      ts.toJSON().replace(/:/g, '-'),
-      '--',
-      this.getAddress().toString('hex')
-    ].join('')
-  }
-
-  static decipherBuffer (decipher, data) {
-    return Buffer.concat([decipher.update(data), decipher.final()])
-  }
-
-  static decodeCryptojsSalt (input) {
-    const ciphertext = Buffer.from(input, 'base64')
-    if (ciphertext.slice(0, 8).toString() === 'Salted__') {
-      return {
-        salt: ciphertext.slice(8, 16),
-        ciphertext: ciphertext.slice(16)
-      }
-    } else {
-      return {
-        ciphertext: ciphertext
-      }
-    }
-  }
-
-  static evpKdf (data, salt, opts) {
-    // A single EVP iteration, returns `D_i`, where block equlas to `D_(i-1)`
-
-    function iter (block) {
-      let hash = crypto.createHash(opts.digest || 'md5')
-      hash.update(block)
-      hash.update(data)
-      hash.update(salt)
-      block = hash.digest()
-      for (let i = 1; i < (opts.count || 1); i++) {
-        hash = crypto.createHash(opts.digest || 'md5')
-        hash.update(block)
-        block = hash.digest()
-      }
-      return block
-    }
-    const keysize = opts.keysize || 16
-    const ivsize = opts.ivsize || 16
-    const ret = []
-    let i = 0
-    while (Buffer.concat(ret).length < (keysize + ivsize)) {
-      ret[i] = iter((i === 0) ? Buffer.alloc(0) : ret[i - 1])
-      i++
-    }
-    const tmp = Buffer.concat(ret)
-    return {
-      key: tmp.slice(0, keysize),
-      iv: tmp.slice(keysize, keysize + ivsize)
-    }
-  }
-
-  static walletRequirePass (ethjson) {
-    let jsonArr
-    try {
-      jsonArr = JSON.parse(ethjson)
-    } catch (err) {
-      throw new Error('This is not a valid wallet file.')
-    }
-    if (jsonArr.encseed != null) return true
-    else if (jsonArr.Crypto != null || jsonArr.crypto != null) return true
-    else if (jsonArr.hash != null && jsonArr.locked) return true
-    else if (jsonArr.hash != null && !jsonArr.locked) return false
-    else if (jsonArr.publisher === 'MyEtherWallet' &&
-             !jsonArr.encrypted) return false
-    else {
-      throw new Error("Sorry! We don't recognize this type of wallet file.")
-    }
+    return `UTC--${ts.toJSON().replace(/:/g, '-')}--${this.getAddress().toString('hex')}`
   }
 
   signMessage (msg) {
@@ -366,63 +348,6 @@ export default class Wallet {
     const signature = ethUtil.ecsign(msgHash, this.privKey)
     return ethUtil.bufferToHex(
       Buffer.concat([signature.r, signature.s, ethUtil.toBuffer(signature.v)]))
-  }
-
-  //
-  // QR Codes
-  //
-
-  makeSignedQR(obj) {
-
-    debugger;
-
-    var {server, destinary, begin, end, viewbalance, viewoldtran, pub_key} = obj
-    var formatDate = (date) => `${begin.getFullYear()}/${begin.getMonth()}/${begin.getDate()}`
-    var objContent = Object.assign(obj, {
-      address: this.getAddressString(),
-      begin: formatDate(begin),
-      end: formatDate(end)
-    })
-
-    var hash = ethUtil.sha3(JSON.stringify(objContent))
-    var signature = ethUtil.ecsign(hash, this.privKey)
-    return {
-      signature,
-      qrContent: JSON.stringify({
-        data: objContent,
-        signature: {
-          v: signature.v,
-          r: '0x' + signature.r.toString('hex'),
-          s: '0x' + signature.s.toString('hex')
-        }
-      })
-    }
-  }
-
-  checkSignedQRFromString(qrString, intendedRecipientAddress) {
-    try {
-      var { data, signature } = JSON.parse(qrString);
-    } catch (e) {
-      return "InvalidFormat"
-    }
-    return this.checkSignedQR(data, signature, intendedRecipientAddress)
-  }
-
-  checkSignedQR(data, signature, intendedRecipientAddress) {
-    try {
-      var hash = ethUtil.sha3(JSON.stringify(data));
-      var publicSignKey = ethUtil.ecrecover(hash, signature.v, signature.r, signature.s);
-      var receiverAddress = ethUtil.bufferToHex(ethUtil.publicToAddress(publicSignKey));
-    } catch (e) {
-      return "InvalidFormat"
-    }
-
-    if (receiverAddress !== data.address) { return 'InvalidSignature' }
-    if (data.destinary !== intendedRecipientAddress) { return 'NotForYou' }
-    if ((new Date(data.end)).getTime() < (new Date()).getTime()) {
-      return 'Expired'
-    }
-    return { signature, data }
   }
 
 

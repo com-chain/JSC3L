@@ -1,278 +1,159 @@
 
 import { getNakedAddress, padLeft, encodeNumber } from './ethereum/ethFuncs'
 import { generateTx } from './ethereum/uiFuncs'
-import ajaxReq from './rest/ajaxReq'
+import AjaxReq from './rest/ajaxReq'
 
-import { getContract1, getContract2 } from './customization'
 
-/* Action in Contract 1 */
-export function SetAccountParam (wallet, accountAddress, accStatus,
-  accType, limitMinus, limitPlus) {
-  const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(getContract1(),
-    wallet,
-    '0x848b2592',
-    [accAdd,
-      encodeNumber(accStatus),
-      encodeNumber(accType),
-      encodeNumber(Math.round(100 * parseFloat(limitPlus))),
-      encodeNumber(Math.round(100 * parseFloat(limitMinus)))],
-    {})
+function roundCent (strAmount:string) {
+  return Math.round(100 * parseFloat(strAmount))
 }
 
-export function PledgeAccount (wallet, accountAddress, amount,
-  additionalPostData) {
-  const amountCent = encodeNumber(Math.round(100 * parseFloat(amount)))
-  const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(getContract1(),
-    wallet,
-    '0x6c343eef',
-    [accAdd, amountCent],
-    additionalPostData)
+
+function typeConv (label: string): (x:any) => (string | number) {
+  if (label.endsWith('Address')) {
+    return (a) => padLeft(getNakedAddress(a), 64)
+  }
+  if (label.startsWith('limit') || label === 'amount') {
+    return (nb) => encodeNumber(roundCent(nb))
+  }
+  if (label.endsWith('Status') || label.endsWith('Type')) {
+    return (nb) => encodeNumber(nb)
+  }
+  if (label === 'status') {
+    return (nb) => (parseInt(nb, 10) === 0 ? 0 : 1)
+  }
+  throw new Error(`Unexpected label '${label}' in FnDefs.`)
 }
 
-export function setAllowance (wallet, spenderAddress, amount) {
-  const accAdd = padLeft(getNakedAddress(spenderAddress), 64)
-  return internalGenTx(getContract1(),
-    wallet,
-    '0xd4e12f2e',
-    [accAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
-    {})
-}
 
-export function setDelegation (wallet, spenderAddress, limit) {
-  const accAdd = padLeft(getNakedAddress(spenderAddress), 64)
-  return internalGenTx(getContract1(),
-    wallet,
-    '0x75741c79',
-    [accAdd, encodeNumber(Math.round(100 * parseFloat(limit)))],
-    {})
-}
+export default abstract class BcTransactionAbstract {
 
-export function SetTaxAmount (wallet, amount) {
-  return internalGenTx(getContract1(),
-    wallet,
-    '0xf6f1897d',
-    [encodeNumber(parseInt(amount, 10))],
-    {})
-}
+  abstract ajaxReq: AjaxReq
+  abstract contracts: string[]
 
-export function SetTaxLegAmount (wallet, amount) {
-  return internalGenTx(getContract1(),
-    wallet,
-    '0xfafaf4c0',
-    [encodeNumber(parseInt(amount, 10))],
-    {})
-}
+  // //////////////////////////////////////////////////////////////////////////
+  //  CM VS Nant Handling
 
-export function SetTaxAccount (wallet, accountAddress) {
-  const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(getContract1(),
-    wallet,
-    '0xd0385b5e',
-    [accAdd],
-    {})
-}
+  getSplitting (nantVal, cmVal, cmMinusLim, amount) {
+    cmVal = parseFloat(cmVal)
+    nantVal = parseFloat(nantVal)
+    let nant = 0
+    let cm = 0
 
-export function SetOwnerAccount (wallet, accountAddress) {
-  const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(getContract1(),
-    wallet,
-    '0xf2fde38b',
-    [accAdd],
-    {})
-}
+    let res = parseFloat(amount)
+    if (cmVal > 0) {
+      if (cmVal >= res) {
+        cm = res
+        res = 0
+      } else {
+        cm = cmVal
+        res = res - cmVal
+        cmVal = 0
+      }
+    }
 
-// if set to 0 block all the transferts
-export function SetContractStatus (wallet, status) {
-  let value = parseInt(status, 10)
-  if (value !== 0) value = 1
-  return internalGenTx(getContract1(),
-    wallet,
-    '0x88b8084f',
-    [encodeNumber(value)],
-    {})
-}
+    if (nantVal > 0) {
+      if (nantVal >= res) {
+        nant = res
+        res = 0
+      } else {
+        nant = nantVal
+        res = res - nantVal
+        // nantVal=0;
+      }
+    }
 
-/* Action in contract 2 */
-export function TransferNant (wallet, toAddress, amount,
-  additionalPostData) {
-  const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(getContract2(),
-    wallet,
-    '0xa5f7c148',
-    [toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
-    additionalPostData)
-}
-
-export function TransferCM (wallet, toAddress, amount,
-  additionalPostData) {
-  const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(getContract2(),
-    wallet,
-    '0x60ca9c4c',
-    [toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
-    additionalPostData)
-}
-
-export function TransferOnBehalfNant (wallet, fromAddress,
-  toAddress, amount, additionalPostData) {
-  additionalPostData.delegate = wallet.getAddressString()
-  const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
-  const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(getContract2(),
-    wallet,
-    '0x1b6b1ee5',
-    [fromAdd, toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
-    additionalPostData)
-}
-
-export function TransferOnBehalfCM (wallet, fromAddress,
-  toAddress, amount, additionalPostData) {
-  additionalPostData.delegate = wallet.getAddressString()
-  const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
-  const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(getContract2(),
-    wallet,
-    '0x74c421fe',
-    [fromAdd, toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
-    additionalPostData)
-}
-
-export function askTransferFrom (wallet, fromAddress, amount) {
-  const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
-  return internalGenTx(getContract2(),
-    wallet,
-    '0x58258353',
-    [fromAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
-    {})
-}
-
-export function askTransferCMFrom (wallet, fromAddress, amount) {
-  const fromAdd = padLeft(getNakedAddress(fromAddress), 64)
-  return internalGenTx(getContract2(),
-    wallet,
-    '0x2ef9ade2',
-    [fromAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
-    {})
-}
-
-export function PayRequestNant (wallet, toAddress, amount,
-  additionalData) {
-  const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(getContract2(),
-    wallet,
-    '0x132019f4',
-    [toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
-    additionalData)
-}
-
-export function PayRequestCM (wallet, toAddress, amount,
-  additionalData) {
-  const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(getContract2(),
-    wallet,
-    '0x1415707c',
-    [toAdd, encodeNumber(Math.round(100 * parseFloat(amount)))],
-    additionalData)
-}
-
-export function RejectRequest (wallet, toAddress) {
-  const toAdd = padLeft(getNakedAddress(toAddress), 64)
-  return internalGenTx(getContract2(),
-    wallet,
-    '0xaf98f757',
-    [toAdd],
-    {})
-}
-
-export function DissmissAcceptedInfo (wallet, accountAddress) {
-  const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(getContract2(),
-    wallet,
-    '0xccf93c7a',
-    [accAdd],
-    {})
-}
-
-export function DissmissRejectedInfo (wallet, accountAddress) {
-  const accAdd = padLeft(getNakedAddress(accountAddress), 64)
-  return internalGenTx(getContract2(),
-    wallet,
-    '0x88759215',
-    [accAdd],
-    {})
-}
-
-// /////////////////////////////////////////////////////////////////////////////
-//  CM VS Nant Handling
-
-export function getSplitting (nantVal, cmVal, cmMinusLim, amount) {
-  let nant = 0
-  let cm = 0
-
-  let res = parseFloat(amount)
-  if (parseFloat(cmVal) > 0) {
-    if (parseFloat(cmVal) >= res) {
-      cm = res
+    if (res > 0 && cmVal - parseFloat(cmMinusLim) >= res) {
+      cm = cm + res
       res = 0
-    } else {
-      cm = parseFloat(cmVal)
-      res = res - parseFloat(cmVal)
-      cmVal = 0
+    }
+
+    const possible = res === 0
+    return { possible: possible, nant: nant, cm: cm }
+  }
+
+  // //////////////////////////////////////////////////////////////////////////
+
+}
+
+
+
+
+[
+  // First Contract
+  {
+    setAccountParam: '848b2592:accAddress accStatus accType limitPlus limitMinus',
+    pledgeAccount: '6c343eef:accAddress amount *',
+    setAllowance: 'd4e12f2e:spenderAddress amount',
+    setDelegation: '75741c79:spenderAddress limit',
+    setTaxAmount: 'f6f1897d:amount',
+    setTaxLegAmount: 'fafaf4c0:amount',
+    setTaxAccount: 'd0385b5e:accAddress',
+    setOwnerAccount: 'f2fde38b:accAddress',
+    setContractStatus: '0x88b8084f:status',
+  },
+  // Second Contract
+  {
+    transferNant: 'a5f7c148:toAddress amount *',
+    transferCM: '60ca9c4c:toAddress amount *',
+    transferOnBehalfNant: '1b6b1ee5:fromAddress toAddress amount D',
+    transferOnBehalfCM: '74c421fe:fromAddress toAddress amount D',
+    askTransferFrom: '58258353:fromAddress amount',
+    askTransferCMFrom: '2ef9ade2:fromAddress amount',
+    payRequestNant: '132019f4:toAddress amount *',
+    payRequestCM: '1415707c:toAddress amount *',
+    rejectRequest: 'af98f757:toAddress',
+    dissmissAcceptedInfo: 'ccf93c7a:accAddress',
+    dissmissRejectedInfo: '88759215:accAddress',
+  }
+].forEach((contractFnDefs, contractNb) => {
+
+  for (const fnName in contractFnDefs) {
+
+    const [fnHash, argStringList] = contractFnDefs[fnName].split(':')
+    const argList = argStringList.split(' ')
+    let hasAdditionalPostData = false
+    let hasDelegate = false
+    if (argList.slice(-1)[0] === '*') {
+      hasAdditionalPostData = true
+      argList.pop()
+    } else if (argList.slice(-1)[0] === 'D') {
+      hasAdditionalPostData = true
+      hasDelegate = true
+      argList.pop()
+    }
+
+    // Build argument array function
+    const argFnList = argList.map((arg) => typeConv(arg))
+    const concatArgs = (args) =>
+      args.map((arg, idx) => argFnList[idx](arg)).join('')
+
+    BcTransactionAbstract.prototype[fnName] = async function (wallet, ...args) {
+      const addr = wallet.getAddressString()
+      const data = await this.ajaxReq.getTransactionData(addr)
+      // TODO: must test this
+      if (data.error) {
+        console.log(`Failed getTransactionData(${addr})`)
+        throw new Error(data.msg)
+      }
+      const additionalPostData = hasAdditionalPostData ? args.pop() : {}
+      if (hasDelegate) {
+        additionalPostData.delegate = wallet.getAddressString()
+      }
+      const rawTx = generateTx({
+        gasLimit: 500000,
+        data: fnHash + concatArgs(args),
+        to: this.contracts[contractNb],
+        unit: 'ether',
+        value: 0,
+        nonce: 1,
+        gasPrice: null,
+        donate: false,
+        from: addr,
+        key: wallet.getPrivateKeyString()
+      }, data)
+      if (rawTx.isError) return rawTx
+      return this.ajaxReq.sendTx(rawTx.signedTx, additionalPostData)
     }
   }
-
-  if (parseFloat(nantVal) > 0) {
-    if (parseFloat(nantVal) >= res) {
-      nant = res
-      res = 0
-    } else {
-      nant = parseFloat(nantVal)
-      res = res - parseFloat(nantVal)
-      // nantVal=0;
-    }
-  }
-
-  if (res > 0 && parseFloat(cmVal) - parseFloat(cmMinusLim) >= res) {
-    cm = cm + res
-    res = 0
-  }
-
-  const possible = res === 0
-  return { possible: possible, nant: nant, cm: cm }
-}
-
-// /////////////////////////////////////////////////////////////////////////////
-
-export async function internalGenTx (contract, wallet, fuctAddress,
-  values, additionalPostData) {
-  const tx: {[k: string]: any} = {
-    gasLimit: 500000,
-    data: '',
-    to: contract,
-    unit: 'ether',
-    value: 0,
-    nonce: 1,
-    gasPrice: null,
-    donate: false
-  }
-
-  let concatenatedVariable = ''
-  for (let index = 0; index < values.length; ++index) {
-    const valueHex = values[index]
-    concatenatedVariable = concatenatedVariable + valueHex
-  }
-  tx.data = fuctAddress + concatenatedVariable
-  tx.from = wallet.getAddressString()
-  tx.key = wallet.getPrivateKeyString()
-  const data: {[k: string]: any} = await ajaxReq.getTransactionData(tx.from)
-  // TODO: must test this
-  if (data.error) {
-    console.log(`Failed getTransactionData(${tx.from})`)
-    throw new Error(data.msg)
-  }
-  const rawTx = generateTx(tx, data)
-  if (rawTx.isError) return rawTx
-  return ajaxReq.sendTx(rawTx.signedTx, additionalPostData)
-}
+})

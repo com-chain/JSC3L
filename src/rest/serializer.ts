@@ -72,7 +72,7 @@ function forEachSorted (obj, iterator, context?) {
   return keys
 }
 
-export function postSerializer (params) {
+export default function postSerializer (params) {
   if (!params) return ''
 
   const parts = []

@@ -1,4 +1,4 @@
-import { Endpoint } from './endpoint'
+import * as t from '../type'
 
 class URL {
   static SERVER = 'api.php';
@@ -12,8 +12,18 @@ class URL {
   static requestMessages = 'requestMessages.php';
 }
 
-class AjaxReq {
+
+export default abstract class AjaxReqAbstract {
+
+  // XXXvlab: need to be public only to allow integrated mode (used in
+  // ``jsc3l.wallet``)
+  public abstract endpoint: any
+
   pendingPosts = []
+
+  //
+  // URL.SERVER POST requests (that are using queuing mecanism)
+  //
 
   post (data) {
     const self = this
@@ -23,9 +33,21 @@ class AjaxReq {
     })
   }
 
-  enrollPost (data) {
-    return Endpoint.post(URL.ENROLL, { data: JSON.stringify(data) })
+  queuePost () {
+    const { data, resolve, reject } = this.pendingPosts[0]
+
+    try {
+      this.endpoint.post(URL.SERVER, data).then(data => {
+        resolve(data.data)
+      })
+    } catch (err) {
+      console.log(err)
+      reject(err)
+    }
+    this.pendingPosts.splice(0, 1)
+    if (this.pendingPosts.length > 0) { this.queuePost() }
   }
+
 
   getBalance (addr) { return this.post({ balance: addr }) }
   getTransactionData (addr) { return this.post({ txdata: addr }) }
@@ -39,6 +61,7 @@ class AjaxReq {
     }
   }
 
+
   getEstimatedGas (txobj) { return this.post({ estimatedGas: txobj }) }
   getEthCall (txobj) { return this.post({ ethCall: txobj }) }
 
@@ -46,19 +69,13 @@ class AjaxReq {
     return this.post({ ethCallAt: txobj, blockNb })
   }
 
-  queuePost () {
-    const { data, resolve, reject } = this.pendingPosts[0]
 
-    try {
-      Endpoint.post(URL.SERVER, data).then(data => {
-        resolve(data.data)
-      })
-    } catch (err) {
-      console.log(err)
-      reject(err)
-    }
-    this.pendingPosts.splice(0, 1)
-    if (this.pendingPosts.length > 0) { this.queuePost() }
+  //
+  // Other calls
+  //
+
+  enrollPost (data) {
+    return this.endpoint.post(URL.ENROLL, { data: JSON.stringify(data) })
   }
 
   validateEnrollmentLetter (id, currency, signature) {
@@ -69,24 +86,27 @@ class AjaxReq {
     return this.enrollPost({ id, addresse: address, token, currency })
   }
 
-  getTransList (id, count, offset) {
-    return Endpoint.get(URL.TRANLIST, { addr: id, count, offset })
+  async getTransList (id, count, offset) {
+    // for some strange reasons, the answer is stringified 2 times,
+    // so we need to unpack each entry a second time.
+    const data = await this.endpoint.get(URL.TRANLIST, { addr: id, count, offset })
+    return data.map((dataJSON) => JSON.parse(dataJSON))
   }
 
   getTransCheck (hash) {
-    return Endpoint.get(URL.TRANCHECK, { hash })
+    return this.endpoint.get(URL.TRANCHECK, { hash })
   }
 
   getExportTransList (id, start, end) {
-    return Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
+    return this.endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
   }
 
   getExportTransListWithId (id, start, end) {
-    return Endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
+    return this.endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
   }
 
   getCodesFromAddresses (addresses, currency, caller, signature) {
-    return Endpoint.post(URL.GETCODE, {
+    return this.endpoint.post(URL.GETCODE, {
       server: currency,
       caller,
       signature,
@@ -95,7 +115,7 @@ class AjaxReq {
   }
 
   getAddressesFromCode (code, currency, caller, signature) {
-    return Endpoint.post(URL.GETADDRESS, {
+    return this.endpoint.post(URL.GETADDRESS, {
       server: currency,
       caller,
       signature,
@@ -106,36 +126,36 @@ class AjaxReq {
   getMessageKey (addr, withPrivate) {
     const data: {[k: string]: any} = { addr }
     if (withPrivate) data.private = '1'
-    return Endpoint.get(URL.KEYSTORE, data)
+    return this.endpoint.get(URL.KEYSTORE, data)
   }
 
   publishMessageKey (data, sign) {
-    return Endpoint.post(URL.KEYSTORE, { data, sign })
+    return this.endpoint.post(URL.KEYSTORE, { data, sign })
   }
 
   requestUnlock (address, url) {
-    return Endpoint.post(url, { address })
+    return this.endpoint.post(url, { address })
   }
 
   getReqMessages (addFrom, addTo) {
-    return Endpoint.get(
+    return this.endpoint.get(
       URL.requestMessages,
       { add_req: addFrom, add_cli: addTo })
   }
 
   publishReqMessages (data, sign) {
-    return Endpoint.post(URL.requestMessages, { data, sign })
+    return this.endpoint.post(URL.requestMessages, { data, sign })
   }
 
-  currBlock () { return Endpoint.get(URL.SERVER) }
+  currBlock () { return this.endpoint.get(URL.SERVER) }
 
   async getBlock (hash) {
-    let res = await Endpoint.get(URL.SERVER, { hash })
+    let res = await this.endpoint.get(URL.SERVER, { hash })
     if (res && typeof res !== 'object') {
       res = JSON.parse(res).transaction
     }
     return res
   }
+
 }
 
-export default new AjaxReq()

@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js'
 import ethUtil from 'ethereumjs-util'
+
 import * as etherUnits from './etherUnits'
 
 function isChecksumAddress (address) {

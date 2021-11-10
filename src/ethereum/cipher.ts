@@ -34,7 +34,7 @@ function BufferEqual (b1, b2) {
   return res === 0
 }
 
-export function Encrypt (publicKey, plaintext) {
+function Encrypt (publicKey, plaintext) {
   /* DEBUG */
 
   const pubKeyTo = Buffer.from(publicKey)
@@ -67,7 +67,7 @@ export function Encrypt (publicKey, plaintext) {
   return serializedCiphertext.toString('hex')
 }
 
-export function Decrypt (privateKey, encrypted) {
+function Decrypt (privateKey, encrypted) {
   const encryptedBuff = Buffer.from(encrypted, 'hex')
   const privateKeyBuff = Buffer.from(privateKey)
 
@@ -98,3 +98,21 @@ export function Decrypt (privateKey, encrypted) {
   return plaintext.toString()
 }
 
+
+export function shortenAddress (address) {
+  if (address.toLowerCase().substring(0, 2) === '0x') {
+    address = address.substr(2)
+  }
+  return address
+}
+
+export function cipherMsg (publicKey, message) {
+  const msgBuff = Buffer.from(message)
+  const key = Buffer.from(shortenAddress(publicKey), 'hex')
+  return Encrypt(key, msgBuff)
+}
+
+export function decipherMsg (privateKey, ciphered) {
+  const key = Buffer.from(shortenAddress(privateKey), 'hex')
+  return Decrypt(key, ciphered)
+}

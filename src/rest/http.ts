@@ -1,81 +1,69 @@
+import * as t from '../type'
 
-function httpRequest (method, url, data, opts) {
-  return new Promise(function (resolve, reject) {
-    const xhttp = new XMLHttpRequest()
-    xhttp.onreadystatechange = function () {
-      if (this.readyState !== 4) return
 
-      let data = this.response
-      if (typeof data === 'string') {
-        let parsedData
-        try {
-          parsedData = JSON.parse(data)
-        } catch (err) {
-          parsedData = data
-          // const printableData = data.length > 200
-          //   ? `${data.slice(0, 200)}..`
-          //   : data
-          // reject(new Error(`Data is not parseable JSON: ${printableData}`))
-          // return
-        }
-        data = parsedData
-      }
-      if (this.status === 0) {
-        reject(new Error('Invalid request'))
-        return
-      }
-      if (this.status.toString().slice(0, 1) !== '2') {
-        reject(new Error(`Request failed with status ${this.status}`))
-        return
-      }
-
-      resolve({
-        data,
-        status: this.status,
-        statusText: this.statusText
-      })
+function getHostOrUrlParts (HostOrUrl: string): t.UrlParts {
+  let protocol: string, host: string, port: number, path: string
+  if (HostOrUrl.includes('://')) {
+    ;[protocol, HostOrUrl] = HostOrUrl.split('://')
+  } else {
+    protocol = 'https'
+    HostOrUrl = HostOrUrl.replace(/\/$/, '')
+  }
+  if (HostOrUrl.includes('/')) {
+    const splits = HostOrUrl.split('/')
+    ;[host, path] = [splits[0], '/' + splits.slice(1).join('/')]
+  } else {
+    // assume host only
+    path = ''
+    host = HostOrUrl
+  }
+  if (host.includes(':')) {
+    const splits = host.split(':')
+    if (splits.length > 2) {
+      throw new Error(`Too many ':' to get host and port: ${host}`)
     }
-    xhttp.open(method, url, true)
-    if (opts?.timeout) xhttp.timeout = opts.timeout
-    if (opts?.responseType) xhttp.responseType = opts.responseType
-    if (method === 'POST') {
-      xhttp.setRequestHeader(
-        'Content-Type', 'application/x-www-form-urlencoded')
-      xhttp.send(data)
-    } else if (method === 'GET') {
-      xhttp.send()
+    ;[host, port] = [splits[0], parseInt(splits[1])]
+  } else {
+    if (protocol === 'http') {
+      port = 80
+    } else if (protocol === 'https') {
+      port = 443
     } else {
-      throw new Error(`Unknown http method ${method}`)
+      throw new Error(
+        `Could not infer port from unknown protocol ${protocol}`
+      )
     }
-  })
+  }
+  return {
+    protocol,
+    host,
+    port,
+    path,
+  }
 }
 
-
-interface IJsonHasData {
-    data: any;
-}
-
-function isJsonHasData(elt): elt is IJsonHasData {
-   return (elt as IJsonHasData).data !== undefined;
-}
 
 /**
  * Support passing data to querystring when method is GET.
  */
-export class Http {
-  static async request (...[method, url, data, opts]: any[]) {
+export default abstract class HttpAbstract {
+
+  protected abstract httpRequest: t.HttpRequest
+
+  async request (...[method, url, data, opts]: any[]) {
     if (method === 'GET' && data && Object.keys(data).length > 0) {
       url += '?' + (new URLSearchParams(data)).toString()
     }
 
-    const xhr = await httpRequest(
-        method, url, method === 'GET' ? null : data, opts)
-    if (!isJsonHasData(xhr)) {
-      throw new Error(`Missing 'data' in JSON response from ${method} call on ${url}.`)
+    var coreOpts = {
+      method,
+      data: method === 'GET' ? null : data,
+      ...opts,
+      ...getHostOrUrlParts(url)
     }
-    return xhr.data
+    return await <any> this.httpRequest(coreOpts)
   }
 
-  static get (...args: any[]) { return this.request('GET', ...args) }
-  static post (...args: any[]) { return this.request('POST', ...args) }
+  get (...args: any[]) { return this.request('GET', ...args) }
+  post (...args: any[]) { return this.request('POST', ...args) }
 }
