@@ -149,7 +149,7 @@ export default class Wallet {
       server: { name: opts.server_name }
     }
 
-    if (opts.message_key !== 'undefined') {
+    if (typeof opts.message_key !== 'undefined') {
       obj.message_key = opts.message_key
     }
 
