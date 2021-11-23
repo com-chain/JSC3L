@@ -1,4 +1,3 @@
-import * as t from '../type'
 
 class URL {
   static SERVER = 'api.php';

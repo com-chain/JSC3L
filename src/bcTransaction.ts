@@ -77,8 +77,6 @@ export default abstract class BcTransactionAbstract {
 }
 
 
-
-
 [
   // First Contract
   {
