@@ -103,8 +103,8 @@ export default abstract class BcTransactionAbstract {
     payRequestNant: '132019f4:toAddress amount *',
     payRequestCM: '1415707c:toAddress amount *',
     rejectRequest: 'af98f757:toAddress',
-    dissmissAcceptedInfo: 'ccf93c7a:accAddress',
-    dissmissRejectedInfo: '88759215:accAddress',
+    dismissAcceptedInfo: 'ccf93c7a:accAddress',
+    dismissRejectedInfo: '88759215:accAddress',
   }
 ].forEach((contractFnDefs, contractNb) => {
 
