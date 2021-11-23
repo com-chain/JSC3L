@@ -59,11 +59,11 @@ export default abstract class CustomizationAbstract {
   }
 
   public getLang () {
-    return this.getServerConfig('lang') || this.localDefaultConf.server.lang
+    return this.getServerConfig('lang') || this.localDefaultConf.server?.lang
   }
 
   public getNoteValues () {
-    return this.getServerConfig('notes') || this.localDefaultConf.server.notes
+    return this.getServerConfig('notes') || this.localDefaultConf.server?.notes
   }
 
   public hasBn () {
