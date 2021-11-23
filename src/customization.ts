@@ -147,8 +147,7 @@ export default abstract class CustomizationAbstract {
     }
   }
 
-  public getCurrencyLogoUrl (currencyName) {
-    if (!currencyName) return ''
+  public getCurrencyLogoUrl (currencyName?: string) {
     try {
       // XXXvlab: I guess that 'lem' stands for leman here. Shouldn't that
       // be agnostic ?
