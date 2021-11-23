@@ -127,10 +127,6 @@ export default abstract class CustomizationAbstract {
 
   // ///////////////////////////////////////////////////////////////////////////
 
-  /**
-   * XXXvlab: to what point are these specific to biletujo ?
-   *
-   */
   public getCurrencyAssetBaseUrl (currencyName?: string) {
     if (!currencyName) {
       currencyName = this.cfg.server.name
@@ -138,7 +134,7 @@ export default abstract class CustomizationAbstract {
     return `${this.cfg.custoRepo}${currencyName}`
   }
 
-  public getCssUrl (currencyName) {
+  public getCssUrl (currencyName?: string) {
     try {
       // XXXvlab: I guess that we don't need to keep 'etherwallet' css names
       return `${this.getCurrencyAssetBaseUrl(currencyName)}/css/etherwallet-master.min.css`
