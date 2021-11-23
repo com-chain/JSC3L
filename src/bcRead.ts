@@ -161,6 +161,10 @@ for (const key in ListFunction) {
   const configList = ListFunction[key]
   BcReadAbstract.prototype[`get${key}List`] =
     async function (walletAddress, indMin, indMax) {
+      // Simple protection against ill inputs on indMin and indMax and to
+      // avoid unwanted infinite loops
+      indMax = indMax || 0
+      indMin = indMin || 0
       const count = await this.getInfo(
         this.contracts[1],
         `0x${configList.count}`,
