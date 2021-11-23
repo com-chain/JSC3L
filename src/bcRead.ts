@@ -95,7 +95,7 @@ export default abstract class BcReadAbstract {
     const amount = await this.getAmountForElement(
       contract, amountFunctionAddress, callerAddress, data)
 
-    const cleanedAdd = '0x' + amount.substring(data.length - 40)
+    const cleanedAdd = '0x' + data.substring(data.length - 40)
     const element = { address: cleanedAdd, amount: amount }
     list.unshift(element)
     return this.getElementInList(
