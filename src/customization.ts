@@ -131,11 +131,17 @@ export default abstract class CustomizationAbstract {
    * XXXvlab: to what point are these specific to biletujo ?
    *
    */
+  public getCurrencyAssetBaseUrl (currencyName?: string) {
+    if (!currencyName) {
+      currencyName = this.cfg.server.name
+    }
+    return `${this.cfg.custoRepo}${currencyName}`
+  }
 
   public getCssUrl (currencyName) {
     try {
       // XXXvlab: I guess that we don't need to keep 'etherwallet' css names
-      return `${this.cfg.custoRepo}${currencyName}/css/etherwallet-master.min.css`
+      return `${this.getCurrencyAssetBaseUrl(currencyName)}/css/etherwallet-master.min.css`
     } catch (e) {
       return this.localDefaultConf.server.url_Css
     }
@@ -146,7 +152,7 @@ export default abstract class CustomizationAbstract {
     try {
       // XXXvlab: I guess that 'lem' stands for leman here. Shouldn't that
       // be agnostic ?
-      return `${this.cfg.custoRepo}${currencyName}/images/lem.png`
+      return `${this.getCurrencyAssetBaseUrl(currencyName)}/images/lem.png`
     } catch (e) {
       return ''
     }
