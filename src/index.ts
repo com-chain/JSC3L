@@ -257,7 +257,10 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
 
   /**
    * `customization` depends on a local configuration being available
-   * through a previous call to `this.connection.getConfJSON(..)`
+   * through a previous call to
+   * `this.connection.getConfJSON(..)`. Although as it has some
+   * fallback available, we need to be able to support being called
+   * even if no local conf is loaded yet.
    *
    * XXXvlab: We could cache the result with result of
    * `connection.getLocalConf()` being the key.
@@ -265,11 +268,11 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
   get customization (): CustomizationAbstract {
     // XXXvlab: Probably don't need a module for that, as the configuration
     // is always re-queried and quite small, we could cache-it in memory.
-    const localCfg = this.connection.getLocalConfJSON()
+    let localCfg = this.connection.getLocalConfJSON()
     if (!localCfg) {
-      throw new Error('No configuration is available locally.')
+      console.log('No local configuration available yet.')
+      localCfg = {}
     }
-
     return this.getCustomization(localCfg)
   }
 
