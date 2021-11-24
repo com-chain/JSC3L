@@ -212,7 +212,6 @@ abstract class AbstractJsc3l {
       customization.getContract2()
     ]
 
-    const self = this
     const wallet = this.getWallet(
         endpointUrl, currencyName, customization.getUnlockUrl())
     return {
