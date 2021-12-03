@@ -15,7 +15,8 @@ export default abstract class MessagingWalletAbstract extends Wallet {
 
   public static async createWallet (this: { new(): MessagingWalletAbstract }) {
     const wallet = new this()
-    return wallet.ensureWalletMessageKey()
+    await wallet.ensureWalletMessageKey()
+    return wallet
   }
 
   private publishMessageKey () {
@@ -49,7 +50,7 @@ export default abstract class MessagingWalletAbstract extends Wallet {
     const remoteKey = await this.ajaxReq.getMessageKey(
       this.getAddressString(), true)
     const walletMessageKey = this?.message_key
-    if (remoteKey.public_message_key !== undefined) {
+    if (typeof remoteKey.public_message_key !== 'undefined') {
       this.message_key = {
         pub: remoteKey.public_message_key,
         priv: remoteKey.private_message_key,
@@ -94,7 +95,7 @@ export default abstract class MessagingWalletAbstract extends Wallet {
     const newKey = Wallet.generate(false)
     const mPub = newKey.getPublicKeyString()
     const mPriv = newKey.getPrivateKeyString()
-    return { pub: mPub, priv: cipherMsg(this.getPublicKey(), mPriv) }
+    return { pub: mPub, priv: cipherMsg(this.getPublicKeyString(), mPriv) }
   }
 
   public messageKeysFromCrypted (cipheredKey) {
