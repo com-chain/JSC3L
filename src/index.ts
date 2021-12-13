@@ -227,10 +227,6 @@ abstract class AbstractJsc3l {
 }
 
 
-
-
-
-
 Object.assign(AbstractJsc3l.prototype, {
   memo,
   ethFuncs,
