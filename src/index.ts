@@ -290,13 +290,13 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
    */
   get wallet (): MessagingWalletAbstract["constructor"] {
     if (!this.ajaxReq) {
-      throw Error('a connect() is required before accessing wallet')
+      throw new Error('a connect() is required before accessing wallet')
     }
     let localCfg: any
     try {
       localCfg = this.customization
     } catch (e) {
-      throw Error('A local conf needs to be available before accessing wallet')
+      throw new Error('A local conf needs to be available before accessing wallet')
     }
     return this.getWallet(
       this.ajaxReq.endpoint.baseUrl,
@@ -319,13 +319,13 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
    */
   get bcRead (): BcReadAbstract {
     if (!this.ajaxReq) {
-      throw Error('an init() is required before accessing bcRead')
+      throw new Error('an init() is required before accessing bcRead')
     }
     let localCfg: any
     try {
       localCfg = this.customization
     } catch (e) {
-      throw Error('A local conf needs to be available before accessing wallet')
+      throw new Error('A local conf needs to be available before accessing wallet')
     }
     return this.getBcRead(
       this.ajaxReq.endpoint.baseUrl,
@@ -348,13 +348,13 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
    */
   get bcTransaction (): BcTransactionAbstract {
     if (!this.ajaxReq) {
-      throw Error('an init() is required before accessing bcTransaction')
+      throw new Error('an init() is required before accessing bcTransaction')
     }
     let localCfg: any
     try {
       localCfg = this.customization
     } catch (e) {
-      throw Error('A local conf needs to be available before accessing wallet')
+      throw new Error('A local conf needs to be available before accessing wallet')
     }
     return this.getBcTransaction(
       this.ajaxReq.endpoint.baseUrl,
