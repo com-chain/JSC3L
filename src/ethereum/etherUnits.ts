@@ -41,26 +41,26 @@ export function getValueOfUnit (unit) {
 export function fiatToWei (number, pricePerEther) {
   return new BigNumber(String(number))
     .div(pricePerEther)
-    .times(this.getValueOfUnit('ether'))
+    .times(getValueOfUnit('ether'))
     .round(0)
     .toString(10)
 }
 
 export function toFiat (number, unit, multi) {
-  return new BigNumber(this.toEther(number, unit))
+  return new BigNumber(toEther(number, unit))
     .times(multi)
     .round(5)
     .toString(10)
 }
 
 export function toEther (number, unit) {
-  return new BigNumber(this.toWei(number, unit))
-    .div(this.getValueOfUnit('ether'))
+  return new BigNumber(toWei(number, unit))
+    .div(getValueOfUnit('ether'))
     .toString(10)
 }
 
 export function toWei (number, unit) {
   return new BigNumber(String(number))
-    .times(this.getValueOfUnit(unit))
+    .times(getValueOfUnit(unit))
     .toString(10)
 }
