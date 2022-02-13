@@ -36,7 +36,7 @@ function padLeftEven (hex) {
 }
 
 export function addTinyMoreToGas (hex) {
-  hex = this.sanitizeHex(hex)
+  hex = sanitizeHex(hex)
   return new BigNumber(hex).plus(etherUnits.getValueOfUnit('gwei'))
     .toDigits(2).toString(16)
 }
