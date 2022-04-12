@@ -1,6 +1,6 @@
 {
   "name": "@com-chain/jsc3l",
-  "version": "2.0.1-rc.4",
+  "version": "2.0.1-rc.5",
   "description": "JavaScript Com-Chain Communication Library",
   "main": "build/index.js",
   "scripts": {
