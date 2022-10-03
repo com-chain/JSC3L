@@ -99,8 +99,9 @@ export default abstract class AjaxReqAbstract {
     return this.endpoint.get(URL.TRANCHECK, { hash })
   }
 
-  getExportTransList (id, start, end) {
-    return this.endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
+  async getExportTransList (id, start, end) {
+    const data = await this.endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
+    return data.map((dataJSON) => JSON.parse(dataJSON))
   }
 
   getCodesFromAddresses (addresses, currency, caller, signature) {
