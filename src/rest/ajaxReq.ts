@@ -103,10 +103,6 @@ export default abstract class AjaxReqAbstract {
     return this.endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
   }
 
-  getExportTransListWithId (id, start, end) {
-    return this.endpoint.get(URL.EXPORTTRAN, { addr: id, start, end })
-  }
-
   getCodesFromAddresses (addresses, currency, caller, signature) {
     return this.endpoint.post(URL.GETCODE, {
       server: currency,
