@@ -18,8 +18,8 @@ import ConnectionMgrAbstract from './connection'
 import CustomizationAbstract from './customization'
 import MessagingWalletAbstract from './wallet'
 import BcReadAbstract from './bcRead'
-import BcTransactionAbstract from './bcTransaction'
-
+import { BcTransactionAbstract, transactionFactory } from './bcTransaction'
+import localTransactionDefs from './config/transactions'
 
 
 function createIcon (address: string | Wallet) {
@@ -40,6 +40,7 @@ abstract class AbstractJsc3l {
   protected abstract persistentStore: t.IPersistentStore
 
   localDefaultConf: {}
+  defaultTransactionDefs: []
 
   endpoint: string
 
@@ -48,8 +49,9 @@ abstract class AbstractJsc3l {
   _http: null | HttpAbstract
 
 
-  constructor (localDefaultConf?) {
+  constructor (localDefaultConf?, defaultTransactionDefs?) {
     this.localDefaultConf = localDefaultConf || {}
+    this.defaultTransactionDefs = defaultTransactionDefs || localTransactionDefs
   }
 
   /**
@@ -164,23 +166,30 @@ abstract class AbstractJsc3l {
   }
 
 
-  getBcTransaction (endpointUrl, contracts): BcTransactionAbstract {
+  getBcTransaction (
+    endpointUrl, contracts, transactionDefs
+  ): BcTransactionAbstract {
     const self = this
     class BcTransaction extends BcTransactionAbstract {
       ajaxReq = self.getAjaxReq(endpointUrl)
       contracts = contracts
     }
+    transactionFactory(transactionDefs, BcTransaction)
     return new BcTransaction()
   }
 
 
   _currencyMgrPromises = {}
-  async getCurrencyMgr (currencyName: string, endpointUrl?: string, repoUrl?: string) {
-    const key = Array.from(arguments).join('\0')
+  async getCurrencyMgr (
+    currencyName: string, endpointUrl?: string, repoUrl?: string,
+    transactionDefs?: any[],
+  ) {
+
+    const key = JSON.stringify(Array.from(arguments))
 
     if (!this._currencyMgrPromises[key]) {
       this._currencyMgrPromises[key] =
-        this._getCurrencyMgr(currencyName, endpointUrl, repoUrl)
+        this._getCurrencyMgr(currencyName, endpointUrl, repoUrl, transactionDefs)
     }
 
     return await this._currencyMgrPromises[key]
@@ -189,7 +198,9 @@ abstract class AbstractJsc3l {
 
   async _getCurrencyMgr (currencyName: string,
                          endpointUrl?: string,
-                         repoUrl?: string): Promise<any> {
+                         repoUrl?: string,
+                         transactionDefs?: any[],
+                        ): Promise<any> {
     if (!repoUrl) {
       if (this.connection.repo) {
         repoUrl = this.connection.repo
@@ -206,15 +217,19 @@ abstract class AbstractJsc3l {
       }
     }
 
+    transactionDefs = transactionDefs || localTransactionDefs
+
     const config = await this.getConfig(repoUrl, currencyName)
     const customization = this.getCustomization(config)
     const contracts = [
       customization.getContract1(),
-      customization.getContract2()
+      customization.getContract2(),
+      customization.getContract3()
     ]
 
     const wallet = this.getWallet(
-        endpointUrl, currencyName, customization.getUnlockUrl())
+      endpointUrl, currencyName, customization.getUnlockUrl()
+    )
     return {
       // unlockWallet: (jsonData, password) => wallet.getWalletFromPrivKeyFile(jsonData, password),
       jsc3l: this,
@@ -222,7 +237,9 @@ abstract class AbstractJsc3l {
       ajaxReq: this.getAjaxReq(endpointUrl),
       wallet: wallet,
       bcRead: this.getBcRead(endpointUrl, contracts),
-      bcTransaction: this.getBcTransaction(endpointUrl, contracts),
+      bcTransaction: this.getBcTransaction(
+        endpointUrl, contracts, transactionDefs
+      ),
     }
   }
 }
@@ -356,7 +373,12 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
     }
     return this.getBcTransaction(
       this.ajaxReq.endpoint.baseUrl,
-      [localCfg.getContract1(), localCfg.getContract2()]
+      [
+        localCfg.getContract1(),
+        localCfg.getContract2(),
+        localCfg.getContract3(),
+      ],
+      this.defaultTransactionDefs
     )
   }
 
