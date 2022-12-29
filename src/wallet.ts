@@ -1,6 +1,7 @@
-import ethUtil from 'ethereumjs-util'
-
 import AjaxReq from './rest/ajaxReq'
+import {
+  checkSignedQR, SignedQR, makeSignedQRContent, makeSignedQRFragments
+} from './qr'
 import { shortenAddress, cipherMsg, decipherMsg } from './ethereum/cipher'
 import Wallet from './ethereum/myetherwallet'
 
@@ -148,47 +149,38 @@ export default abstract class MessagingWalletAbstract extends Wallet {
     }
   }
 
-
   //
-  // QR Codes requires EthUtils
+  // QR Code helpers
   //
 
-  public makeSignedQRWithPubKey (objContent, pubKey) {
-    objContent.message_key = cipherMsg(
-      pubKey, this.messageKeysFromWallet()
-    )
-    objContent.address = this.getAddressString()
-    return this.makeSignedQR(objContent)
+  public makeSignedQRContent (obj, pubKey: string | null) {
+    return makeSignedQRContent({
+      server: this.currencyName,
+      address: this.getAddressString(),
+      ...obj,
+      ...pubKey && {
+        message_key: cipherMsg(pubKey, this.messageKeysFromWallet())
+      },
+    }, this.privKey)
   }
 
-  public makeSignedQR (obj) {
+  public makeSignedQRFragments (
+    obj, fragmentCount: number, pubKey: string | null
+  ) {
+    return makeSignedQRFragments(
+      this.makeSignedQRContent(obj, pubKey),
+      fragmentCount,
+    )
+  }
 
-    // Values expected:
-    const {
-      server, destinary, begin, end,
-      viewbalance, viewoldtran, pub_key
-    } = obj
-    const formatDate = (date) =>
-      `${begin.getFullYear()}/${begin.getMonth()}/${begin.getDate()}`
-    const objContent = Object.assign(obj, {
-      address: this.getAddressString(),
-      begin: formatDate(begin),
-      end: formatDate(end)
-    })
-
-    const hash = ethUtil.sha3(JSON.stringify(objContent))
-    const signature = ethUtil.ecsign(hash, this.privKey)
-    return {
-      signature,
-      qrContent: JSON.stringify({
-        data: objContent,
-        signature: {
-          v: signature.v,
-          r: '0x' + signature.r.toString('hex'),
-          s: '0x' + signature.s.toString('hex')
-        }
-      })
+  public checkSignedQRFromString (qrString: string) {
+    let qrContent: SignedQR
+    try {
+      qrContent = JSON.parse(qrString)
+    } catch (e) {
+      return 'InvalidFormat'
     }
+    return checkSignedQR(qrContent, this.getAddressString())
   }
 
 }

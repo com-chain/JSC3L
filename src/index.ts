@@ -1,5 +1,6 @@
 import * as ethFuncs from './ethereum/ethFuncs'  // Utilities to pass on
 import * as memo from './memo'
+import * as qr from './qr'
 
 // Only required for blockie helper
 import blockies from './blockies'
@@ -230,7 +231,8 @@ abstract class AbstractJsc3l {
 Object.assign(AbstractJsc3l.prototype, {
   memo,
   ethFuncs,
-  createIcon
+  createIcon,
+  qr,
 })
 
 
