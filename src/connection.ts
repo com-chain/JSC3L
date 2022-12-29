@@ -43,8 +43,15 @@ abstract class ConnectionAbstract {
   ///
   // [Lower level] Get the list of ComChain end-points from given repo
   ///
-  getCCEndPointList (repo: string) {
-    return this.http.get(repo + config.nodesRepo, { _: new Date().getTime() })
+  async getCCEndPointList (repo: string) {
+    try {
+      return await this.http.get(
+        repo + config.nodesRepo,
+        { _: new Date().getTime() })
+    } catch (e) {
+      console.error(`Failed to get endpoint list on ${repo}`, e)
+      return false
+    }
   }
 
   ///
