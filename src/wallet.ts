@@ -122,10 +122,22 @@ export default abstract class MessagingWalletAbstract extends Wallet {
     })
   }
 
-  public enrollAddress (codeId, token) {
-    return this.ajaxReq.enrollAddress(
-      codeId, this.getAddressString(),
-      this.currencyName, token)
+  public validateEnrollment (id, signature) {
+    return this.ajaxReq.enrollPost({
+      id,
+      signature,
+      currency: this.currencyName,
+    })
+  }
+
+  public enrollAddress (id, token) {
+    return this.ajaxReq.enrollPost({
+      id,
+      token,
+      currency: this.currencyName,
+      // XXXvlab: Yes, typo is intentional here (in PHP API):
+      addresse: this.getAddressString(),
+    })
   }
 
   public requestUnlock () {
@@ -184,10 +196,3 @@ export default abstract class MessagingWalletAbstract extends Wallet {
   }
 
 }
-
-// // TODO: What to do with this validateEnrollment
-// public static validateEnrollment (codeId, signature) {
-//     return this.ajaxReq.validateEnrollmentLetter(
-//       codeId, this.currencyName, signature)
-//   }
-

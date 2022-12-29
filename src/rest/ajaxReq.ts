@@ -80,14 +80,6 @@ export default abstract class AjaxReqAbstract {
     return this.endpoint.post(URL.ENROLL, { data: JSON.stringify(data) })
   }
 
-  validateEnrollmentLetter (id, currency, signature) {
-    return this.enrollPost({ id, currency, signature })
-  }
-
-  enrollAddress (id, address, currency, token) {
-    return this.enrollPost({ id, addresse: address, token, currency })
-  }
-
   async getTransList (id, count, offset) {
     // for some strange reasons, the answer is stringified 2 times,
     // so we need to unpack each entry a second time.
