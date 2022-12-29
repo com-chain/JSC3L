@@ -131,14 +131,25 @@ export default abstract class CustomizationAbstract {
     if (!currencyName) {
       currencyName = this.cfg.server.name
     }
+    if (!this.cfg.custoRepo) {
+      throw Error(
+        'Requested getCurrencyAssetBaseUrl while configuration is not available (yet?)'
+      )
+    }
     return `${this.cfg.custoRepo}${currencyName}`
   }
 
   public getCssUrl (currencyName?: string) {
     try {
-      // XXXvlab: I guess that we don't need to keep 'etherwallet' css names
-      return `${this.getCurrencyAssetBaseUrl(currencyName)}/css/etherwallet-master.min.css`
+      // XXXvlab: I guess that we don't need to keep 'etherwallet' css
+      // names
+      return this.getCurrencyAssetBaseUrl(currencyName) +
+        '/css/etherwallet-master.min.css'
     } catch (e) {
+      console.log(
+        '`customization.getCssUrl(..)` called before configuration was ' +
+          "ready. Returning `localDefaultConf`'s value."
+      )
       return this.localDefaultConf.server.url_Css
     }
   }
@@ -149,6 +160,10 @@ export default abstract class CustomizationAbstract {
       // be agnostic ?
       return `${this.getCurrencyAssetBaseUrl(currencyName)}/images/lem.png`
     } catch (e) {
+      console.log(
+        '`customization.getCurrencyLogoUrl(..)` called before configuration ' +
+        'was ready. Returning empty string.'
+      )
       return ''
     }
   }
