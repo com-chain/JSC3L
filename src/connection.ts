@@ -239,10 +239,8 @@ export default abstract class ConnectionMgrAbstract extends ConnectionAbstract {
   public getLocalConfJSON () {
     if (this.conf) return this.conf
     const cfgJson = this.persistentStore.get('ServerConf')
-    if (!cfgJson) return null
-    const cfg = JSON.parse(cfgJson)
+    const cfg = cfgJson ? JSON.parse(cfgJson) : {}
     // Completing with other informations if available
-
     if (this.repo) {
       cfg.repo = this.repo
       cfg.custoRepo = this.repo + config.custoRepo
