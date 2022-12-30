@@ -16,8 +16,11 @@ function typeConv (label: string): (x:any) => (string | number) {
   if (label.startsWith('limit') || label === 'amount') {
     return (nb) => encodeNumber(roundCent(nb))
   }
-  if (label.endsWith('Status') || label.endsWith('Type')) {
+  if (label.endsWith('Status') || label.endsWith('Type') || label.endsWith('Int')) {
     return (nb) => encodeNumber(nb)
+  }
+  if (label.endsWith('Hex')) {
+    return (s) => s.padEnd(128, '0')
   }
   if (label === 'status') {
     return (nb) => (parseInt(nb, 10) === 0 ? 0 : 1)
