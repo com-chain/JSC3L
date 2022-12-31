@@ -11,7 +11,7 @@ export default [
     setTaxLegAmount: 'fafaf4c0:amount',
     setTaxAccount: 'd0385b5e:accAddress',
     setOwnerAccount: 'f2fde38b:accAddress',
-    setContractStatus: '0x88b8084f:status',
+    setContractStatus: '88b8084f:status',
   },
   // Second Contract
   {
