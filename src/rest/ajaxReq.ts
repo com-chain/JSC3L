@@ -38,7 +38,7 @@ export default abstract class AjaxReqAbstract {
     try {
       this.endpoint.post(URL.SERVER, data).then(data => {
         if (data.error) {
-          reject(data)
+          resolve(data)
         }
         resolve(data.data)
       })
