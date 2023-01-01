@@ -89,7 +89,7 @@ export function makeSignedQRFragments (
 export function makeSignedQRContent (obj: QRData, privKey: string): SignedQR {
   const { begin, end } = obj
   const formatDate = (date: Date) =>
-    `${date.getFullYear()}/${date.getMonth()}/${date.getDate()}`
+    `${date.getFullYear()}/${(date.getMonth()+1)}/${date.getDate()}`
   const data = Object.assign(obj, {
     begin: formatDate(begin),
     end: formatDate(end),
