@@ -35,17 +35,12 @@ export default abstract class AjaxReqAbstract {
   queuePost () {
     const { data, resolve, reject } = this.pendingPosts[0]
 
-    try {
-      this.endpoint.post(URL.SERVER, data).then(data => {
-        if (data.error) {
-          resolve(data)
-        }
-        resolve(data.data)
-      })
-    } catch (err) {
-      console.log(err)
-      reject(err)
-    }
+    this.endpoint.post(URL.SERVER, data).then(data => {
+      if (data.error) {
+        resolve(data)
+      }
+      resolve(data.data)
+    })
     this.pendingPosts.splice(0, 1)
     if (this.pendingPosts.length > 0) { this.queuePost() }
   }
