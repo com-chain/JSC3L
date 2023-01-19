@@ -26,7 +26,7 @@ function typeConv (label: string): (x:any) => (string | number) {
     return (s) => s.padEnd(128, '0')
   }
   if (label === 'status') {
-    return (nb) => (parseInt(nb, 10) === 0 ? 0 : 1)
+    return (nb) => encodeNumber(parseInt(nb, 10) === 0 ? 0 : 1)
   }
   throw new Error(`Unexpected label '${label}' in FnDefs.`)
 }
