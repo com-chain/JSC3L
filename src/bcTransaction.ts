@@ -13,6 +13,9 @@ function typeConv (label: string): (x:any) => (string | number) {
   if (label.endsWith('Address')) {
     return (a) => padLeft(getNakedAddress(a), 64)
   }
+  if (label === 'int') {
+    return (nb) => encodeNumber(parseInt(nb, 19))
+  }
   if (label.startsWith('limit') || label === 'amount') {
     return (nb) => encodeNumber(roundCent(nb))
   }
