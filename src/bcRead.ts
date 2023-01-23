@@ -4,17 +4,6 @@ import AjaxReq from './rest/ajaxReq'
 import { getNakedAddress, padLeft, getDataObj } from './ethereum/ethFuncs'
 
 
-function getNumber (data, ratio) {
-  const shortData = '0x' + data.slice(-12)
-  let a = parseInt(shortData, 16)
-
-  if (a > (34359738368 * 4096)) {
-    a -= 68719476736 * 4096
-  }
-
-  return a / ratio
-}
-
 
 function decodeData (abiType: string, data: string): any {
   if (data.startsWith('0x')) {
@@ -61,6 +50,17 @@ function decodeData (abiType: string, data: string): any {
     case 'uint':
     case 'uint256':
       return uintData
+    case 'number/100':
+      return (decodeData('number', data) / 100.0).toString()
+    case 'number':
+      const shortData = '0x' + data.slice(-12)
+      let a = parseInt(shortData, 16)
+
+      if (a > (34359738368 * 4096)) {
+        a -= 68719476736 * 4096
+      }
+
+      return a
     case 'bool':
       return uintData === 1
     default:
@@ -85,7 +85,7 @@ export default abstract class BcReadAbstract {
       this.contracts[0], '0x70a08231', [
         getNakedAddress(walletAddress)
       ], blockNb)
-    return getNumber(data, 100.0).toString()
+    return decodeData('number/100', data)
   }
 
   async getVersion () {
@@ -102,7 +102,7 @@ export default abstract class BcReadAbstract {
       this.contracts[0], address, [
         getNakedAddress(walletAddress)
       ])
-    return getNumber(data, 100.0).toString()
+    return decodeData('number/100', data)
   }
 
   async getAccInfo (address, walletAddress) {
@@ -110,7 +110,7 @@ export default abstract class BcReadAbstract {
       this.contracts[0], address, [
         getNakedAddress(walletAddress)
       ])
-    return getNumber(data, 1.0)
+    return decodeData('number', data)
   }
 
   async read (contract: string, address: string, args?: any[],
@@ -136,7 +136,7 @@ export default abstract class BcReadAbstract {
         getNakedAddress(callerAddress),
         getNakedAddress(elementAddress)
       ])
-    return getNumber(data, 100.0).toString()
+    return decodeData('number/100', data)
   }
 
   async getElementInList (
@@ -227,7 +227,7 @@ for (const key in ListFunction) {
         this.contracts[1], `0x${configList.count}`, [
           getNakedAddress(walletAddress)
         ])
-      const count = getNumber(data, 1.0)
+      const count = decodeData('number', data)
       const list = []
       const index = Math.min(count - 1, indMax)
       return this.getElementInList(
