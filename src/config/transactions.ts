@@ -27,8 +27,4 @@ export default [
     dismissAcceptedInfo: 'ccf93c7a:accAddress',
     dismissRejectedInfo: '88759215:accAddress',
   },
-  // // Third Contract
-  // {
-  //   replaceAccount: '3e3fc7c7:newAddress',
-  // }
 ]

@@ -16,7 +16,7 @@ function getNumber (data, ratio) {
 }
 
 
-function decodeData(abiType: string, data: string): any {
+function decodeData (abiType: string, data: string): any {
   if (data.startsWith('0x')) {
     data = data.slice(2)
   }
@@ -64,7 +64,7 @@ function decodeData(abiType: string, data: string): any {
     case 'bool':
       return uintData === 1
     default:
-      throw new Error(`Unsupported ABI type: ${abiType}`);
+      throw new Error(`Unsupported ABI type: ${abiType}`)
   }
 }
 
