@@ -114,13 +114,19 @@ export default abstract class BcReadAbstract {
   }
 
   async read (contract: string, address: string, args?: any[],
-              blockNb: string = 'pending') {
+              blockNb: string = 'pending'): Promise<string> {
     args = args || []
     const ethCall = getDataObj(contract, address, args)
     if (blockNb !== 'pending') {
       blockNb = '0x' + new BigNumber(blockNb).toString(16)
     }
-    return await this.ajaxReq.getEthCallAt(ethCall, blockNb)
+    try {
+      return (await this.ajaxReq.getEthCallAt(ethCall, blockNb)) as string
+    } catch (e) {
+      throw new Error(
+        `Failed read contract: ${contract}, fn: ${address}`
+      )
+    }
   }
 
   async getAmountForElement (
@@ -139,7 +145,7 @@ export default abstract class BcReadAbstract {
 
     if (index < indMin) return list
 
-    const data: {[k: string]: any} = await this.read(
+    const data = await this.read(
       contract, mapFunctionAddress, [
         getNakedAddress(callerAddress),
         padLeft(new BigNumber(index).toString(16), 64)
