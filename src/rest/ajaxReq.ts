@@ -59,7 +59,6 @@ export default abstract class AjaxReqAbstract {
   }
 
 
-  getEstimatedGas (txobj) { return this.post({ estimatedGas: txobj }) }
   getEthCall (txobj) { return this.post({ ethCall: txobj }) }
 
   getEthCallAt (txobj, blockNb) {
