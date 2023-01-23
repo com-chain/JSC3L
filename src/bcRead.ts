@@ -16,6 +16,59 @@ function getNumber (data, ratio) {
 }
 
 
+function decodeData(abiType: string, data: string): any {
+  if (data.startsWith('0x')) {
+    data = data.slice(2)
+  }
+  if (data.length === 0) {
+    return null
+  }
+  let dataBuffer: Buffer
+  try {
+    dataBuffer = Buffer.from(data, 'hex')
+  } catch (e) {
+    throw new Error(
+      'Invalid data provided: not an hex string')
+  }
+  if (dataBuffer.length % 32 !== 0) {
+    throw new Error(
+      'Invalid data provided: data length is not a multiple of 32')
+  }
+  const uintData = dataBuffer.readUIntBE(0, 32)
+  switch (abiType) {
+    case 'string':
+      const dataLocation = uintData
+      if (dataLocation % 32 !== 0) {
+        throw new Error(
+          'Invalid data provided while decoding string: ' +
+            'first 32byte word is not a valid address')
+      }
+      if (dataLocation + 64 > dataBuffer.length) {
+        throw new Error(
+          'Invalid data provided while decoding string: ' +
+            'not enough data to decode length and first word at given location')
+      }
+      const dataLength = dataBuffer.readUIntBE(dataLocation, 32)
+      const expectedLength = Math.ceil((dataLocation + 32 + dataLength) / 32) * 32
+      console.log("expected:", expectedLength)
+      if (dataBuffer.length !== expectedLength) {
+        throw new Error(
+          'Invalid data provided while decoding string: ' +
+            'not enough data to decode advertised string')
+      }
+      const dataValue = dataBuffer.slice(dataLocation + 32, dataLocation + 32 + dataLength)
+      return dataValue.toString()
+    case 'uint':
+    case 'uint256':
+      return uintData
+    case 'bool':
+      return uintData === 1
+    default:
+      throw new Error(`Unsupported ABI type: ${abiType}`);
+  }
+}
+
+
 export default abstract class BcReadAbstract {
 
   abstract ajaxReq: AjaxReq
@@ -29,6 +82,11 @@ export default abstract class BcReadAbstract {
   // Get Historical infos infos: Global balance
   async getHistoricalGlobalBalance (walletAddress, blockNb) {
     return this.getAmountAt('0x70a08231', walletAddress, blockNb)
+  }
+
+  async getVersion () {
+    const data = await this.getGlobInfo('0x54fd4d50')
+    return decodeData('string', data as string)
   }
 
 
