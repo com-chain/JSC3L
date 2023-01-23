@@ -75,17 +75,21 @@ export default abstract class BcReadAbstract {
   abstract contracts: string[]
 
   // Get Global status of the contract
-  async getContractStatus () { return this.getGlobInfo('0x8b3c7c69') }
+  getContractStatus () { return this.read(this.contracts[0], '0x8b3c7c69') }
   // Get Global infos: Tax destinary Account
-  async getTaxAccount () { return this.getGlobInfo('0x4f2eabe0') }
+  getTaxAccount () { return this.read(this.contracts[0], '0x4f2eabe0') }
 
   // Get Historical infos infos: Global balance
   async getHistoricalGlobalBalance (walletAddress, blockNb) {
-    return this.getAmountAt('0x70a08231', walletAddress, blockNb)
+    const data = await this.read(
+      this.contracts[0], '0x70a08231', [
+        getNakedAddress(walletAddress)
+      ], blockNb)
+    return getNumber(data, 100.0).toString()
   }
 
   async getVersion () {
-    const data = await this.getGlobInfo('0x54fd4d50')
+    const data = await this.read(this.contracts[0], '0x54fd4d50')
     return decodeData('string', data as string)
   }
 
@@ -94,45 +98,38 @@ export default abstract class BcReadAbstract {
   // Generic read function
 
   async getAmount (address, walletAddress) {
-    const userInfo = getDataObj(
-      this.contracts[0], address, [getNakedAddress(walletAddress)])
-    const data = await this.ajaxReq.getEthCall(userInfo)
+    const data = await this.read(
+      this.contracts[0], address, [
+        getNakedAddress(walletAddress)
+      ])
     return getNumber(data, 100.0).toString()
   }
 
   async getAccInfo (address, walletAddress) {
-    return this.getInfo(this.contracts[0], address, walletAddress)
-  }
-
-  getGlobInfo (address) {
-    const userInfo = getDataObj(this.contracts[0], address, [])
-    return this.ajaxReq.getEthCall(userInfo)
-  }
-
-  async getAmountAt (address, walletAddress, blockNb) {
-    const userInfo = getDataObj(
-      this.contracts[0], address, [getNakedAddress(walletAddress)])
-    const blockHex = '0x' + new BigNumber(blockNb).toString(16)
-    const data = await this.ajaxReq.getEthCallAt(userInfo, blockHex)
-    return getNumber(data, 100.0).toString()
-  }
-
-  async getInfo (contract, address, walletAddress) {
-    const userInfo = getDataObj(
-      contract, address, [getNakedAddress(walletAddress)])
-    const data = await this.ajaxReq.getEthCall(userInfo)
+    const data = await this.read(
+      this.contracts[0], address, [
+        getNakedAddress(walletAddress)
+      ])
     return getNumber(data, 1.0)
+  }
+
+  async read (contract: string, address: string, args?: any[],
+              blockNb: string = 'pending') {
+    args = args || []
+    const ethCall = getDataObj(contract, address, args)
+    if (blockNb !== 'pending') {
+      blockNb = '0x' + new BigNumber(blockNb).toString(16)
+    }
+    return await this.ajaxReq.getEthCallAt(ethCall, blockNb)
   }
 
   async getAmountForElement (
     contract, functionAddress, callerAddress, elementAddress) {
-    const userInfo = getDataObj(
-      contract, functionAddress,
-      [
+    const data = await this.read(
+      contract, functionAddress, [
         getNakedAddress(callerAddress),
         getNakedAddress(elementAddress)
       ])
-    const data = await this.ajaxReq.getEthCall(userInfo)
     return getNumber(data, 100.0).toString()
   }
 
@@ -142,19 +139,16 @@ export default abstract class BcReadAbstract {
 
     if (index < indMin) return list
 
-    const userInfo = getDataObj(
-      contract, mapFunctionAddress,
-      [
+    const data: {[k: string]: any} = await this.read(
+      contract, mapFunctionAddress, [
         getNakedAddress(callerAddress),
         padLeft(new BigNumber(index).toString(16), 64)
       ])
-    const data: {[k: string]: any} = await this.ajaxReq.getEthCall(userInfo)
-
     const amount = await this.getAmountForElement(
       contract, amountFunctionAddress, callerAddress, data)
 
-    const cleanedAdd = '0x' + data.substring(data.length - 40)
-    const element = { address: cleanedAdd, amount: amount }
+    const address = '0x' + data.substring(data.length - 40)
+    const element = { address, amount }
     list.unshift(element)
     return this.getElementInList(
       contract, mapFunctionAddress,
@@ -223,10 +217,11 @@ for (const key in ListFunction) {
       // avoid unwanted infinite loops
       indMax = indMax || 0
       indMin = indMin || 0
-      const count = await this.getInfo(
-        this.contracts[1],
-        `0x${configList.count}`,
-        walletAddress)
+      const data = await this.read(
+        this.contracts[1], `0x${configList.count}`, [
+          getNakedAddress(walletAddress)
+        ])
+      const count = getNumber(data, 1.0)
       const list = []
       const index = Math.min(count - 1, indMax)
       return this.getElementInList(
