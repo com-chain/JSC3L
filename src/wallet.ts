@@ -122,14 +122,6 @@ export default abstract class MessagingWalletAbstract extends Wallet {
     })
   }
 
-  public validateEnrollment (id, signature) {
-    return this.ajaxReq.enrollPost({
-      id,
-      signature,
-      currency: this.currencyName,
-    })
-  }
-
   public enrollAddress (id, token) {
     return this.ajaxReq.enrollPost({
       id,
