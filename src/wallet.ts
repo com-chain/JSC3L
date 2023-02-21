@@ -128,7 +128,7 @@ export default abstract class MessagingWalletAbstract extends Wallet {
       token,
       currency: this.currencyName,
       // XXXvlab: Yes, typo is intentional here (in PHP API):
-      addresse: this.getAddressString(),
+      adresse: this.getAddressString(),
     })
   }
 
