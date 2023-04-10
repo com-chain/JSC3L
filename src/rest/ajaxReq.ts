@@ -3,7 +3,6 @@ class URL {
   static SERVER = 'api.php';
   static ENROLL = 'enroll.php';
   static TRANLIST = 'trnslist.php';
-  static TRANCHECK = 'api.php';
   static EXPORTTRAN = 'export.php';
   static GETCODE = 'getuid.php';
   static GETADDRESS = 'getadd.php';
@@ -69,10 +68,6 @@ export default abstract class AjaxReqAbstract {
     // so we need to unpack each entry a second time.
     const data = await this.endpoint.get(URL.TRANLIST, { addr: id, count, offset })
     return data.map((dataJSON) => JSON.parse(dataJSON))
-  }
-
-  getTransCheck (hash) {
-    return this.endpoint.get(URL.TRANCHECK, { hash })
   }
 
   async getExportTransList (id, start, end) {
