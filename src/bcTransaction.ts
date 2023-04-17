@@ -119,7 +119,7 @@ export function transactionFactory(transactionDefs: any[], bcTransactionClass: a
         if (hasDelegate) {
           additionalPostData.delegate = wallet.getAddressString()
         }
-        const rawTx = generateTx({
+        const rawSignedTx = generateTx({
           gasLimit: 500000,
           data: fnHash + concatArgs(args),
           to: this.contracts[contractNb],
@@ -131,8 +131,7 @@ export function transactionFactory(transactionDefs: any[], bcTransactionClass: a
           from: addr,
           key: wallet.getPrivateKeyString()
         }, data)
-        if (rawTx.isError) return rawTx
-        return this.ajaxReq.sendTx(rawTx.signedTx, additionalPostData)
+        return this.ajaxReq.sendTx(rawSignedTx, additionalPostData)
       }
     }
   })

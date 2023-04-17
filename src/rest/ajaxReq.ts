@@ -48,17 +48,7 @@ export default abstract class AjaxReqAbstract {
 
   getBalance (addr) { return this.post({ balance: addr }) }
   getTransactionData (addr) { return this.post({ txdata: addr }) }
-  async sendTx (rawTx, additionalData) {
-    const data: {[k: string]: any} =
-      await this.post(Object.assign({}, { rawtx: rawTx }, additionalData ?? {}))
-
-    return {
-      isError: !!data.error,
-      error: data.error ? data.data : data.msg
-    }
-  }
-
-
+  sendTx (rawTx, more) { return this.post({ rawtx: rawTx, ...(more ?? {}) }) }
   getEthCall (txobj) { return this.post({ ethCall: txobj }) }
 
   getEthCallAt (txobj, blockNb) {

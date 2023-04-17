@@ -24,32 +24,23 @@ function isTxDataValid (txData) {
 }
 
 export function generateTx (txData, data) {
-  try {
-    isTxDataValid(txData)
+  isTxDataValid(txData)
 
-    const rawTx: {[k: string]: any} = {
-      nonce: ethFuncs.sanitizeHex(data.nonce),
-      gasPrice: ethFuncs.sanitizeHex(
-        ethFuncs.addTinyMoreToGas(data.gasprice)),
-      gasLimit: ethFuncs.sanitizeHex(
-        ethFuncs.decimalToHex(txData.gasLimit)),
-      to: ethFuncs.sanitizeHex(txData.to),
-      value: ethFuncs.sanitizeHex(
-        ethFuncs.decimalToHex(etherUnits.toWei(txData.value, txData.unit))),
-      data: ethFuncs.sanitizeHex(txData.data)
-    }
-    const eTx = new Tx(rawTx)
-
-    eTx.sign(Buffer.from(txData.key, 'hex'))
-    rawTx.rawTx = JSON.stringify(rawTx)
-    rawTx.signedTx = '0x' + eTx.serialize().toString('hex')
-    rawTx.isError = false
-    return rawTx
-  } catch (e) {
-    return {
-      isError: true,
-      error: e
-    }
+  const rawTx: {[k: string]: any} = {
+    nonce: ethFuncs.sanitizeHex(data.nonce),
+    gasPrice: ethFuncs.sanitizeHex(
+      ethFuncs.addTinyMoreToGas(data.gasprice)),
+    gasLimit: ethFuncs.sanitizeHex(
+      ethFuncs.decimalToHex(txData.gasLimit)),
+    to: ethFuncs.sanitizeHex(txData.to),
+    value: ethFuncs.sanitizeHex(
+      ethFuncs.decimalToHex(etherUnits.toWei(txData.value, txData.unit))),
+    data: ethFuncs.sanitizeHex(txData.data)
   }
+  const eTx = new Tx(rawTx)
+
+  eTx.sign(Buffer.from(txData.key, 'hex'))
+  rawTx.rawTx = JSON.stringify(rawTx)
+  return '0x' + eTx.serialize().toString('hex')
 }
 
