@@ -120,7 +120,7 @@ abstract class AbstractJsc3l {
    */
   async getConfig (repo: string, currencyName: string) {
     const cfgJson = this.connection.getLocalConfJSON()
-    if (cfgJson && cfgJson.server.name === currencyName) {
+    if (cfgJson && cfgJson.server?.name === currencyName) {
       return cfgJson
     }
     return await this.connection.getConfJSON(currencyName, repo)
