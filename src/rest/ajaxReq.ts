@@ -1,4 +1,6 @@
 
+import { APIError } from '../exception'
+
 class URL {
   static SERVER = 'api.php';
   static ENROLL = 'enroll.php';
@@ -36,7 +38,8 @@ export default abstract class AjaxReqAbstract {
 
     this.endpoint.post(URL.SERVER, data).then(res => {
       if (res.error) {
-        reject(res)
+        reject(new APIError(res.msg, res.data))
+        return
       }
       resolve(res.data)
     })
