@@ -123,9 +123,13 @@ export default abstract class AjaxReqAbstract {
   currBlock () { return this.endpoint.get(URL.SERVER) }
 
   async getBlock (hash) {
+    return (await this.getTransactionInfo(hash)).transaction
+  }
+
+  async getTransactionInfo (hash) {
     let res = await this.endpoint.get(URL.SERVER, { hash })
     if (res && typeof res !== 'object') {
-      res = JSON.parse(res).transaction
+      res = JSON.parse(res)
     }
     return res
   }
