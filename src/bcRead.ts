@@ -68,6 +68,50 @@ function decodeData (abiType: string, data: string): any {
   }
 }
 
+/* @skip-prod-transpilation */
+if (import.meta.vitest) {
+  const { it, expect, describe } = import.meta.vitest
+  describe('decode amounts', () => {
+    it('should decode "0x00...0001" to "0.01"', () => {
+      expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000000000000001'))
+        .toBe('0.01')
+    });
+    it('should decode "0x00...0010" to "0.16"', () => {
+      expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000000000000010'))
+        .toBe('0.16')
+    });
+    it('should decode "0x00...1000" to "40.96"', () => {
+      expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000000000001000'))
+        .toBe('40.96')
+    });
+    it('should decode 0x00...01_0000_0000_0001 to "0.01" (ignore bytes > 6)', () => {
+      expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000001000000000001'))
+        .toBe('0.01')
+    });
+    it('should decode 0x00...00_8000_0000_0000 to "1407374883553.28" (max positive number)', () => {
+      expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000800000000000'))
+        .toBe('1407374883553.28')
+    });
+    it('should decode 0x00...00_8000_0000_0001 to "-1407374883553.27" (max negative number)', () => {
+      expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000800000000001'))
+        .toBe('-1407374883553.27')
+    });
+    it('should decode 0x00...00_8fffffffffff to "-0.01" (max negative number)', () => {
+      expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000ffffffffffff'))
+        .toBe('-0.01')
+    });
+  });
+  describe('decode strings', () => {
+    it('should decode "0x00...020_0...0_" to "2.0" (enforce 2 digit after floating point)', () => {
+      expect(decodeData(
+        'string', '0x' +
+          '0000000000000000000000000000000000000000000000000000000000000020' + // data location
+          '0000000000000000000000000000000000000000000000000000000000000003' + // data length
+          '322e300000000000000000000000000000000000000000000000000000000000'   // actual string
+      )).toBe('2.0')
+    })
+  })
+}
 
 export default abstract class BcReadAbstract {
 

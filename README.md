@@ -41,5 +41,15 @@ javascript and transpile on file change with:
 
    ```shell
    ## Compile and watch
-   npx tsc -w
+   npx tspc -w
    ```
+
+Tests are managed through `vitest`
+
+   ```shell
+   ## Run test once
+   npm run test
+   ```
+
+Note that you can also use `npx vitest` command to launch tests in
+watch mode.
