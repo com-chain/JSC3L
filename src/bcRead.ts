@@ -39,7 +39,6 @@ function decodeData (abiType: string, data: string): any {
       }
       const dataLength = dataBuffer.readUIntBE(dataLocation, 32)
       const expectedLength = Math.ceil((dataLocation + 32 + dataLength) / 32) * 32
-      console.log("expected:", expectedLength)
       if (dataBuffer.length !== expectedLength) {
         throw new Error(
           'Invalid data provided while decoding string: ' +
@@ -62,11 +61,15 @@ function decodeData (abiType: string, data: string): any {
       let data_str = data_int.toString().padStart(3, "0")
       return `${sign}${data_str.slice(0,-2)}.${data_str.slice(-2)}`
     case 'number':
+      // Using only 6 bytes, ignoring any upper bytes, this ensures
+      // javascript Number type is enough. What is decoded is signed
+      // int.
+
       const shortData = '0x' + data.slice(-12)
       let a = parseInt(shortData, 16)
 
-      if (a > (34359738368 * 4096)) {
-        a -= 68719476736 * 4096
+      if (a > 0x8000_0000_0000) {
+        a -= 0x1_0000_0000_0000
       }
 
       return a
