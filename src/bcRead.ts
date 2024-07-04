@@ -51,7 +51,16 @@ function decodeData (abiType: string, data: string): any {
     case 'uint256':
       return uintData
     case 'number/100':
-      return (decodeData('number', data) / 100.0).toString()
+      // Avoid passing through float and division by 100 to ensure format X...X.YY
+      let data_int = decodeData('number', data)
+      let sign = ""
+      if (data_int < 0) {
+        data_int = -data_int
+        sign = "-"
+      }
+      // garanteed >3 sized string representing uint
+      let data_str = data_int.toString().padStart(3, "0")
+      return `${sign}${data_str.slice(0,-2)}.${data_str.slice(-2)}`
     case 'number':
       const shortData = '0x' + data.slice(-12)
       let a = parseInt(shortData, 16)
@@ -72,6 +81,10 @@ function decodeData (abiType: string, data: string): any {
 if (import.meta.vitest) {
   const { it, expect, describe } = import.meta.vitest
   describe('decode amounts', () => {
+    it('should decode "0x00...0000" to "0.00" (enforce full presence of digit and floating point)', () => {
+      expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000000000000000'))
+        .toBe('0.00')
+    });
     it('should decode "0x00...0001" to "0.01"', () => {
       expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000000000000001'))
         .toBe('0.01')
@@ -99,6 +112,10 @@ if (import.meta.vitest) {
     it('should decode 0x00...00_8fffffffffff to "-0.01" (max negative number)', () => {
       expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000ffffffffffff'))
         .toBe('-0.01')
+    });
+    it('should decode "0x00...019a" to "4.10" (enforce 2 digit after floating point)', () => {
+      expect(decodeData('number/100', '0x000000000000000000000000000000000000000000000000000000000000019a'))
+        .toBe('4.10')
     });
   });
   describe('decode strings', () => {
