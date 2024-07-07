@@ -71,3 +71,44 @@ export function encodeNumber (number) {
 
   return valueHex
 }
+
+
+/* @skip-prod-transpilation */
+if (import.meta.vitest) {
+  const { it, expect, describe } = import.meta.vitest
+  describe('encodeNumber', () => {
+    it('should encode 0 to "00...0000"', () => {
+      expect(encodeNumber(0)).toBe('0000000000000000000000000000000000000000000000000000000000000000')
+    })
+    it('should encode 1 to "00...0001"', () => {
+      expect(encodeNumber(1)).toBe('0000000000000000000000000000000000000000000000000000000000000001')
+    })
+    it('should encode 16 to "00...0010"', () => {
+      expect(encodeNumber(16)).toBe('0000000000000000000000000000000000000000000000000000000000000010')
+    })
+    it('should encode 0x1f_ffff_ffff_ffff to "00...ffff_ffff_ffff"', () => {
+      expect(encodeNumber(0x1f_ffff_ffff_ffff)).toBe('000000000000000000000000000000000000000000000000001fffffffffffff')
+    })
+
+    it('should encode -1 to "ff...ffff"', () => {
+      expect(encodeNumber(-1)).toBe('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
+    })
+    it('should encode -0xf to "ff...fff1"', () => {
+      expect(encodeNumber(-0xf)).toBe('fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1')
+    })
+    it('should encode -0x10 to "ff...fff0"', () => {
+      expect(encodeNumber(-0x10)).toBe('fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0')
+    })
+    it('should encode -0x1f_ffff_ffff_fffff to "ff...e0000000000001"', () => {
+      expect(encodeNumber(-0x1f_ffff_ffff_ffff)).toBe('ffffffffffffffffffffffffffffffffffffffffffffffffffe0000000000001')
+    })
+
+    it('should refuse to encode 0x1ff_ffff_ffff_ffff', () => {
+      expect(() => encodeNumber(0x20_0000_0000_0000)).toThrowError('number type')
+    })
+    it('should refuse to encode -0x20_0000_0000_0000', () => {
+      expect(() => encodeNumber(-0x20_0000_0000_0000)).toThrowError('number type')
+    })
+
+  })
+}
