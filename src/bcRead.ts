@@ -143,15 +143,6 @@ export default abstract class BcReadAbstract {
   // Get Global infos: Tax destinary Account
   getTaxAccount () { return this.read(this.contracts[0], '0x4f2eabe0') }
 
-  // Get Historical infos infos: Global balance
-  async getHistoricalGlobalBalance (walletAddress, blockNb) {
-    const data = await this.read(
-      this.contracts[0], '0x70a08231', [
-        getNakedAddress(walletAddress)
-      ], blockNb)
-    return decodeData('number/100', data)
-  }
-
   async getVersion () {
     const data = await this.read(this.contracts[0], '0x54fd4d50')
     return decodeData('string', data as string)
@@ -161,19 +152,19 @@ export default abstract class BcReadAbstract {
   // //////////////////////////////////////////////////////////////////////////
   // Generic read function
 
-  async getAmount (address, walletAddress) {
+  async getAmount (address, walletAddress, blockNb) {
     const data = await this.read(
       this.contracts[0], address, [
         getNakedAddress(walletAddress)
-      ])
+      ], blockNb)
     return decodeData('number/100', data)
   }
 
-  async getAccInfo (address, walletAddress) {
+  async getAccInfo (address, walletAddress, blockNb) {
     const data = await this.read(
       this.contracts[0], address, [
         getNakedAddress(walletAddress)
-      ])
+      ], blockNb)
     return decodeData('number', data)
   }
 
@@ -257,8 +248,8 @@ const fnHashes = [
 fnHashes.forEach(({ fn, hashes }) => {
   for (const fnName in hashes) {
     const fnHash = hashes[fnName]
-    BcReadAbstract.prototype[fnName] = function (walletAddress) {
-      return this[fn](fnHash, walletAddress)
+    BcReadAbstract.prototype[fnName] = function (walletAddress, blockNb) {
+      return this[fn](fnHash, walletAddress, blockNb)
     }
   }
 })
