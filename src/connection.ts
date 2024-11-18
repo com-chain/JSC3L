@@ -2,6 +2,9 @@ import * as config from './config'
 import HttpAbstract from './rest/http'
 import * as t from './type'
 
+const wait = async (ms: number): Promise<void> => {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
 
 abstract class ConnectionAbstract {
 
@@ -36,7 +39,27 @@ abstract class ConnectionAbstract {
   public async acquireEndPoint (repo: string) {
     const apiNodes = await this.getCCEndPointList(repo)
     if (!apiNodes) return false
-    const endpoint = await this.selectEndPoint(apiNodes)
+    let endpoint: boolean | string = false
+    let retry = 10
+    let count = 0
+    console.log(`Pick first endpoint that pass checkdb test`)
+    while (!endpoint) {
+      if (count >= 1) {
+        await wait(200)
+        console.log(`No endpoints passed the checkdb test... retry (${count}/${retry})`)
+      }
+      endpoint = await this.selectEndPoint([...apiNodes])
+      count++
+      if (count >= retry) {
+        break
+      }
+    }
+    if (typeof endpoint === 'string') {
+      console.log(`  endpoint ${endpoint} %cpassed%c the checkdb test`,
+                  'color: #0b0;', 'color: none')
+    } else {
+      console.log(`Failed to find a functional endpoint passing checkdb.`)
+    }
     return { apiNodes, endpoint }
   }
 
@@ -66,6 +89,7 @@ abstract class ConnectionAbstract {
       // check the node is up and running
       const success = await this.testNode(node)
       if (success) return node
+      console.log(`  endpoint ${node} %cfailed%c the checkdb test`, 'color: #b00;', 'color:none')
       nodes.splice(id, 1)
     }
     return false
