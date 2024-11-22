@@ -41,7 +41,7 @@ abstract class ConnectionAbstract {
     const apiNodes = await this.getCCEndPointList(repo)
     if (!apiNodes) return false
     let endpoint: boolean | string = false
-    let retry = 10
+    let retry = 30
     let count = 0
     console.log(`Pick first endpoint that pass checkdb test`)
     while (!endpoint) {
