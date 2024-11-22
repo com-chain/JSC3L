@@ -192,9 +192,14 @@ abstract class AbstractJsc3l {
         this._getCurrencyMgr(currencyName, endpointUrl, repoUrl, transactionDefs)
     }
 
-    return await this._currencyMgrPromises[key]
-  }
+    try {
+      return await this._currencyMgrPromises[key]
+    } catch(e) {
+      delete this._currencyMgrPromises[key]
+      throw e
+    }
 
+  }
 
   async _getCurrencyMgr (currencyName: string,
                          endpointUrl?: string,
