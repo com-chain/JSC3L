@@ -1,6 +1,7 @@
 import * as config from './config'
 import HttpAbstract from './rest/http'
 import * as t from './type'
+import * as e from './exception'
 
 const wait = async (ms: number): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -218,7 +219,7 @@ export default abstract class ConnectionMgrAbstract extends ConnectionAbstract {
     }
     const { apiNodes, endpoint } = apiNodesEndpoint
     if (typeof endpoint !== 'string') {
-      throw new Error('No endpoint in list seems available.')
+      throw new e.NoEndpointAvailable('No endpoint in list seems available.')
     }
 
     this.persistentStore.set('ApiNodes', JSON.stringify(apiNodes))

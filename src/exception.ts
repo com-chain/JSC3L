@@ -7,4 +7,10 @@ export class APIError extends Error {
   }
 }
 
-
+export class NoEndpointAvailable extends Error {
+  data: string
+  constructor (message) {
+    super(message)
+    this.name = 'NoEndpointAvailable'
+  }
+}
