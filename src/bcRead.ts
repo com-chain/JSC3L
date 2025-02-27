@@ -108,11 +108,11 @@ if (import.meta.vitest) {
       expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000800000000000'))
         .toBe('1407374883553.28')
     });
-    it('should decode 0x00...00_8000_0000_0001 to "-1407374883553.27" (max negative number)', () => {
+    it('should decode 0x00...00_8000_0000_0001 to "-1407374883553.27" (lowest negative number)', () => {
       expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000800000000001'))
         .toBe('-1407374883553.27')
     });
-    it('should decode 0x00...00_8fffffffffff to "-0.01" (max negative number)', () => {
+    it('should decode 0x00...00_ffff_ffff_ffff to "-0.01" (max negative number)', () => {
       expect(decodeData('number/100', '0x0000000000000000000000000000000000000000000000000000ffffffffffff'))
         .toBe('-0.01')
     });
@@ -122,7 +122,7 @@ if (import.meta.vitest) {
     });
   });
   describe('decode strings', () => {
-    it('should decode "0x00...020_0...0_" to "2.0" (enforce 2 digit after floating point)', () => {
+    it('should decode "0x00...020_0...0_" to "2.0"', () => {
       expect(decodeData(
         'string', '0x' +
           '0000000000000000000000000000000000000000000000000000000000000020' + // data location

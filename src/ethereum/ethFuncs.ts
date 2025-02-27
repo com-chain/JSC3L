@@ -86,7 +86,7 @@ if (import.meta.vitest) {
     it('should encode 16 to "00...0010"', () => {
       expect(encodeNumber(16)).toBe('0000000000000000000000000000000000000000000000000000000000000010')
     })
-    it('should encode 0x1f_ffff_ffff_ffff to "00...ffff_ffff_ffff"', () => {
+    it('should encode 0x1f_ffff_ffff_ffff to "00...001f_ffff_ffff_ffff"', () => {
       expect(encodeNumber(0x1f_ffff_ffff_ffff)).toBe('000000000000000000000000000000000000000000000000001fffffffffffff')
     })
 
@@ -99,11 +99,11 @@ if (import.meta.vitest) {
     it('should encode -0x10 to "ff...fff0"', () => {
       expect(encodeNumber(-0x10)).toBe('fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff0')
     })
-    it('should encode -0x1f_ffff_ffff_fffff to "ff...e0000000000001"', () => {
+    it('should encode -0x1f_ffff_ffff_fffff to "ff...ffe0_0000_0000_0001"', () => {
       expect(encodeNumber(-0x1f_ffff_ffff_ffff)).toBe('ffffffffffffffffffffffffffffffffffffffffffffffffffe0000000000001')
     })
 
-    it('should refuse to encode 0x1ff_ffff_ffff_ffff', () => {
+    it('should refuse to encode 0x20_0000_0000_0000', () => {
       expect(() => encodeNumber(0x20_0000_0000_0000)).toThrowError('number type')
     })
     it('should refuse to encode -0x20_0000_0000_0000', () => {
