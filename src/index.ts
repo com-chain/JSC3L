@@ -5,6 +5,7 @@ import * as qr from './qr'
 // Only required for blockie helper
 import blockies from './blockies'
 import Wallet from './ethereum/myetherwallet'
+import * as utils from './utils'
 
 import * as t from './type'
 
@@ -47,7 +48,7 @@ abstract class AbstractJsc3l {
   _Endpoint: new (baseUrl: any) => EndpointAbstract
   _connection: null | ConnectionMgrAbstract
   _http: null | HttpAbstract
-
+  utils = utils
 
   constructor (localDefaultConf?, defaultTransactionDefs?) {
     this.localDefaultConf = localDefaultConf || {}

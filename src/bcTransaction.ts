@@ -2,7 +2,7 @@
 import { getNakedAddress, padLeft, encodeNumber } from './ethereum/ethFuncs'
 import { generateTx } from './ethereum/uiFuncs'
 import AjaxReq from './rest/ajaxReq'
-
+import * as utils from './utils'
 
 function roundCent (strAmount:string) {
   return Math.round(100 * parseFloat(strAmount))
@@ -41,41 +41,21 @@ export abstract class BcTransactionAbstract {
   //  CM VS Nant Handling
 
   static getSplitting (nantBal, cmBal, cmSrcMin, amount) {
+    console.warn("Obsolete usage of `BcTransactionAbstract.getSplitting()'," +
+                 " prefer `jsc3l.utils.getSplitting()'")
     cmBal = parseFloat(cmBal)
     nantBal = parseFloat(nantBal)
     amount = parseFloat(amount)
     cmSrcMin = parseFloat(cmSrcMin)
 
-    let split = {possible: true, nant: 0, cm: 0}
-
-    if (cmBal >= 0) {
-      if (cmBal >= amount) {
-        split.cm += amount
-        return split
-      }
-      split.cm = cmBal
-      amount -= cmBal
-      cmBal = 0
+    try {
+      let {nant, cm} = utils.getSplitting(nantBal, cmBal, cmSrcMin, amount)
+      return { possible: true, nant, cm}
+    } catch(e: any) {
+      return { possible: false}
     }
-
-    if (nantBal >= amount) {
-      split.nant += amount
-      return split
-    }
-
-    split.nant = nantBal
-    amount -= nantBal
-
-    if ((cmBal - cmSrcMin) >= amount) {
-      split.cm += amount
-      return split
-    }
-    split.possible = false
-    return split
   }
   getSplitting = BcTransactionAbstract.getSplitting
-
-  // //////////////////////////////////////////////////////////////////////////
 
 }
 
