@@ -40,42 +40,43 @@ export abstract class BcTransactionAbstract {
   // //////////////////////////////////////////////////////////////////////////
   //  CM VS Nant Handling
 
-  static getSplitting (nantVal, cmVal, cmMinusLim, amount) {
-    cmVal = parseFloat(cmVal)
-    nantVal = parseFloat(nantVal)
+  static getSplitting (nantBal, cmBal, cmSrcMin, amount) {
+    cmBal = parseFloat(cmBal)
+    nantBal = parseFloat(nantBal)
+    amount = parseFloat(amount)
+    cmSrcMin = parseFloat(cmSrcMin)
+
     let nant = 0
     let cm = 0
 
-    let res = parseFloat(amount)
-    if (cmVal > 0) {
-      if (cmVal >= res) {
-        cm = res
-        res = 0
+    if (cmBal > 0) {
+      if (cmBal >= amount) {
+        cm = amount
+        amount = 0
       } else {
-        cm = cmVal
-        res = res - cmVal
-        cmVal = 0
+        cm = cmBal
+        amount -= cmBal
+        cmBal = 0
       }
     }
 
-    if (nantVal > 0) {
-      if (nantVal >= res) {
-        nant = res
-        res = 0
+    if (nantBal > 0) {
+      if (nantBal >= amount) {
+        nant = amount
+        amount = 0
       } else {
-        nant = nantVal
-        res = res - nantVal
-        // nantVal=0;
+        nant = nantBal
+        amount -= nantBal
       }
     }
 
-    if (res > 0 && cmVal - parseFloat(cmMinusLim) >= res) {
-      cm = cm + res
-      res = 0
+    if (amount > 0 && cmBal - cmSrcMin >= amount) {
+      cm += amount
+      amount = 0
     }
 
-    const possible = res === 0
-    return { possible: possible, nant: nant, cm: cm }
+    const possible = amount === 0
+    return { possible, nant, cm }
   }
   getSplitting = BcTransactionAbstract.getSplitting
 
