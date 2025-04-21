@@ -40,7 +40,7 @@ export abstract class BcTransactionAbstract {
   // //////////////////////////////////////////////////////////////////////////
   //  CM VS Nant Handling
 
-  getSplitting (nantVal, cmVal, cmMinusLim, amount) {
+  static getSplitting (nantVal, cmVal, cmMinusLim, amount) {
     cmVal = parseFloat(cmVal)
     nantVal = parseFloat(nantVal)
     let nant = 0
@@ -77,11 +77,83 @@ export abstract class BcTransactionAbstract {
     const possible = res === 0
     return { possible: possible, nant: nant, cm: cm }
   }
+  getSplitting = BcTransactionAbstract.getSplitting
 
   // //////////////////////////////////////////////////////////////////////////
 
 }
 
+/* @skip-prod-transpilation */
+if (import.meta.vitest) {
+  const { it, expect, describe } = import.meta.vitest
+  describe('split', () => {
+    it('should split 0 to cm: 0, nant: 0', () => {
+      expect(BcTransactionAbstract.getSplitting(0, 0, 0, 0))
+        .toStrictEqual({ possible: true, nant: 0, cm: 0})
+    });
+    it('should NOT split 1 with no funds', () => {
+      expect(BcTransactionAbstract.getSplitting(0, 0, 0, 1).possible)
+        .toBe(false)
+    });
+    // Only Cm
+    it('should split 1 to cm: 1, nant: 0 with bal cm: 2, nant: 0', () => {
+      expect(BcTransactionAbstract.getSplitting(0, 2, 0, 1))
+        .toStrictEqual({ possible: true, nant: 0, cm: 1})
+    });
+    it('should split 2 to cm: 2, nant: 0 with bal cm: 2, nant: 0', () => {
+      expect(BcTransactionAbstract.getSplitting(0, 2, 0, 2))
+        .toStrictEqual({ possible: true, nant: 0, cm: 2})
+    });
+    it('should NOT split 3 with bal cm: 2, nant: 0', () => {
+      expect(BcTransactionAbstract.getSplitting(0, 2, 0, 3).possible)
+        .toBe(false)
+    });
+    // Only Nant
+    it('should split 1 to cm: 0, nant: 1 with bal cm: 0, nant: 2', () => {
+      expect(BcTransactionAbstract.getSplitting(2, 0, 0, 1))
+        .toStrictEqual({ possible: true, nant: 1, cm: 0})
+    });
+    it('should split 2 to cm: 0, nant: 2 with bal cm: 0, nant: 2', () => {
+      expect(BcTransactionAbstract.getSplitting(2, 0, 0, 2))
+        .toStrictEqual({ possible: true, nant: 2, cm: 0})
+    });
+    it('should NOT split 3 with bal cm: 0, nant: 2', () => {
+      expect(BcTransactionAbstract.getSplitting(2, 0, 0, 3).possible)
+        .toBe(false)
+    });
+    // Both Nant and Cm
+    it('should split 2 to cm: 1, nant: 1 with bal cm: 1, nant: 1', () => {
+      expect(BcTransactionAbstract.getSplitting(1, 1, 0, 2))
+        .toStrictEqual({ possible: true, nant: 1, cm: 1})
+    });
+    it('should split 2 to cm: 0, nant: 2 with bal cm: 0, nant: 2 (limSrcCm: -2)', () => {
+      expect(BcTransactionAbstract.getSplitting(2, 0, -2, 2))
+        .toStrictEqual({ possible: true, nant: 2, cm: 0})
+    });
+    it('should split 2 to cm: 1, nant: 1 with bal cm: 0, nant: 1 (limSrcCm: -1)', () => {
+      expect(BcTransactionAbstract.getSplitting(1, 0, -1, 2))
+        .toStrictEqual({ possible: true, nant: 1, cm: 1})
+    });
+    it('should NOT split 3 with bal cm: 0, nant: 1 (limSrcCm: -1)', () => {
+      expect(BcTransactionAbstract.getSplitting(1, 0, -1, 3).possible)
+        .toBe(false)
+    });
+    it('should split 3 to cm: 2, nant: 1 with bal cm: 1, nant: 1 (limSrcCm: -1)', () => {
+      expect(BcTransactionAbstract.getSplitting(1, 1, -1, 3))
+        .toStrictEqual({ possible: true, nant: 1, cm: 2})
+    });
+    // Negative cm bal and limSrcCm
+    it('should split 1 to cm: -1, nant: 0 with bal cm: -1, nant: 0 (limSrcCm: -2)', () => {
+      expect(BcTransactionAbstract.getSplitting(0, -1, -2, 1))
+        .toStrictEqual({ possible: true, nant: 0, cm: 1})
+    });
+    it('should NOT split 2 with bal cm: -1, nant: 0 (limSrcCm: -2)', () => {
+      expect(BcTransactionAbstract.getSplitting(0, -1, -2, 2).possible)
+        .toBe(false)
+    });
+
+  });
+}
 
 export function transactionFactory(transactionDefs: any[], bcTransactionClass: any) {
 
