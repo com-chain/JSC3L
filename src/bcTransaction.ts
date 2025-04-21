@@ -46,37 +46,32 @@ export abstract class BcTransactionAbstract {
     amount = parseFloat(amount)
     cmSrcMin = parseFloat(cmSrcMin)
 
-    let nant = 0
-    let cm = 0
+    let split = {possible: true, nant: 0, cm: 0}
 
-    if (cmBal > 0) {
+    if (cmBal >= 0) {
       if (cmBal >= amount) {
-        cm = amount
-        amount = 0
-      } else {
-        cm = cmBal
-        amount -= cmBal
-        cmBal = 0
+        split.cm += amount
+        return split
       }
+      split.cm = cmBal
+      amount -= cmBal
+      cmBal = 0
     }
 
-    if (nantBal > 0) {
-      if (nantBal >= amount) {
-        nant = amount
-        amount = 0
-      } else {
-        nant = nantBal
-        amount -= nantBal
-      }
+    if (nantBal >= amount) {
+      split.nant += amount
+      return split
     }
 
-    if (amount > 0 && cmBal - cmSrcMin >= amount) {
-      cm += amount
-      amount = 0
-    }
+    split.nant = nantBal
+    amount -= nantBal
 
-    const possible = amount === 0
-    return { possible, nant, cm }
+    if ((cmBal - cmSrcMin) >= amount) {
+      split.cm += amount
+      return split
+    }
+    split.possible = false
+    return split
   }
   getSplitting = BcTransactionAbstract.getSplitting
 
