@@ -49,7 +49,7 @@ export abstract class BcTransactionAbstract {
     cmSrcMin = parseFloat(cmSrcMin)
 
     try {
-      let {nant, cm} = utils.getSplitting(nantBal, cmBal, cmSrcMin, amount)
+      let {nant, cm} = utils.getSplitting(amount, { cm: cmBal, nant: nantBal}, cmSrcMin)
       return { possible: true, nant, cm}
     } catch(e: any) {
       return { possible: false}
