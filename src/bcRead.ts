@@ -185,18 +185,20 @@ export default abstract class BcReadAbstract {
   }
 
   async getAmountForElement (
-    contract, functionAddress, callerAddress, elementAddress) {
+    contract, functionAddress, callerAddress, elementAddress,
+              blockNb: string | number = 'pending') {
     const data = await this.read(
       contract, functionAddress, [
         getNakedAddress(callerAddress),
         getNakedAddress(elementAddress)
-      ])
+      ], blockNb)
     return decodeData('number/100', data)
   }
 
   async getElementInList (
     contract, mapFunctionAddress, amountFunctionAddress,
-    callerAddress, index, list, indMin) {
+    callerAddress, index, list, indMin,
+              blockNb: string | number = 'pending') {
 
     if (index < indMin) return list
 
@@ -204,9 +206,11 @@ export default abstract class BcReadAbstract {
       contract, mapFunctionAddress, [
         getNakedAddress(callerAddress),
         padLeft(new BigNumber(index).toString(16), 64)
-      ])
+      ],
+    blockNb)
     const amount = await this.getAmountForElement(
-      contract, amountFunctionAddress, callerAddress, data)
+      contract, amountFunctionAddress, callerAddress, data,
+    blockNb)
 
     const address = '0x' + data.substring(data.length - 40)
     const element = { address, amount }
@@ -214,7 +218,8 @@ export default abstract class BcReadAbstract {
     return this.getElementInList(
       contract, mapFunctionAddress,
       amountFunctionAddress, callerAddress, index - 1, list,
-      indMin)
+      indMin,
+    blockNb)
   }
 
 }
@@ -273,7 +278,7 @@ const ListFunction = {
 for (const key in ListFunction) {
   const configList = ListFunction[key]
   BcReadAbstract.prototype[`get${key}List`] =
-    async function (walletAddress, indMin, indMax) {
+    async function (walletAddress, indMin, indMax, blockNb: string | number = 'pending') {
       // Simple protection against ill inputs on indMin and indMax and to
       // avoid unwanted infinite loops
       indMax = indMax || 0
@@ -281,7 +286,8 @@ for (const key in ListFunction) {
       const data = await this.read(
         this.contracts[1], `0x${configList.count}`, [
           getNakedAddress(walletAddress)
-        ])
+        ],
+      blockNb)
       const count = decodeData('number', data)
       const list = []
       const index = Math.min(count - 1, indMax)
@@ -292,7 +298,8 @@ for (const key in ListFunction) {
         walletAddress,
         index,
         list,
-        indMin)
+        indMin,
+      blockNb)
     }
 }
 
