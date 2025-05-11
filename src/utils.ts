@@ -31,7 +31,7 @@ export let getSplitting = function (amount, bals, cmSrcMin, cmSpendMax = null) {
   const zero = amount - amount  // Required for agnosticity
 
   const split = { nant: zero, cm: zero }
-  let cmPosSpendMax = cmSpendMax !== null ? min(bals.cm, cmSpendMax) : bals.cm
+  const cmPosSpendMax = cmSpendMax !== null ? min(bals.cm, cmSpendMax) : bals.cm
 
   if (cmPosSpendMax >= 0) {
     if (cmPosSpendMax >= amount) {
@@ -54,8 +54,8 @@ export let getSplitting = function (amount, bals, cmSrcMin, cmSpendMax = null) {
   split.nant = bals.nant
   amount -= bals.nant
 
-  let cmNegAvailable = (bals.cm - cmSrcMin)
-  let cmNegSpendMax = cmSpendMax !== null ? min(cmNegAvailable, cmSpendMax) : cmNegAvailable
+  let cmNegAvailable = bals.cm - cmSrcMin
+  const cmNegSpendMax = cmSpendMax !== null ? min(cmNegAvailable, cmSpendMax) : cmNegAvailable
   if (cmNegSpendMax >= amount) {
     split.cm += amount
     return split
