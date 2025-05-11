@@ -7,16 +7,20 @@ export class SplitError extends Error {
 
 
 export class InsufficientBalanceError extends SplitError {
-  constructor (message) {
+  missingAmount: number
+  constructor (message, missingAmount) {
     super(message)
     this.name = 'InsufficientBalanceError'
+    this.missingAmount = missingAmount
   }
 }
 
 export class CmSpendLimitError extends SplitError {
-  constructor (message) {
+  missingAmount: number
+  constructor (message, missingAmount) {
     super(message)
     this.name = 'CmSpendLimitError'
+    this.missingAmount = missingAmount
   }
 }
 
@@ -69,10 +73,16 @@ export let getSplitting = function (amount, bals, cmSrcMin, cmSpendMax = null) {
 
   cmNegAvailable = (bals.cm - cmSrcMin)
   if (cmNegAvailable >= amount && cmSpendMax == 0) {
-    throw new CmSpendLimitError(`Cm spend limit preventing to complete amount (remaining: ${amount}).`)
+    throw new CmSpendLimitError(
+      `Cm spend limit preventing to complete amount (remaining: ${amount}).`,
+      amount
+    )
   }
 
-  throw new InsufficientBalanceError(`Missing ${amount - cmNegAvailable} to complete amount`)
+  throw new InsufficientBalanceError(
+    `Missing ${amount - cmNegAvailable} to complete amount`,
+    amount - cmNegAvailable
+  )
 }
 
 
