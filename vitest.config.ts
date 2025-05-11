@@ -6,6 +6,8 @@ const cfg =  defineConfig({
     include: ['src/**/*.{js,ts}'],
     setupFiles: ['./tests/setup.ts'],
     environment: 'jsdom',
+    passWithNoTests: true,
+    bail: 1,
   },
 })
 

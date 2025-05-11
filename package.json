@@ -4,7 +4,7 @@
   "description": "JavaScript Com-Chain Communication Library",
   "main": "build/index.js",
   "scripts": {
-    "test": "vitest run --passWithNoTests --bail 1",
+    "test": "vitest run",
     "build": "tsc",
     "watch": "tsc -w"
   },
