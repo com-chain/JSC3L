@@ -1,3 +1,4 @@
+import { ttlcache } from '../cache'
 
 import { APIError } from '../exception'
 
@@ -50,7 +51,6 @@ export default abstract class AjaxReqAbstract {
           throw new Error("Unexpected value")
         }
         if (cmpEthCallAt(data, req.data)) {
-          console.log("dedup")
           return postPromises.get(req.data)
         }
         break
@@ -58,7 +58,6 @@ export default abstract class AjaxReqAbstract {
       if (req.data.hasOwnProperty("batch")) {
         for (const reqData of req.data.batch) {
           if (cmpEthCallAt(data, reqData)) {
-            console.log("dedup")
             return postPromises.get(reqData)
           }
         }
@@ -118,7 +117,6 @@ export default abstract class AjaxReqAbstract {
             ethCall: x.ethCallAt,
             blockNb: x.blockNb,
           }))
-          console.log(`  Sending batch of ${data.batch.length} queries`)
         }
         const res = await this.endpoint.post(URL.SERVER, data)
         if (res.error) {
@@ -216,6 +214,7 @@ export default abstract class AjaxReqAbstract {
     return this.endpoint.post(URL.requestMessages, { data, sign })
   }
 
+  @ttlcache({ttl: 5})
   currBlock () { return this.endpoint.get(URL.SERVER) }
 
   async getBlock (hash) {

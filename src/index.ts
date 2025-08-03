@@ -1,3 +1,4 @@
+import { singleton } from './cache'
 import * as ethFuncs from './ethereum/ethFuncs'  // Utilities to pass on
 import * as memo from './memo'
 import * as qr from './qr'
@@ -45,9 +46,6 @@ abstract class AbstractJsc3l {
 
   endpoint: string
 
-  _Endpoint: new (baseUrl: any) => EndpointAbstract
-  _connection: null | ConnectionMgrAbstract
-  _http: null | HttpAbstract
   utils = utils
 
   constructor (localDefaultConf?, defaultTransactionDefs?) {
@@ -59,16 +57,14 @@ abstract class AbstractJsc3l {
    * `connection` facility needs to be lazy loaded as `this` and
    * abstract `httpRequest` is not available in constructor.
    */
+  @singleton
   get connection () {
-    if (!this._connection) {
-      const self = this
-      class ConnectionMgr extends ConnectionMgrAbstract {
-        http = self.http
-        persistentStore = self.persistentStore
-      }
-      this._connection = new ConnectionMgr()
+    const self = this
+    class ConnectionMgr extends ConnectionMgrAbstract {
+      http = self.http
+      persistentStore = self.persistentStore
     }
-    return this._connection
+    return new ConnectionMgr()
   }
 
   /**
@@ -76,36 +72,30 @@ abstract class AbstractJsc3l {
    * `this` and abstract `httpRequest` is not available in
    * constructor.
    */
+  @singleton
   get Endpoint () {
-    if (!this._Endpoint) {
-      const self = this
-      class Endpoint extends EndpointAbstract {
-        httpRequest = self.httpRequest
-      }
-      this._Endpoint = Endpoint
+    const self = this
+    class Endpoint extends EndpointAbstract {
+      httpRequest = self.httpRequest
     }
-    return this._Endpoint
+    return Endpoint
   }
 
   /**
    * 'http' facility needs to be lazy loaded as 'this' and abstract
    * httpRequest is not available in constructor.
    */
+  @singleton
   get http () {
-    if (!this._http) {
-      const self = this
-      // ConnectionMgr
-
-      class Http extends HttpAbstract {
-        httpRequest = self.httpRequest
-      }
-      this._http = new Http()
+    const self = this
+    class Http extends HttpAbstract {
+      httpRequest = self.httpRequest
     }
-    return this._http
+    return new Http()
   }
 
 
-
+  @singleton
   getAjaxReq (endpointUrl: string): AjaxReqAbstract {
     const self = this
     class AjaxReq extends AjaxReqAbstract {
@@ -133,6 +123,7 @@ abstract class AbstractJsc3l {
    * given currency, otherwise will use the given repo to fetch
    * it (and save it in persistent storage).
    */
+  @singleton
   getCustomization (config: any): CustomizationAbstract {
     class Customization extends CustomizationAbstract {
       cfg = config
@@ -140,7 +131,7 @@ abstract class AbstractJsc3l {
     return new Customization(this.localDefaultConf)
   }
 
-
+  @singleton
   getWallet (
     endpointUrl: string,
     currencyName: string,
@@ -156,7 +147,7 @@ abstract class AbstractJsc3l {
     return MessagingWallet
   }
 
-
+  @singleton
   getBcRead (endpointUrl, contracts): BcReadAbstract {
     const self = this
     class BcRead extends BcReadAbstract {
@@ -166,7 +157,7 @@ abstract class AbstractJsc3l {
     return new BcRead()
   }
 
-
+  @singleton
   getBcTransaction (
     endpointUrl, contracts, transactionDefs
   ): BcTransactionAbstract {
@@ -179,47 +170,27 @@ abstract class AbstractJsc3l {
     return new BcTransaction()
   }
 
-
-  _currencyMgrPromises = {}
+  @singleton({ noCacheOnReject: true })
   async getCurrencyMgr (
-    currencyName: string, endpointUrl?: string, repoUrl?: string,
+    currencyName: string,
+    endpointUrl?: string,
+    repoUrl?: string,
     transactionDefs?: any[],
-  ) {
-
-    const key = JSON.stringify(Array.from(arguments))
-
-    if (!this._currencyMgrPromises[key]) {
-      this._currencyMgrPromises[key] =
-        this._getCurrencyMgr(currencyName, endpointUrl, repoUrl, transactionDefs)
-    }
-
-    try {
-      return await this._currencyMgrPromises[key]
-    } catch(e) {
-      delete this._currencyMgrPromises[key]
-      throw e
-    }
-
-  }
-
-  async _getCurrencyMgr (currencyName: string,
-                         endpointUrl?: string,
-                         repoUrl?: string,
-                         transactionDefs?: any[],
-                        ): Promise<any> {
+  ): Promise<any> {
+    const connection = this.connection
     if (!repoUrl) {
-      if (this.connection.repo) {
-        repoUrl = this.connection.repo
+      if (connection.repo) {
+        repoUrl = connection.repo
       } else {
-        repoUrl = await this.connection.lookupAvailableComChainRepo()
+        repoUrl = await connection.lookupAvailableComChainRepo()
       }
     }
 
     if (!endpointUrl) {
-      if (this.connection.endpoint) {
-        endpointUrl = this.connection.endpoint
+      if (connection.endpoint) {
+        endpointUrl = connection.endpoint
       } else {
-        endpointUrl = (await this.connection.acquireEndPoint(repoUrl)).endpoint
+        endpointUrl = (await connection.acquireEndPoint(repoUrl)).endpoint
       }
     }
 
@@ -281,9 +252,6 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
    * `this.connection.getConfJSON(..)`. Although as it has some
    * fallback available, we need to be able to support being called
    * even if no local conf is loaded yet.
-   *
-   * XXXvlab: We could cache the result with result of
-   * `connection.getLocalConf()` being the key.
    */
   get customization (): CustomizationAbstract {
     // XXXvlab: Probably don't need a module for that, as the configuration
@@ -304,10 +272,6 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
    *   `this.connection.getConfJSON(..)`
    * - a loaded endpoint in `this.connection.endpoint` obtained
    *   through `this.endpoint.acquireEndPoint(..)`.
-   *
-   * XXXvlab: We could cache the result with result of
-   * `connection.getLocalConf()` and `this.connection.endpoint` being
-   * the keys.
    */
   get wallet (): MessagingWalletAbstract["constructor"] {
     if (!this.ajaxReq) {
@@ -333,13 +297,10 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
    *   `this.connection.getConfJSON(..)`
    * - a loaded endpoint in `this.connection.endpoint` obtained through
    *   `this.endpoint.acquireEndPoint(..)`.
-   *
-   * XXXvlab: We could cache the result with result of
-   * `connection.getLocalConf()` and `this.connection.endpoint` being
-   * the keys.
    */
   get bcRead (): BcReadAbstract {
-    if (!this.ajaxReq) {
+    const ajaxReq = this.ajaxReq
+    if (!ajaxReq) {
       throw new Error('an init() is required before accessing bcRead')
     }
     let localCfg: any
@@ -349,8 +310,9 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
       throw new Error('A local conf needs to be available before accessing wallet')
     }
     return this.getBcRead(
-      this.ajaxReq.endpoint.baseUrl,
-      [localCfg.getContract1(), localCfg.getContract2()]
+      ajaxReq.endpoint.baseUrl,
+      [localCfg.getContract1(), localCfg.getContract2(), localCfg.getContract3()
+]
     )
   }
 
@@ -362,10 +324,6 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
    *   `this.connection.getConfJSON(..)`
    * - a loaded endpoint in `this.connection.endpoint` obtained through
    *   `this.endpoint.acquireEndPoint(..)`.
-   *
-   * XXXvlab: We could cache the result with result of
-   * `connection.getLocalConf()` and `this.connection.endpoint` being
-   * the keys.
    */
   get bcTransaction (): BcTransactionAbstract {
     if (!this.ajaxReq) {
