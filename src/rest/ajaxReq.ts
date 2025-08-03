@@ -1,3 +1,4 @@
+import { ttlcache } from '../cache'
 
 import { APIError } from '../exception'
 
@@ -213,6 +214,7 @@ export default abstract class AjaxReqAbstract {
     return this.endpoint.post(URL.requestMessages, { data, sign })
   }
 
+  @ttlcache({ttl: 5})
   currBlock () { return this.endpoint.get(URL.SERVER) }
 
   async getBlock (hash) {
