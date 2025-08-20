@@ -41,7 +41,7 @@ javascript and transpile on file change with:
 
    ```shell
    ## Compile and watch
-   npx tspc -w
+   npx tsc -w
    ```
 
 Tests are managed through `vitest`

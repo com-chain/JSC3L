@@ -1,9 +1,10 @@
 {
   "name": "@com-chain/jsc3l",
-  "version": "2.0.1-rc.20",
+  "version": "2.0.1-rc.21",
   "description": "JavaScript Com-Chain Communication Library",
   "main": "build/index.js",
   "scripts": {
+    "prepare": "ts-patch install -s",
     "test": "vitest run",
     "build": "tsc",
     "watch": "tsc -w"
@@ -30,12 +31,12 @@
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
     "buffer": "^5.7.1",
-    "eslint": "^7.29.0",
+    "eslint": "^7.32.0",
     "eslint-config-standard": "^16.0.3",
     "jsdom": "^24.1.0",
     "ts-node": "^10.9.2",
     "ts-patch": "^3.2.1",
-    "typescript": "^5.5.3",
+    "typescript": "^5.9.2",
     "vitest": "^1.6.0"
   },
   "dependencies": {
