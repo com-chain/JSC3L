@@ -208,7 +208,6 @@ abstract class AbstractJsc3l {
       endpointUrl, currencyName, customization.getUnlockUrl()
     )
     return {
-      // unlockWallet: (jsonData, password) => wallet.getWalletFromPrivKeyFile(jsonData, password),
       jsc3l: this,
       customization,
       ajaxReq: this.getAjaxReq(endpointUrl),
@@ -273,7 +272,7 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
    * - a loaded endpoint in `this.connection.endpoint` obtained
    *   through `this.endpoint.acquireEndPoint(..)`.
    */
-  get wallet (): MessagingWalletAbstract["constructor"] {
+  get wallet (): MessagingWalletAbstract['constructor'] {
     if (!this.ajaxReq) {
       throw new Error('a connect() is required before accessing wallet')
     }
@@ -281,7 +280,9 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
     try {
       localCfg = this.customization
     } catch (e) {
-      throw new Error('A local conf needs to be available before accessing wallet')
+      throw new Error(
+        'A local conf needs to be available before accessing wallet'
+      )
     }
     return this.getWallet(
       this.ajaxReq.endpoint.baseUrl,
@@ -307,12 +308,17 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
     try {
       localCfg = this.customization
     } catch (e) {
-      throw new Error('A local conf needs to be available before accessing wallet')
+      throw new Error(
+        'A local conf needs to be available before accessing wallet'
+      )
     }
     return this.getBcRead(
       ajaxReq.endpoint.baseUrl,
-      [localCfg.getContract1(), localCfg.getContract2(), localCfg.getContract3()
-]
+      [
+        localCfg.getContract1(),
+        localCfg.getContract2(),
+        localCfg.getContract3()
+      ]
     )
   }
 
@@ -333,7 +339,9 @@ abstract class IntegratedJsc3lAbstract extends AbstractJsc3l {
     try {
       localCfg = this.customization
     } catch (e) {
-      throw new Error('A local conf needs to be available before accessing wallet')
+      throw new Error(
+        'A local conf needs to be available before accessing wallet'
+      )
     }
     return this.getBcTransaction(
       this.ajaxReq.endpoint.baseUrl,
