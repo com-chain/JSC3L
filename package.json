@@ -24,6 +24,12 @@
     "url": "https://github.com/com-chain/JSC3L/issues"
   },
   "homepage": "https://github.com/com-chain/JSC3L#readme",
+  "files": [
+    "build",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@0k.io/prettier": "^0.0.1",
     "@babel/runtime": "^7.15.4",
