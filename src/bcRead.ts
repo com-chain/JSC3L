@@ -160,6 +160,12 @@ export default abstract class BcReadAbstract {
     return decodeData('number/100', data)
   }
 
+  async getCurrencyAmount (address, blockNb) {
+    const data = await this.read(
+      this.contracts[0], address, [], blockNb)
+    return decodeData('number/100', data)
+  }
+
   async getAccInfo (address, walletAddress, blockNb) {
     const data = await this.read(
       this.contracts[0], address, [
@@ -224,6 +230,25 @@ export default abstract class BcReadAbstract {
 
 }
 
+
+const fnCurrencyHashes = [
+  {
+    fn: 'getCurrencyAmount',
+    hashes: {
+      getCurrencySupply: "0x18160ddd",
+    }
+  }
+]
+
+
+fnCurrencyHashes.forEach(({ fn, hashes }) => {
+  for (const fnName in hashes) {
+    const fnHash = hashes[fnName]
+    BcReadAbstract.prototype[fnName] = function (blockNb) {
+      return this[fn](fnHash, blockNb)
+    }
+  }
+})
 
 
 const fnHashes = [
