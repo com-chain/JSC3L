@@ -65,6 +65,20 @@ abstract class ConnectionAbstract {
   }
 
   ///
+  // [Lower level] Get the list of all known ComChain currencies from given repo
+  ///
+  async getCCCurrencyList (repo: string) {
+    try {
+      return await this.http.get(
+        repo + config.configRepo + '/list.json',
+        { _: new Date().getTime() })
+    } catch (e) {
+      console.error(`Failed to get currency list on ${repo}`, e)
+      return false
+    }
+  }
+
+  ///
   // [Lower level] Get the list of ComChain end-points from given repo
   ///
   async getCCEndPointList (repo: string) {
@@ -256,6 +270,27 @@ export default abstract class ConnectionMgrAbstract extends ConnectionAbstract {
     return conf
   }
 
+
+  /**
+   * Get list of all known ComChain currencies.
+   * Lazy-loaded and cached in memory.
+   * Returns a map of contract addresses to currency names,
+   * or an empty object on failure.
+   */
+  _currencyListPromise: Promise<Record<string, string>> | null = null
+
+  public async getCurrencyList (): Promise<Record<string, string>> {
+    if (!this._currencyListPromise) {
+      this._currencyListPromise = (async () => {
+        if (!this.repo) {
+          await this.lookupAvailableComChainRepo()
+        }
+        const list = await super.getCCCurrencyList(this.repo)
+        return list || {}
+      })()
+    }
+    return this._currencyListPromise
+  }
 
   /**
    * Return conf stored in memory or persistent storage (need to
