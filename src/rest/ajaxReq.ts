@@ -3,6 +3,12 @@ import { ttlcache } from '../cache'
 import { APIError } from '../exception'
 import { addUnwrapFn, unwrapObject } from '@0k/cache'
 
+// PHP's max_input_vars (default 1000) silently truncates POST
+// parameters beyond the limit.  Each batched ethCall produces 3
+// form fields (blockNb, ethCall[data], ethCall[to]), so we cap
+// the batch size well below ⌊1000 / 3⌋ to stay safe.
+const MAX_BATCH_SIZE = 256
+
 class URL {
   static SERVER = 'api.php';
   static ENROLL = 'enroll.php';
@@ -87,7 +93,8 @@ export default abstract class AjaxReqAbstract {
             added = true
             break
           }
-          if (req.data.hasOwnProperty("batch")) {
+          if (req.data.hasOwnProperty("batch") &&
+              req.data.batch.length < MAX_BATCH_SIZE) {
             (req.data.batch as Function[]).push(data);
             (req.resolve as Function[]).push(resolve);
             (req.reject as Function[]).push(reject)
