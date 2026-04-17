@@ -8,6 +8,7 @@ const cfg =  defineConfig({
     environment: 'jsdom',
     passWithNoTests: true,
     bail: 1,
+    pool: 'threads',  // without this, tests freezes
   },
 })
 

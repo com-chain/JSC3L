@@ -1,6 +1,7 @@
 import { ttlcache } from '../cache'
 
 import { APIError } from '../exception'
+import { addUnwrapFn, unwrapObject } from '@0k/cache'
 
 class URL {
   static SERVER = 'api.php';
@@ -51,14 +52,14 @@ export default abstract class AjaxReqAbstract {
           throw new Error("Unexpected value")
         }
         if (cmpEthCallAt(data, req.data)) {
-          return postPromises.get(req.data)
+          return postPromises.get(unwrapObject(req.data))
         }
         break
       }
       if (req.data.hasOwnProperty("batch")) {
         for (const reqData of req.data.batch) {
           if (cmpEthCallAt(data, reqData)) {
-            return postPromises.get(reqData)
+            return postPromises.get(unwrapObject(reqData))
           }
         }
         break
@@ -102,7 +103,7 @@ export default abstract class AjaxReqAbstract {
       // give the handle to potential other deferred
       setTimeout(bindQueuePost, 0)
     })
-    postPromises.set(data, promise)
+    postPromises.set(unwrapObject(data), promise)
     return promise
   }
 
@@ -231,3 +232,57 @@ export default abstract class AjaxReqAbstract {
 
 }
 
+
+/* @skip-prod-transpilation */
+if (import.meta.vitest) {
+  const { describe, it, expect, vi } = import.meta.vitest
+  const UNWRAP_KEY = Symbol.for('@0k/cache/config')
+
+  class TestAjaxReq extends AjaxReqAbstract {
+    endpoint = {
+      post: vi.fn(),
+      get: vi.fn(),
+    }
+  }
+
+  describe('AjaxReq dedup', () => {
+    it('reuses the pending promise even when the pending request object is proxied', () => {
+      vi.useFakeTimers()
+      const unwrapFns = globalThis[UNWRAP_KEY] as Function[]
+      const originalLength = unwrapFns.length
+      try {
+        addUnwrapFn((o: any) => (o?.__v_raw ? o.__v_raw : o))
+        const ajaxReq = new TestAjaxReq()
+        const ownerRequest = {
+          ethCallAt: {
+            to: '0xcontract',
+            data: '0xabcdef',
+          },
+          blockNb: 'pending',
+        }
+        const ownerPromise = ajaxReq.post(ownerRequest)
+
+        ajaxReq.pendingPosts[0].data = new Proxy(ownerRequest, {
+          get (target, prop, receiver) {
+            if (prop === '__v_raw') return target
+            return Reflect.get(target, prop, receiver)
+          },
+        })
+
+        const followerRequest = {
+          ethCallAt: {
+            to: '0xcontract',
+            data: '0xabcdef',
+          },
+          blockNb: 'pending',
+        }
+        const followerPromise = ajaxReq.post(followerRequest)
+
+        expect(followerPromise).toBe(ownerPromise)
+      } finally {
+        unwrapFns.length = originalLength
+        vi.useRealTimers()
+      }
+    })
+  })
+}
